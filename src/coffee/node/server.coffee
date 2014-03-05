@@ -8,3 +8,6 @@ app.get '/lolli', (req,res) ->
 
 app.get '/kolli', (req,res) ->
 	res.send "Lol word!"
+
+app.get '/foo', (req,res) ->
+	res.render 'index', layout: false	

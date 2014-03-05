@@ -7,7 +7,9 @@
 
   app.configure(function() {
     app.use(express["static"](__dirname + '/app'));
-    return app.use(express.bodyParser());
+    app.use(express.bodyParser());
+    app.set('views', "" + __dirname + "/app/views");
+    return app.set('view engine', 'ejs');
   });
 
   port = "4000";
@@ -33,6 +35,12 @@
 
   app.get('/kolli', function(req, res) {
     return res.send("Lol word!");
+  });
+
+  app.get('/foo', function(req, res) {
+    return res.render('index', {
+      layout: false
+    });
   });
 
 }).call(this);
