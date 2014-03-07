@@ -1,9 +1,13 @@
 (function() {
-  var RegistrationSchema, app, dburl, express, io, port;
+  var RegistrationSchema, app, dburl, express, io, port, server;
 
   express = require('express');
 
   global.app = app = express();
+
+  server = require('http').createServer(app);
+
+  io = require('socket.io').listen(server);
 
   app.configure(function() {
     app.use(express["static"](__dirname + '/app'));
@@ -24,11 +28,14 @@
 
   port = "4000";
 
-  app.listen(process.env.PORT || port);
-
   console.log("Server Started at http://localhost:" + port);
 
-  io = require('socket.io').listen(5000);
+  server.listen(process.env.PORT || port);
+
+  io.configure(function() {
+    io.set("transports", ["xhr-polling"]);
+    return io.set("polling duration", 20);
+  });
 
   io.sockets.on('connection', function(socket) {
     console.log("new socket registered");
@@ -37,10 +44,6 @@
       name: 'joined'
     });
     return socket.on('my other event', function(data) {
-      socket.emit('news', {
-        name: 'itwasme!'
-      });
-      console.log("AAAAA");
       io.sockets.emit('news', {
         name: data
       });

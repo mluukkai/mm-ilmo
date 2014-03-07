@@ -37,7 +37,7 @@
   angular.module('eventApp', []).controller('EventCtrl', [
     '$scope', '$http', function($scope, $http) {
       var socket;
-      socket = io.connect('http://localhost:5000');
+      socket = io.connect();
       $http.get('event').success(function(data) {
         return $scope.event = data;
       });

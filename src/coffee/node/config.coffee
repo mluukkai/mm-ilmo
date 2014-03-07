@@ -1,5 +1,8 @@
 express = require 'express'
 global.app = app = express()
+server = require('http').createServer(app)
+io = require('socket.io').listen(server)
+
 app.configure ->
 	app.use(express.static(__dirname + '/app'))
 	app.use(express.bodyParser())
@@ -14,10 +17,12 @@ process.env.MONGOHQ_URL || "mongodb://localhost:27017/mydb"
 mongoose.connect(dburl)
 
 port = "4000"
-app.listen(process.env.PORT || port);
 console.log "Server Started at http://localhost:#{port}"	
+server.listen(process.env.PORT || port);
 
-io = require('socket.io').listen(5000)
+io.configure () ->
+  io.set("transports", ["xhr-polling"]) 
+  io.set("polling duration", 20)
 
 io.sockets.on 'connection', (socket) ->
   console.log "new socket registered"

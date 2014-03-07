@@ -1,7 +1,7 @@
 angular
   .module('eventApp', [])
   .controller('EventCtrl', ['$scope', '$http', ($scope, $http)->
-  		socket = io.connect('http://http://ilmo.herokuapp.com/:5000')
+  		socket = io.connect()
 
   		$http.get('event').success (data) ->
   			$scope.event = data 
