@@ -1,5 +1,5 @@
 (function() {
-  var app, dburl, express, port;
+  var RegistrationSchema, app, dburl, express, io, port;
 
   express = require('express');
 
@@ -27,6 +27,26 @@
   app.listen(process.env.PORT || port);
 
   console.log("Server Started at http://localhost:" + port);
+
+  io = require('socket.io').listen(5000);
+
+  io.sockets.on('connection', function(socket) {
+    console.log("new socket registered");
+    console.log(io.sockets);
+    socket.emit('news', {
+      name: 'joined'
+    });
+    return socket.on('my other event', function(data) {
+      socket.emit('news', {
+        name: 'itwasme!'
+      });
+      console.log("AAAAA");
+      io.sockets.emit('news', {
+        name: data
+      });
+      return console.log(io.sockets);
+    });
+  });
 
   global.Todo = mongoose.model('Todo', new Schema({
     id: ObjectId,
@@ -97,6 +117,55 @@
         return res.json(_this.todos);
       }
     });
+  });
+
+  RegistrationSchema = new Schema({
+    id: ObjectId,
+    name: String,
+    created_at: {
+      type: Date,
+      "default": Date.now
+    }
+  });
+
+  global.Registration = mongoose.model('Registration', RegistrationSchema);
+
+  global.Event = mongoose.model('Event', new Schema({
+    id: ObjectId,
+    name: String,
+    registrations: [RegistrationSchema],
+    created_at: {
+      type: Date,
+      "default": Date.now
+    }
+  }));
+
+  app.get('/event', function(req, res) {
+    return Event.findById("5319a5152b7b7800e3a46961", function(err, event) {
+      return res.send(event);
+    });
+  });
+
+  app.post('/event', function(req, res) {
+    return Event.findById("5319a5152b7b7800e3a46961", function(err, event) {
+      var r;
+      console.log(event);
+      r = new Registration({
+        name: req.param('name')
+      });
+      return event.registrations.push(r);
+    });
+  });
+
+  app.get('/events', function(req, res) {
+    var event, r;
+    event = new Event({
+      name: "luento"
+    });
+    event.save;
+    r = new Registration;
+    r.save;
+    return res.send("bad");
   });
 
 }).call(this);

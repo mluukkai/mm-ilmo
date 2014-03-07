@@ -10,7 +10,7 @@ module.exports = (grunt)->
       compile:
         files:
           'server.js': 'src/coffee/node/*.coffee'  # 1:1 compile server file
-          'app/js/app.js': ['src/coffee/angular/*.coffee']  # concat then compile angular js into single file
+          'app/js/app.js': ['src/coffee/angular/*.coffee']  # concat then compile angular js into single file    
 
     concurrent:
         server_watch: ['nodemon', 'watch']

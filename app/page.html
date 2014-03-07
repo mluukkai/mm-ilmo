@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" ng-app="eventApp">
+<head>
+  <meta charset="utf-8">
+  <title>App</title>
+  <link rel="stylesheet" href="css/bootstrap.css"/>
+  <link rel="stylesheet" href="css/app.css"/>
+</head>
+<body ng-controller="EventCtrl">
+  <h1>{{event.name}}</h1>
+
+  <input ng-model="name"> </input>
+  <button ng-click="register()">register</button>
+
+  <ul>
+  	<li ng-repeat="reg in event.registrations">
+  		{{reg.name}}
+  	</li>
+  </ul>
+
+  <script src="lib/angular.js"></script>
+  <script src="js/app.js"></script>
+
+  <script src="lib/bootstrap.js"></script>
+  <script src="lib/d3.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+</body>

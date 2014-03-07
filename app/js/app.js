@@ -34,6 +34,27 @@
 }).call(this);
 
 (function() {
+  angular.module('eventApp', []).controller('EventCtrl', [
+    '$scope', '$http', function($scope, $http) {
+      var socket;
+      socket = io.connect('http://localhost:5000');
+      $http.get('event').success(function(data) {
+        return $scope.event = data;
+      });
+      $scope.register = function() {
+        socket.emit('my other event', $scope.name);
+        return $scope.name = "";
+      };
+      return socket.on('news', function(data) {
+        $scope.event.registrations.push(data);
+        return $scope.$apply();
+      });
+    }
+  ]);
+
+}).call(this);
+
+(function() {
   angular.module('myApp.filters', []).filter('interpolate', [
     'version', function(version) {
       return function(text) {

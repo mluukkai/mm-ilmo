@@ -17,6 +17,17 @@ port = "4000"
 app.listen(process.env.PORT || port);
 console.log "Server Started at http://localhost:#{port}"	
 
+io = require('socket.io').listen(5000)
+
+io.sockets.on 'connection', (socket) ->
+  console.log "new socket registered"
+  console.log io.sockets 
+  socket.emit 'news', { name: 'joined' } 
+  socket.on 'my other event', (data) ->
+  	#socket.emit 'news', { name: 'itwasme!' } 
+  	io.sockets.emit 'news', { name: data }
+  	console.log io.sockets 
+
 global.Todo = mongoose.model 'Todo', new Schema
 	id: ObjectId
 	title:
@@ -61,4 +72,51 @@ app.get '/mongot', (req,res) ->
 			res.send "bad"
 		else
 			res.json @todos
+
+RegistrationSchema = new Schema
+	id: ObjectId
+	name: String
+	created_at:
+		type: Date
+		default: Date.now
+
+global.Registration = mongoose.model 'Registration', RegistrationSchema
+
+global.Event = mongoose.model 'Event', new Schema
+	id: ObjectId
+	name: String
+	registrations: [RegistrationSchema]	
+	created_at:
+		type: Date
+		default: Date.now
+
+app.get '/event', (req,res) ->
+	Event.findById "5319a5152b7b7800e3a46961", (err, event) ->
+		res.send event
+
+app.post '/event', (req,res) ->
+	Event.findById "5319a5152b7b7800e3a46961", (err, event) ->
+		console.log event
+		r = new Registration( {name:req.param('name')} )
+		event.registrations.push r
+		#io.sockets.emit('news', r)
+ 
+		#event.save (err) =>
+		#	if err?
+		#		res.json {}
+		#	else
+		#		res.json event
+
+app.get '/events', (req,res) ->
+	event = new Event({name: "luento"})
+	event.save
+	r = new Registration
+	r.save
+	res.send "bad"
+
+
+
+
+
+
 
