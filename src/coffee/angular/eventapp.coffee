@@ -7,9 +7,9 @@ angular
   			$scope.event = data 
 
   		$scope.register = ->
-  			socket.emit 'my other event', $scope.name
-  			#$http.post('event', { name: $scope.name}).success (data) ->
-  			#	console.log "yes!"
+  			#socket.emit 'my other event', $scope.name
+  			$http.post('event', { name: $scope.name}).success (data) ->
+  				console.log "yes!"
   			$scope.name = ""
   		
   		socket.on 'news', (data) -> 

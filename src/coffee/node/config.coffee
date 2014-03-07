@@ -132,13 +132,13 @@ app.post '/event', (req,res) ->
 		console.log event
 		r = new Registration( {name:req.param('name')} )
 		event.registrations.push r
-		#io.sockets.emit('news', r)
+		io.sockets.emit('news', r)
  
-		#event.save (err) =>
-		#	if err?
-		#		res.json {}
-		#	else
-		#		res.json event
+		event.save (err) =>
+			if err?
+				res.json {}
+			else
+				res.json event
 
 app.get '/events', (req,res) ->
 	event = new Event({name: "luento"})

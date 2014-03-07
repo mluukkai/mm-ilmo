@@ -204,7 +204,8 @@
     return Event.findOne({
       active: true
     }, function(err, event) {
-      var r;
+      var r,
+        _this = this;
       if (err != null) {
         event(new Event({
           name: "Luento"
@@ -214,7 +215,15 @@
       r = new Registration({
         name: req.param('name')
       });
-      return event.registrations.push(r);
+      event.registrations.push(r);
+      io.sockets.emit('news', r);
+      return event.save(function(err) {
+        if (err != null) {
+          return res.json({});
+        } else {
+          return res.json(event);
+        }
+      });
     });
   });
 

@@ -42,7 +42,11 @@
         return $scope.event = data;
       });
       $scope.register = function() {
-        socket.emit('my other event', $scope.name);
+        $http.post('event', {
+          name: $scope.name
+        }).success(function(data) {
+          return console.log("yes!");
+        });
         return $scope.name = "";
       };
       return socket.on('news', function(data) {
