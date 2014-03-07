@@ -144,14 +144,25 @@
   }));
 
   app.get('/event', function(req, res) {
-    return Event.findById("5319a5152b7b7800e3a46961", function(err, event) {
-      return res.send(event);
+    return Event.findById("5319a5152b7b7800e3a469611", function(err, event) {
+      if (err != null) {
+        return res.send(new Event({
+          name: "Luento"
+        }));
+      } else {
+        return res.send(event);
+      }
     });
   });
 
   app.post('/event', function(req, res) {
     return Event.findById("5319a5152b7b7800e3a46961", function(err, event) {
       var r;
+      if (err != null) {
+        event(new Event({
+          name: "Luento"
+        }));
+      }
       console.log(event);
       r = new Registration({
         name: req.param('name')

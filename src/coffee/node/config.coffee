@@ -96,7 +96,7 @@ global.Event = mongoose.model 'Event', new Schema
 		default: Date.now
 
 app.get '/event', (req,res) ->
-	Event.findById "5319a5152b7b7800e3a46961", (err, event) ->
+	Event.findById "5319a5152b7b7800e3a469611", (err, event) ->
 		if err?
 			res.send new Event({name:"Luento"})
 		else 
