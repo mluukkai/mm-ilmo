@@ -90,20 +90,42 @@ global.Registration = mongoose.model 'Registration', RegistrationSchema
 global.Event = mongoose.model 'Event', new Schema
 	id: ObjectId
 	name: String
+	test: String
+	active: Boolean
 	registrations: [RegistrationSchema]	
 	created_at:
 		type: Date
 		default: Date.now
 
+app.get '/reset', (req,res) ->
+	Event.update {active:true}, { $set: { active:false} }  , (err) =>
+		res.send {}
+
+
+app.post '/events', (req,res) ->
+	event = new Event({name: req.param('name'), active: req.param('active')})
+	event.save (err) =>
+		if err?
+			res.json {}
+		else
+			res.json event
+
+app.get '/events', (req,res) ->
+	Event.find {}, (err, @events) =>
+		if err?
+			res.send {}
+		else
+			res.json @events
+
 app.get '/event', (req,res) ->
-	Event.findById "5319a5152b7b7800e3a469611", (err, event) ->
+	Event.findOne { active:true }, (err, event) ->
 		if err?
 			res.send new Event({name:"Luento"})
 		else 
 			res.send event
 
 app.post '/event', (req,res) ->
-	Event.findById "5319a5152b7b7800e3a46961", (err, event) ->
+	Event.findOne { active:true }, (err, event) ->
 		if err?
 			event new Event({name:"Luento"})
 

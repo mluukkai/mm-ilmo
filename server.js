@@ -136,6 +136,8 @@
   global.Event = mongoose.model('Event', new Schema({
     id: ObjectId,
     name: String,
+    test: String,
+    active: Boolean,
     registrations: [RegistrationSchema],
     created_at: {
       type: Date,
@@ -143,8 +145,51 @@
     }
   }));
 
+  app.get('/reset', function(req, res) {
+    var _this = this;
+    return Event.update({
+      active: true
+    }, {
+      $set: {
+        active: false
+      }
+    }, function(err) {
+      return res.send({});
+    });
+  });
+
+  app.post('/events', function(req, res) {
+    var event,
+      _this = this;
+    event = new Event({
+      name: req.param('name'),
+      active: req.param('active')
+    });
+    return event.save(function(err) {
+      if (err != null) {
+        return res.json({});
+      } else {
+        return res.json(event);
+      }
+    });
+  });
+
+  app.get('/events', function(req, res) {
+    var _this = this;
+    return Event.find({}, function(err, events) {
+      _this.events = events;
+      if (err != null) {
+        return res.send({});
+      } else {
+        return res.json(_this.events);
+      }
+    });
+  });
+
   app.get('/event', function(req, res) {
-    return Event.findById("5319a5152b7b7800e3a469611", function(err, event) {
+    return Event.findOne({
+      active: true
+    }, function(err, event) {
       if (err != null) {
         return res.send(new Event({
           name: "Luento"
@@ -156,7 +201,9 @@
   });
 
   app.post('/event', function(req, res) {
-    return Event.findById("5319a5152b7b7800e3a46961", function(err, event) {
+    return Event.findOne({
+      active: true
+    }, function(err, event) {
       var r;
       if (err != null) {
         event(new Event({
