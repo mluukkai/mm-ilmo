@@ -117,6 +117,13 @@ app.get '/events', (req,res) ->
 		else
 			res.json @events
 
+app.get '/events/:id', (req,res) ->
+	Event.findById req.param('id'), (err, @event) =>
+		if err?
+			res.json {}
+		else
+			res.json @event
+
 app.get '/event', (req,res) ->
 	Event.findOne { active:true }, (err, event) ->
 		if err?
@@ -140,12 +147,7 @@ app.post '/event', (req,res) ->
 			else
 				res.json event
 
-app.get '/events', (req,res) ->
-	event = new Event({name: "luento"})
-	event.save
-	r = new Registration
-	r.save
-	res.send "bad"
+
 
 
 

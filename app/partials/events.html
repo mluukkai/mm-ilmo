@@ -1,0 +1,9 @@
+<h1>Events</h1>
+
+<ul>
+	<li ng-repeat="event in events">
+		{{event.name}}	registrations {{event.registrations.length}}
+		<a href="#/events/{{event._id}}">view</a>		
+	</li>
+</ul>
+  

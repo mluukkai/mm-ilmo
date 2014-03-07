@@ -1,0 +1,9 @@
+<h1>{{event.name}}</h1>
+
+<p>registrations {{event.registrations.length}}</p>
+
+  <ul>
+  	<li ng-repeat="reg in event.registrations">
+  		{{reg.name}}
+  	</li>
+  </ul>

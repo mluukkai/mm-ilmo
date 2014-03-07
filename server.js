@@ -186,6 +186,18 @@
     });
   });
 
+  app.get('/events/:id', function(req, res) {
+    var _this = this;
+    return Event.findById(req.param('id'), function(err, event) {
+      _this.event = event;
+      if (err != null) {
+        return res.json({});
+      } else {
+        return res.json(_this.event);
+      }
+    });
+  });
+
   app.get('/event', function(req, res) {
     return Event.findOne({
       active: true
@@ -225,17 +237,6 @@
         }
       });
     });
-  });
-
-  app.get('/events', function(req, res) {
-    var event, r;
-    event = new Event({
-      name: "luento"
-    });
-    event.save;
-    r = new Registration;
-    r.save;
-    return res.send("bad");
   });
 
 }).call(this);

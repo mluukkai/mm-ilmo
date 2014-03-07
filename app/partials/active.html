@@ -1,0 +1,12 @@
+  <h1>{{event.name}}</h1>
+
+  <input ng-model="name"> </input>
+  <button ng-click="register()">register</button>
+
+  <ul>
+  	<li ng-repeat="reg in event.registrations">
+  		{{reg.name}}
+  	</li>
+  </ul>
+
+  {{msg}}
