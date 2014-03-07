@@ -97,10 +97,16 @@ global.Event = mongoose.model 'Event', new Schema
 
 app.get '/event', (req,res) ->
 	Event.findById "5319a5152b7b7800e3a46961", (err, event) ->
-		res.send event
+		if err?
+			res.send new Event({name:"Luento"})
+		else 
+			res.send event
 
 app.post '/event', (req,res) ->
 	Event.findById "5319a5152b7b7800e3a46961", (err, event) ->
+		if err?
+			event new Event({name:"Luento"})
+
 		console.log event
 		r = new Registration( {name:req.param('name')} )
 		event.registrations.push r
