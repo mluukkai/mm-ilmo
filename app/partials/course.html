@@ -1,0 +1,34 @@
+<h1>{{course.name}} {{course.term}}</h1>
+
+<p>by {{course.teachers}}</p>
+
+<h3>lectures</h3>
+
+<table class="table">
+	<thead>
+		<th>date</th>
+		<th>time</th>
+		<th>room</th>	
+	</thead>
+	<tbody>
+		<tr ng-repeat="lecture in course.lectures">
+			<td>{{lecture.date}}</td>
+			<td>{{lecture.time}}</td>
+			<td>{{lecture.plave}}</td>
+			<td><a href="#lectures/{{lecture._id}}">open</a></td>
+		</tr>
+	</tbody>
+</table>
+
+<h3 ng-init="visible=false" ng-click="visible=!visible">new lecture</h3>
+
+<form ng-show="visible">
+	date <input type="date" ng-model="lecture.date"></input>
+	time <input type="time" ng-model="lecture.time"></input>
+	place <input ng-model="lecture.place"></input>
+	<button ng-click="createLecture()">create</button>
+</form>
+
+
+
+

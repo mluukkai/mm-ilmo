@@ -1,6 +1,12 @@
 angular
-  .module('registerApp', [])
+  .module('registerApp', ['ngRoute'])
   .config(['$routeProvider', ($routeProvider)->
+	$routeProvider.when '/courses', 
+    	templateUrl: 'partials/courses.html' 
+    	controller: 'CoursesCtrl'
+    $routeProvider.when '/courses/:id', 
+    	templateUrl: 'partials/course.html' 
+    	controller: 'CourseCtrl'
     $routeProvider.when '/active', 
     	templateUrl: 'partials/active.html' 
     	controller: 'ActiveEventCtrl'	
@@ -43,4 +49,42 @@ angular
   			$scope.event = data 
   			
     ])  
+  .controller('CoursesCtrl', ['$scope', '$http',  ($scope, $http) ->
+  		$scope.new = 
+  			name:"Ohtu"
+  			term:"spring 2014"
+  			teacher:"mluukkai"
 
+  		$http.get("courses").success (data) ->
+  			$scope.courses = data 
+
+  		$scope.newCourse = () ->
+  			$http.post('courses', $scope.new).success (data) ->
+  				console.log data
+  				$scope.courses.push data
+  			$scope.new = ""	
+  			
+    ])
+  .controller('CourseCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->
+
+  		$http.get("courses/#{$routeParams.id}").success (data) ->
+  			$scope.course = data 
+  		
+  		$scope.createLecture = ->
+  			$scope.lecture.course_id = $routeParams.id
+  			console.log $scope.lecture
+  			$http.post('lectures', $scope.lecture ).success (data) ->
+  				console.log data	
+  				$scope.course.lectures.push data
+
+  		today = new Date()
+  		month = "#{today.getMonth()+1}"
+  		month = "0"+month if (today.getMonth()+1)<10 
+  		day = "#{today.getDate()}"
+  		day = "0"+day if (today.getDate()<10)
+
+  		$scope.lecture = 
+  			place: 'exactum'
+  			time: "12:15"
+  			date: "#{today.getYear()+1900}-#{month}-#{day}"
+    ]) 

@@ -11,6 +11,13 @@ module.exports = (grunt)->
         files:
           'server.js': 'src/coffee/node/*.coffee'  # 1:1 compile server file
           'app/js/app.js': ['src/coffee/angular/*.coffee']  # concat then compile angular js into single file    
+      glob_to_multiple: 
+        expand: true
+        flatten: true
+        cwd: 'src/coffee/lib'
+        src: ['*.coffee']
+        dest: 'lib'
+        ext: '.js'    
 
     concurrent:
         server_watch: ['nodemon', 'watch']
@@ -43,7 +50,7 @@ module.exports = (grunt)->
 
     watch:
       coffee:
-        files: ['src/coffee/angular/*', 'src/coffee/node/*']
+        files: ['src/coffee/angular/*', 'src/coffee/node/*', 'src/coffee/lib/*']
         tasks: ['coffee']
         options:
           livereload: true  # default port 35729

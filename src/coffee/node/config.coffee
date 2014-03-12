@@ -148,10 +148,81 @@ app.post '/event', (req,res) ->
 				res.json event
 
 
+libbi = require('./lib/lib')
+libbi.koe()
 
+CourseSchema = new Schema
+	id: ObjectId
+	name: String
+	term: String
+	active: Boolean
+	teachers: [String]
+	lectures: [
+		type: mongoose.Schema.Types.ObjectId
+		ref: 'Lecture'
+	]
+	created_at:
+		type: Date
+		default: Date.now
 
+LectureSchema = new Schema
+	id: ObjectId
+	time: String
+	date: String
+	place: String
+	course:
+		type: mongoose.Schema.Types.ObjectId
+		ref: 'Course'
+	created_at:
+		type: Date
+		default: Date.now
 
+Course = mongoose.model 'Course', CourseSchema	
+Lecture = mongoose.model 'Lecture', LectureSchema
 
+app.get '/courses', (req,res) ->
+	Course.find {}, (err, @courses) =>
+		if err?
+			res.send {}
+		else
+			res.json @courses
 
+app.get '/courses/:id', (req,res) ->
+	Course.findById(req.param('id'))
+	.populate('lectures')
+	.exec (err, @course) =>
+		if err?
+			res.json {}
+		else
+			res.json @course
 
+app.post '/courses', (req,res) ->
+	data =
+		name: req.param('name')
+		term: req.param('term')
+		active: req.param('active')
+		teachers: [ req.param('teacher') ]
+		active: false
+	course = new Course(data)
+	course.save (err) =>
+		if err?
+			res.json {}
+		else
+			res.json course
 
+app.post '/lectures', (req,res) ->
+	data =
+		date: req.param('date')
+		time: req.param('time')
+		place: req.param('place')
+		course: req.param('course_id')
+	lecture = new Lecture(data)
+	lecture.save (err) =>
+		if err?
+			res.json {}
+		else
+			Course.findById req.param('course_id'), (err, course) =>
+				course.lectures.push lecture._id
+				course.save (err) ->
+					console.log err
+			res.json lecture			

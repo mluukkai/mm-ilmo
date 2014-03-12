@@ -70,8 +70,16 @@
 }).call(this);
 
 (function() {
-  angular.module('registerApp', []).config([
+  angular.module('registerApp', ['ngRoute']).config([
     '$routeProvider', function($routeProvider) {
+      $routeProvider.when('/courses', {
+        templateUrl: 'partials/courses.html',
+        controller: 'CoursesCtrl'
+      });
+      $routeProvider.when('/courses/:id', {
+        templateUrl: 'partials/course.html',
+        controller: 'CourseCtrl'
+      });
       $routeProvider.when('/active', {
         templateUrl: 'partials/active.html',
         controller: 'ActiveEventCtrl'
@@ -123,6 +131,53 @@
       return $http.get("events/" + $routeParams.id).success(function(data) {
         return $scope.event = data;
       });
+    }
+  ]).controller('CoursesCtrl', [
+    '$scope', '$http', function($scope, $http) {
+      $scope["new"] = {
+        name: "Ohtu",
+        term: "spring 2014",
+        teacher: "mluukkai"
+      };
+      $http.get("courses").success(function(data) {
+        return $scope.courses = data;
+      });
+      return $scope.newCourse = function() {
+        $http.post('courses', $scope["new"]).success(function(data) {
+          console.log(data);
+          return $scope.courses.push(data);
+        });
+        return $scope["new"] = "";
+      };
+    }
+  ]).controller('CourseCtrl', [
+    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+      var day, month, today;
+      $http.get("courses/" + $routeParams.id).success(function(data) {
+        return $scope.course = data;
+      });
+      $scope.createLecture = function() {
+        $scope.lecture.course_id = $routeParams.id;
+        console.log($scope.lecture);
+        return $http.post('lectures', $scope.lecture).success(function(data) {
+          console.log(data);
+          return $scope.course.lectures.push(data);
+        });
+      };
+      today = new Date();
+      month = "" + (today.getMonth() + 1);
+      if ((today.getMonth() + 1) < 10) {
+        month = "0" + month;
+      }
+      day = "" + (today.getDate());
+      if (today.getDate() < 10) {
+        day = "0" + day;
+      }
+      return $scope.lecture = {
+        place: 'exactum',
+        time: "12:15",
+        date: "" + (today.getYear() + 1900) + "-" + month + "-" + day
+      };
     }
   ]);
 
