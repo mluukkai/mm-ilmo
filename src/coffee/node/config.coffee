@@ -151,6 +151,9 @@ app.post '/event', (req,res) ->
 libbi = require('./lib/lib')
 libbi.koe()
 
+k = new libbi.Koe()
+console.log k.foo()
+
 CourseSchema = new Schema
 	id: ObjectId
 	name: String
@@ -160,6 +163,10 @@ CourseSchema = new Schema
 	lectures: [
 		type: mongoose.Schema.Types.ObjectId
 		ref: 'Lecture'
+	]
+	participants: [
+		type: mongoose.Schema.Types.ObjectId
+		ref: 'Student'
 	]
 	created_at:
 		type: Date
@@ -173,12 +180,29 @@ LectureSchema = new Schema
 	course:
 		type: mongoose.Schema.Types.ObjectId
 		ref: 'Course'
+	participants: [
+		type: mongoose.Schema.Types.ObjectId
+		ref: 'Student'
+	]	
 	created_at:
 		type: Date
 		default: Date.now
 
+StudentSchema = new Schema
+	id: ObjectId
+	first_name: String
+	last_name: String
+	name: String
+	number: String
+	created_at:
+		type: Date
+		default: Date.now		
+
 Course = mongoose.model 'Course', CourseSchema	
 Lecture = mongoose.model 'Lecture', LectureSchema
+Student = mongoose.model 'Student', StudentSchema
+
+#responder = require('./lib/responder')
 
 app.get '/courses', (req,res) ->
 	Course.find {}, (err, @courses) =>
@@ -190,6 +214,7 @@ app.get '/courses', (req,res) ->
 app.get '/courses/:id', (req,res) ->
 	Course.findById(req.param('id'))
 	.populate('lectures')
+	.populate('participants')
 	.exec (err, @course) =>
 		if err?
 			res.json {}
@@ -225,4 +250,47 @@ app.post '/lectures', (req,res) ->
 				course.lectures.push lecture._id
 				course.save (err) ->
 					console.log err
-			res.json lecture			
+			res.json lecture
+
+app.get '/lectures/:id', (req,res) ->
+	Lecture.findById(req.param('id'))
+	.populate('course', 'name term')
+	.exec (err, lecture) ->
+		if err?
+			res.json {}
+		else
+			res.json lecture
+
+app.post '/registrations', (req, res) ->
+	found = (student, students) ->
+		for s in students
+			return true if s.toString()==student
+		false	
+
+	Lecture.findById req.param('lecture_id'), (err, lecture) ->
+		lecture.participants.push req.param('student_id') unless found(req.param('student_id'), lecture.participants)
+		lecture.save (err) ->	
+			data =
+				student: req.param('student_id')
+				lecture: lecture._id
+			res.json {data}
+
+app.post '/students', (req,res) ->
+	data =
+		first_name: req.param('first_name')
+		last_name: req.param('last_name')
+		name: "#{req.param('last_name')} #{req.param('first_name')}"
+		number: req.param('number')
+	student = new Student(data)
+	Course.findById req.param('course_id'), (err, course) ->
+		course.participants.push student._id
+		course.save (err) ->
+			if err? 
+				res.json {}
+			else	
+				student.save (err) ->
+				if err?
+					res.json {}
+				else
+					res.json student	
+

@@ -80,6 +80,10 @@
         templateUrl: 'partials/course.html',
         controller: 'CourseCtrl'
       });
+      $routeProvider.when('/lectures/:id', {
+        templateUrl: 'partials/lecture.html',
+        controller: 'LectureCtrl'
+      });
       $routeProvider.when('/active', {
         templateUrl: 'partials/active.html',
         controller: 'ActiveEventCtrl'
@@ -158,11 +162,18 @@
       });
       $scope.createLecture = function() {
         $scope.lecture.course_id = $routeParams.id;
-        console.log($scope.lecture);
         return $http.post('lectures', $scope.lecture).success(function(data) {
           console.log(data);
           return $scope.course.lectures.push(data);
         });
+      };
+      $scope.registerStudent = function() {
+        $scope.student.course_id = $routeParams.id;
+        $http.post('students', $scope.student).success(function(data) {
+          console.log(data);
+          return $scope.course.participants.push(data);
+        });
+        return $scope.student = {};
       };
       today = new Date();
       month = "" + (today.getMonth() + 1);
@@ -177,6 +188,46 @@
         place: 'exactum',
         time: "12:15",
         date: "" + (today.getYear() + 1900) + "-" + month + "-" + day
+      };
+    }
+  ]).controller('LectureCtrl', [
+    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+      var matches;
+      matches = function(word) {
+        var count, student, _i, _len, _ref;
+        count = 0;
+        _ref = $scope.students;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          student = _ref[_i];
+          if (student.name.toUpperCase().indexOf(word) !== -1) {
+            count += 1;
+          }
+        }
+        return count;
+      };
+      $http.get("lectures/" + $routeParams.id).success(function(data) {
+        $scope.lecture = data;
+        return $http.get("courses/" + data.course._id).success(function(course) {
+          return $scope.students = course.participants;
+        });
+      });
+      $scope.register = function(student_id) {
+        var data;
+        console.log(student_id);
+        data = {
+          student_id: student_id,
+          lecture_id: $routeParams.id
+        };
+        return $http.post("registrations", data).success(function(response) {
+          console.log(response);
+          console.log(response.data.student);
+          return $scope.lecture.participants.push(response.data.student);
+        });
+      };
+      $scope.search = "";
+      $scope.students = [];
+      return $scope.condition = function(item) {
+        return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 3;
       };
     }
   ]);

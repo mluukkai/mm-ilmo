@@ -14,13 +14,30 @@
 		<tr ng-repeat="lecture in course.lectures">
 			<td>{{lecture.date}}</td>
 			<td>{{lecture.time}}</td>
-			<td>{{lecture.plave}}</td>
+			<td>{{lecture.place}}</td>
 			<td><a href="#lectures/{{lecture._id}}">open</a></td>
 		</tr>
 	</tbody>
 </table>
 
-<h3 ng-init="visible=false" ng-click="visible=!visible">new lecture</h3>
+<h3>Participants</h3>
+
+<ul>
+	<li ng-repeat="student in course.participants">
+		{{student.name}} {{student.number}}
+	</li>
+</ul>
+
+<h3>Register a student</h3>
+
+<form>
+	first name <input ng-model="student.first_name"></input>
+	second name <input ng-model="student.last_name"></input>
+	number <input ng-model="student.number"></input>
+	<button ng-click="registerStudent()">register</button>
+</form>
+
+<h3 ng-init="visible=false" ng-click="visible=!visible">create a new lecture</h3>
 
 <form ng-show="visible">
 	date <input type="date" ng-model="lecture.date"></input>

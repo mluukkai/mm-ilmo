@@ -7,6 +7,9 @@ angular
     $routeProvider.when '/courses/:id', 
     	templateUrl: 'partials/course.html' 
     	controller: 'CourseCtrl'
+    $routeProvider.when '/lectures/:id', 
+    	templateUrl: 'partials/lecture.html' 
+    	controller: 'LectureCtrl'	
     $routeProvider.when '/active', 
     	templateUrl: 'partials/active.html' 
     	controller: 'ActiveEventCtrl'	
@@ -72,10 +75,16 @@ angular
   		
   		$scope.createLecture = ->
   			$scope.lecture.course_id = $routeParams.id
-  			console.log $scope.lecture
   			$http.post('lectures', $scope.lecture ).success (data) ->
   				console.log data	
   				$scope.course.lectures.push data
+
+  		$scope.registerStudent = ->
+  			$scope.student.course_id = $routeParams.id
+  			$http.post('students', $scope.student).success (data) ->
+  				console.log data
+  				$scope.course.participants.push data
+  			$scope.student = {}	
 
   		today = new Date()
   		month = "#{today.getMonth()+1}"
@@ -88,3 +97,31 @@ angular
   			time: "12:15"
   			date: "#{today.getYear()+1900}-#{month}-#{day}"
     ]) 
+    .controller('LectureCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->
+    	matches = (word) ->
+    		count = 0
+    		for student in $scope.students	
+    			count+=1 if student.name.toUpperCase().indexOf(word) != -1
+    		count	
+
+    	$http.get("lectures/#{$routeParams.id}").success (data) ->
+    		$scope.lecture = data
+    		$http.get("courses/#{data.course._id}").success (course) ->
+    			$scope.students = course.participants
+
+    	$scope.register = (student_id) ->
+    		console.log student_id
+    		data =
+    			student_id: student_id
+    			lecture_id: $routeParams.id
+    		$http.post("registrations", data).success (response) ->
+    			console.log response
+    			console.log response.data.student
+    			$scope.lecture.participants.push response.data.student 
+
+    	$scope.search = ""
+    	$scope.students = []
+
+    	$scope.condition = (item) ->
+    		$scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<3
+    ])

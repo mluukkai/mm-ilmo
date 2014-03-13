@@ -12,14 +12,13 @@
 			<td>{{course.term}}</td>
 			<td>{{course.teachers}}</td>
 			<td><a href="#courses/{{course._id}}">open</a></td>
-			<td>{{course}}</td>
 		</tr>
 	</tbody>
 </table>
 
-<h3>create a new</h3>
+<h3 ng-init="visible=false" ng-click="visible=!visible">create a new course</h3>
 
-<form>
+<form ng-show="visible">
 	<div>
 		name <input ng-model="new.name"></input>
 	</div>

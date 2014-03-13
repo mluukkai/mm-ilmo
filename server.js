@@ -1,5 +1,5 @@
 (function() {
-  var Course, CourseSchema, Lecture, LectureSchema, RegistrationSchema, app, dburl, express, io, libbi, port, server;
+  var Course, CourseSchema, Lecture, LectureSchema, RegistrationSchema, Student, StudentSchema, app, dburl, express, io, k, libbi, port, server;
 
   express = require('express');
 
@@ -243,6 +243,10 @@
 
   libbi.koe();
 
+  k = new libbi.Koe();
+
+  console.log(k.foo());
+
   CourseSchema = new Schema({
     id: ObjectId,
     name: String,
@@ -253,6 +257,12 @@
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Lecture'
+      }
+    ],
+    participants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student'
       }
     ],
     created_at: {
@@ -270,6 +280,24 @@
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course'
     },
+    participants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student'
+      }
+    ],
+    created_at: {
+      type: Date,
+      "default": Date.now
+    }
+  });
+
+  StudentSchema = new Schema({
+    id: ObjectId,
+    first_name: String,
+    last_name: String,
+    name: String,
+    number: String,
     created_at: {
       type: Date,
       "default": Date.now
@@ -279,6 +307,8 @@
   Course = mongoose.model('Course', CourseSchema);
 
   Lecture = mongoose.model('Lecture', LectureSchema);
+
+  Student = mongoose.model('Student', StudentSchema);
 
   app.get('/courses', function(req, res) {
     var _this = this;
@@ -294,7 +324,7 @@
 
   app.get('/courses/:id', function(req, res) {
     var _this = this;
-    return Course.findById(req.param('id')).populate('lectures').exec(function(err, course) {
+    return Course.findById(req.param('id')).populate('lectures').populate('participants').exec(function(err, course) {
       _this.course = course;
       if (err != null) {
         return res.json({});
@@ -346,6 +376,71 @@
         });
         return res.json(lecture);
       }
+    });
+  });
+
+  app.get('/lectures/:id', function(req, res) {
+    return Lecture.findById(req.param('id')).populate('course', 'name term').exec(function(err, lecture) {
+      if (err != null) {
+        return res.json({});
+      } else {
+        return res.json(lecture);
+      }
+    });
+  });
+
+  app.post('/registrations', function(req, res) {
+    var found;
+    found = function(student, students) {
+      var s, _i, _len;
+      for (_i = 0, _len = students.length; _i < _len; _i++) {
+        s = students[_i];
+        if (s.toString() === student) {
+          return true;
+        }
+      }
+      return false;
+    };
+    return Lecture.findById(req.param('lecture_id'), function(err, lecture) {
+      if (!found(req.param('student_id'), lecture.participants)) {
+        lecture.participants.push(req.param('student_id'));
+      }
+      return lecture.save(function(err) {
+        var data;
+        data = {
+          student: req.param('student_id'),
+          lecture: lecture._id
+        };
+        return res.json({
+          data: data
+        });
+      });
+    });
+  });
+
+  app.post('/students', function(req, res) {
+    var data, student;
+    data = {
+      first_name: req.param('first_name'),
+      last_name: req.param('last_name'),
+      name: "" + (req.param('last_name')) + " " + (req.param('first_name')),
+      number: req.param('number')
+    };
+    student = new Student(data);
+    return Course.findById(req.param('course_id'), function(err, course) {
+      course.participants.push(student._id);
+      return course.save(function(err) {
+        if (err != null) {
+          return res.json({});
+        } else {
+          student.save(function(err) {});
+          if (err != null) {
+            return res.json({});
+          } else {
+            return res.json(student);
+          }
+        }
+      });
     });
   });
 
