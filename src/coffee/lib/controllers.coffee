@@ -40,6 +40,12 @@ class Courses
 exports.Courses = Courses
 
 class Lectures
+	respond: (err, data) ->
+			if err?
+				res.json {}
+			else
+				res.json data	
+
 	show: (req,res) ->
 		Lecture.findById(req.param('id'))
 		.populate('course', 'name term')
@@ -57,8 +63,31 @@ class Lectures
 			course: req.param('course_id')
 		lecture = new Lecture(data)
 
+		async.parallel(
+			[
+				(callback) ->
+					lecture.save (err) ->
+						if err?
+							callback(null, 'error')
+						else
+							callback(null, 'succ')
+				,
+				(callback) ->
+					Course.findById req.param('course_id'), (err, course) ->
+						course.lectures.push lecture._id
+						course.save (err) ->
+							if err?
+								callback(null, 'error')
+							else
+								callback(null, 'succ')	
+			],
+			(err, result) ->
+				if err?
+					res.json {}
+				else	
+					res.json lecture
+		)
 
-		
 		lecture.save (err) ->
 			if err?
 				res.json {}
@@ -103,10 +132,10 @@ class Students
 					res.json {}
 				else	
 					student.save (err) ->
-					if err?
-						res.json {}
-					else
-						res.json student
+						if err?
+							res.json {}
+						else
+							res.json student
 
 
 exports.Students = Students
