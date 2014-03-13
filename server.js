@@ -1,5 +1,5 @@
 (function() {
-  var Course, Lecture, RegistrationSchema, Studet, app, controller, dburl, express, io, k, libbi, models, port, server;
+  var RegistrationSchema, app, controller, dburl, express, io, port, server;
 
   express = require('express');
 
@@ -239,22 +239,6 @@
     });
   });
 
-  libbi = require('./lib/lib');
-
-  libbi.koe();
-
-  k = new libbi.Koe();
-
-  console.log(k.foo());
-
-  models = require('./lib/models');
-
-  Course = models.Course;
-
-  Studet = models.Studet;
-
-  Lecture = models.Lecture;
-
   controller = require('./lib/controllers');
 
   app.get('/courses', new controller.Courses().index);
@@ -263,119 +247,12 @@
 
   app.post('/courses', new controller.Courses().create);
 
-  app.post('/lectures', function(req, res) {
-    var data, lecture,
-      _this = this;
-    data = {
-      date: req.param('date'),
-      time: req.param('time'),
-      place: req.param('place'),
-      course: req.param('course_id')
-    };
-    lecture = new Lecture(data);
-    return lecture.save(function(err) {
-      if (err != null) {
-        return res.json({});
-      } else {
-        Course.findById(req.param('course_id'), function(err, course) {
-          course.lectures.push(lecture._id);
-          return course.save(function(err) {
-            return console.log(err);
-          });
-        });
-        return res.json(lecture);
-      }
-    });
-  });
+  app.post('/lectures', new controller.Lectures().create);
 
-  app.get('/lectures/:id', function(req, res) {
-    return Lecture.findById(req.param('id')).populate('course', 'name term').exec(function(err, lecture) {
-      if (err != null) {
-        return res.json({});
-      } else {
-        return res.json(lecture);
-      }
-    });
-  });
+  app.get('/lectures/:id', new controller.Lectures().show);
 
-  app.post('/registrations', function(req, res) {
-    var found;
-    found = function(student, students) {
-      var s, _i, _len;
-      for (_i = 0, _len = students.length; _i < _len; _i++) {
-        s = students[_i];
-        if (s.toString() === student) {
-          return true;
-        }
-      }
-      return false;
-    };
-    return Lecture.findById(req.param('lecture_id'), function(err, lecture) {
-      if (!found(req.param('student_id'), lecture.participants)) {
-        lecture.participants.push(req.param('student_id'));
-      }
-      return lecture.save(function(err) {
-        var data;
-        data = {
-          student: req.param('student_id'),
-          lecture: lecture._id
-        };
-        return res.json({
-          data: data
-        });
-      });
-    });
-  });
+  app.post('/registrations', new controller.Registrations().create);
 
-  app.post('/students', function(req, res) {
-    var data, student;
-    data = {
-      first_name: req.param('first_name'),
-      last_name: req.param('last_name'),
-      name: "" + (req.param('last_name')) + " " + (req.param('first_name')),
-      number: req.param('number')
-    };
-    student = new Student(data);
-    return Course.findById(req.param('course_id'), function(err, course) {
-      course.participants.push(student._id);
-      return course.save(function(err) {
-        if (err != null) {
-          return res.json({});
-        } else {
-          student.save(function(err) {});
-          if (err != null) {
-            return res.json({});
-          } else {
-            return res.json(student);
-          }
-        }
-      });
-    });
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = global.app;
-
-  app.get('/lol', function(req, res) {
-    return res.send("Hello word!");
-  });
-
-  app.get('/lolli', function(req, res) {
-    return res.send("Lol word!");
-  });
-
-  app.get('/kolli', function(req, res) {
-    return res.send("Lol word!");
-  });
-
-  app.get('/foo', function(req, res) {
-    return res.render('index', {
-      layout: false
-    });
-  });
+  app.post('/students', new controller.Students().create);
 
 }).call(this);

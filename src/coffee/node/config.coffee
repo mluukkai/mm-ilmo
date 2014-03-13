@@ -146,75 +146,16 @@ app.post '/event', (req,res) ->
 			else
 				res.json event
 
-
-models = require('./lib/models')
-
-Course = models.Course
-Studet = models.Studet
-Lecture = models.Lecture
-
 controller = require('./lib/controllers')
 
 app.get '/courses', new controller.Courses().index
 app.get '/courses/:id', new controller.Courses().show
 app.post '/courses', new controller.Courses().create
 
-app.post '/lectures', (req,res) ->
-	data =
-		date: req.param('date')
-		time: req.param('time')
-		place: req.param('place')
-		course: req.param('course_id')
-	lecture = new Lecture(data)
-	lecture.save (err) =>
-		if err?
-			res.json {}
-		else
-			Course.findById req.param('course_id'), (err, course) =>
-				course.lectures.push lecture._id
-				course.save (err) ->
-					console.log err
-			res.json lecture
+app.post '/lectures', new controller.Lectures().create
+app.get '/lectures/:id', new controller.Lectures().show
 
-app.get '/lectures/:id', (req,res) ->
-	Lecture.findById(req.param('id'))
-	.populate('course', 'name term')
-	.exec (err, lecture) ->
-		if err?
-			res.json {}
-		else
-			res.json lecture
+app.post '/registrations', new controller.Registrations().create
 
-app.post '/registrations', (req, res) ->
-	found = (student, students) ->
-		for s in students
-			return true if s.toString()==student
-		false	
-
-	Lecture.findById req.param('lecture_id'), (err, lecture) ->
-		lecture.participants.push req.param('student_id') unless found(req.param('student_id'), lecture.participants)
-		lecture.save (err) ->	
-			data =
-				student: req.param('student_id')
-				lecture: lecture._id
-			res.json {data}
-
-app.post '/students', (req,res) ->
-	data =
-		first_name: req.param('first_name')
-		last_name: req.param('last_name')
-		name: "#{req.param('last_name')} #{req.param('first_name')}"
-		number: req.param('number')
-	student = new Student(data)
-	Course.findById req.param('course_id'), (err, course) ->
-		course.participants.push student._id
-		course.save (err) ->
-			if err? 
-				res.json {}
-			else	
-				student.save (err) ->
-				if err?
-					res.json {}
-				else
-					res.json student	
+app.post '/students', new controller.Students().create	
 
