@@ -1,5 +1,5 @@
 (function() {
-  var Course, CourseSchema, Lecture, LectureSchema, RegistrationSchema, Student, StudentSchema, app, dburl, express, io, k, libbi, port, server;
+  var Course, Lecture, RegistrationSchema, Studet, app, controller, dburl, express, io, k, libbi, models, port, server;
 
   express = require('express');
 
@@ -247,112 +247,21 @@
 
   console.log(k.foo());
 
-  CourseSchema = new Schema({
-    id: ObjectId,
-    name: String,
-    term: String,
-    active: Boolean,
-    teachers: [String],
-    lectures: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Lecture'
-      }
-    ],
-    participants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
-      }
-    ],
-    created_at: {
-      type: Date,
-      "default": Date.now
-    }
-  });
+  models = require('./lib/models');
 
-  LectureSchema = new Schema({
-    id: ObjectId,
-    time: String,
-    date: String,
-    place: String,
-    course: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
-    },
-    participants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
-      }
-    ],
-    created_at: {
-      type: Date,
-      "default": Date.now
-    }
-  });
+  Course = models.Course;
 
-  StudentSchema = new Schema({
-    id: ObjectId,
-    first_name: String,
-    last_name: String,
-    name: String,
-    number: String,
-    created_at: {
-      type: Date,
-      "default": Date.now
-    }
-  });
+  Studet = models.Studet;
 
-  Course = mongoose.model('Course', CourseSchema);
+  Lecture = models.Lecture;
 
-  Lecture = mongoose.model('Lecture', LectureSchema);
+  controller = require('./lib/controllers');
 
-  Student = mongoose.model('Student', StudentSchema);
+  app.get('/courses', new controller.Courses().index);
 
-  app.get('/courses', function(req, res) {
-    var _this = this;
-    return Course.find({}, function(err, courses) {
-      _this.courses = courses;
-      if (err != null) {
-        return res.send({});
-      } else {
-        return res.json(_this.courses);
-      }
-    });
-  });
+  app.get('/courses/:id', new controller.Courses().show);
 
-  app.get('/courses/:id', function(req, res) {
-    var _this = this;
-    return Course.findById(req.param('id')).populate('lectures').populate('participants').exec(function(err, course) {
-      _this.course = course;
-      if (err != null) {
-        return res.json({});
-      } else {
-        return res.json(_this.course);
-      }
-    });
-  });
-
-  app.post('/courses', function(req, res) {
-    var course, data,
-      _this = this;
-    data = {
-      name: req.param('name'),
-      term: req.param('term'),
-      active: req.param('active'),
-      teachers: [req.param('teacher')],
-      active: false
-    };
-    course = new Course(data);
-    return course.save(function(err) {
-      if (err != null) {
-        return res.json({});
-      } else {
-        return res.json(course);
-      }
-    });
-  });
+  app.post('/courses', new controller.Courses().create);
 
   app.post('/lectures', function(req, res) {
     var data, lecture,

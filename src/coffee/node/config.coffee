@@ -43,7 +43,6 @@ global.Todo = mongoose.model 'Todo', new Schema
 		type: Date
 		default: Date.now
 
-
 app.get '/mongo', (req,res) ->
 	res.send "Mongo word!"
 
@@ -148,92 +147,17 @@ app.post '/event', (req,res) ->
 				res.json event
 
 
-libbi = require('./lib/lib')
-libbi.koe()
+models = require('./lib/models')
 
-k = new libbi.Koe()
-console.log k.foo()
+Course = models.Course
+Studet = models.Studet
+Lecture = models.Lecture
 
-CourseSchema = new Schema
-	id: ObjectId
-	name: String
-	term: String
-	active: Boolean
-	teachers: [String]
-	lectures: [
-		type: mongoose.Schema.Types.ObjectId
-		ref: 'Lecture'
-	]
-	participants: [
-		type: mongoose.Schema.Types.ObjectId
-		ref: 'Student'
-	]
-	created_at:
-		type: Date
-		default: Date.now
+controller = require('./lib/controllers')
 
-LectureSchema = new Schema
-	id: ObjectId
-	time: String
-	date: String
-	place: String
-	course:
-		type: mongoose.Schema.Types.ObjectId
-		ref: 'Course'
-	participants: [
-		type: mongoose.Schema.Types.ObjectId
-		ref: 'Student'
-	]	
-	created_at:
-		type: Date
-		default: Date.now
-
-StudentSchema = new Schema
-	id: ObjectId
-	first_name: String
-	last_name: String
-	name: String
-	number: String
-	created_at:
-		type: Date
-		default: Date.now		
-
-Course = mongoose.model 'Course', CourseSchema	
-Lecture = mongoose.model 'Lecture', LectureSchema
-Student = mongoose.model 'Student', StudentSchema
-
-#responder = require('./lib/responder')
-
-app.get '/courses', (req,res) ->
-	Course.find {}, (err, @courses) =>
-		if err?
-			res.send {}
-		else
-			res.json @courses
-
-app.get '/courses/:id', (req,res) ->
-	Course.findById(req.param('id'))
-	.populate('lectures')
-	.populate('participants')
-	.exec (err, @course) =>
-		if err?
-			res.json {}
-		else
-			res.json @course
-
-app.post '/courses', (req,res) ->
-	data =
-		name: req.param('name')
-		term: req.param('term')
-		active: req.param('active')
-		teachers: [ req.param('teacher') ]
-		active: false
-	course = new Course(data)
-	course.save (err) =>
-		if err?
-			res.json {}
-		else
-			res.json course
+app.get '/courses', new controller.Courses().index
+app.get '/courses/:id', new controller.Courses().show
+app.post '/courses', new controller.Courses().create
 
 app.post '/lectures', (req,res) ->
 	data =
