@@ -37,6 +37,12 @@
 	<button ng-click="registerStudent()">register</button>
 </form>
 
+<form action="/upload" enctype="multipart/form-data" method="post">
+	<input type="file" name="upload" multiple="multiple"><br>
+	<input type="hidden" name="course_id" value="{{course._id}}">
+	<input type="submit" value="Upload">
+</form>
+
 <h3 ng-init="visible=false" ng-click="visible=!visible">create a new lecture</h3>
 
 <form ng-show="visible">

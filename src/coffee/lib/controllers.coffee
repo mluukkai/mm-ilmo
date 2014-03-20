@@ -1,5 +1,8 @@
 async = require('async')
 
+multiparty = require('multiparty')
+xlsx = require('node-xlsx')
+
 models = require('./models')
 Course = models.Course
 Student = models.Student
@@ -67,19 +70,13 @@ class Lectures
 			[
 				(callback) ->
 					lecture.save (err) ->
-						if err?
-							callback(null, 'error')
-						else
-							callback(null, 'succ')
+						callback(err, err)	
 				,
 				(callback) ->
 					Course.findById req.param('course_id'), (err, course) ->
 						course.lectures.push lecture._id
 						course.save (err) ->
-							if err?
-								callback(null, 'error')
-							else
-								callback(null, 'succ')	
+							callback(err, err)	
 			],
 			(err, result) ->
 				if err?
@@ -137,5 +134,55 @@ class Students
 						else
 							res.json student
 
+	upload: (req, res) ->
+		student = (data) ->
+			"#{data[0].value} #{data[2].value} #{data[3].value}"
+
+		isStudent = (s) ->
+			nro = s[0].value
+			(typeof nro == 'number') and (nro.toString().charAt(0)=='1' )
+
+		handleExcel = (data) ->
+			students = ""
+			for s in data.worksheets[0].data
+				if isStudent(s)
+					students+= student(s) + "\n" 
+
+		console.log "entered"
+
+		console.log "request started"
+		console.log(req.body);
+		console.log(req.files);
+
+		id = req.param('course_id') #res.redirect("#/courses/#{id}")
+
+		console.log "entered #{id}"
+
+		form = new multiparty.Form();
+		buffer = null;
+
+		console.log "formi"
+
+		form.on('part', (part) ->
+			console.log "part"
+			buffer = new Buffer(0)
+			part.on('data', (chunck) ->
+				console.log "chunck"
+				buffer = Buffer.concat([buffer, chunck])
+			)
+		)
+
+		form.on('close', () ->
+			console.log "closed"
+			students = handleExcel(xlsx.parse(buffer))
+			res.writeHead(200, {'content-type': 'text/plain'})
+			res.write(students.toString("utf8"))
+			res.end()
+		)
+
+		form.parse(req, (err, fields, files) ->
+		)
+
+		#res.send "uploaded! #{id} #{backURL}"
 
 exports.Students = Students
