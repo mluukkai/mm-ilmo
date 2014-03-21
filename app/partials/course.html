@@ -1,6 +1,16 @@
+
+
 <h1>{{course.name}} {{course.term}}</h1>
 
 <p>by {{course.teachers}}</p>
+
+<h3>Masregister</h3>
+
+<form action="/upload" enctype="multipart/form-data" method="post">
+  <input type="hidden" name="course_id" value="{{course._id}}">
+  <input id="file" type="file" name="upload" multiple="multiple"><br>
+  <input type="submit" value="Upload">
+</form>
 
 <h3>lectures</h3>
 
@@ -12,10 +22,9 @@
 	</thead>
 	<tbody>
 		<tr ng-repeat="lecture in course.lectures">
-			<td>{{lecture.date}}</td>
+			<td><a href="#lectures/{{lecture._id}}">{{lecture.date}}</a></td>
 			<td>{{lecture.time}}</td>
 			<td>{{lecture.place}}</td>
-			<td><a href="#lectures/{{lecture._id}}">open</a></td>
 		</tr>
 	</tbody>
 </table>
@@ -35,12 +44,6 @@
 	second name <input ng-model="student.last_name"></input>
 	number <input ng-model="student.number"></input>
 	<button ng-click="registerStudent()">register</button>
-</form>
-
-<form action="/upload" enctype="multipart/form-data" method="post">
-	<input type="file" name="upload" multiple="multiple"><br>
-	<input type="hidden" name="course_id" value="{{course._id}}">
-	<input type="submit" value="Upload">
 </form>
 
 <h3 ng-init="visible=false" ng-click="visible=!visible">create a new lecture</h3>

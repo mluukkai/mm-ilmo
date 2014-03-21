@@ -36,16 +36,23 @@ app.post '/upload',  (req, res) ->
   buffer = null;
 
   console.log "request started"
-  console.log(req.body);
-  console.log(req.files);
 
   form.on('part', (part) ->
     console.log "event fired"
-    buffer = new Buffer(0)
-    part.on('data', (chunck) ->
-       console.log "chunck of data"
-       buffer = Buffer.concat([buffer, chunck])
-    )
+
+    if typeof part.filename != 'undefined'
+      buffer = new Buffer(0)
+      part.on('data', (chunck) ->
+        console.log "chunck of data"
+        buffer = Buffer.concat([buffer, chunck])
+      )
+    else
+      if part.name == "course_id"
+        part.on('data', (data) ->
+          console.log "*************"
+          console.log "course_id #{data.toString()}"
+          console.log "*************"
+      )
   )
 
   form.on('close', () ->
@@ -62,7 +69,8 @@ app.get '/',  (req, res) ->
   res.writeHead(200, {'content-type': 'text/html'})
   res.end(
     '<form action="/upload" enctype="multipart/form-data" method="post">'+
-    '<input type="file" name="upload" multiple="multiple"><br>'+
-    '<input type="submit" value="Upload">'+
+    '<input type="hidden" name="course_id" value="55"><br>'+
+    '<input id="file" type="file" name="upload" multiple="multiple"><br>'+
+    '<input onclick="javascript:$(this).parent().submit();" type="submit" value="Upload">'+
     '</form>'
   )

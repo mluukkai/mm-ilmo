@@ -122,6 +122,7 @@ class Students
 			name: "#{req.param('last_name')} #{req.param('first_name')}"
 			number: req.param('number')
 		student = new Student(data)
+		# why on earth the following works? should the stdent be saved 1st?
 		Course.findById req.param('course_id'), (err, course) ->
 			course.participants.push student._id
 			course.save (err) ->
@@ -135,54 +136,92 @@ class Students
 							res.json student
 
 	upload: (req, res) ->
-		student = (data) ->
-			"#{data[0].value} #{data[2].value} #{data[3].value}"
+		registerStudent = (student, course) ->
+			data =
+				first_name: student.first_name
+				last_name: student.last_name
+				name: "#{student.last_name} #{student.first_name}"
+				number: student.number
+			new_student = new Student(data)
 
+			new_student.save (err, saved_student) ->
+				course.participants.push saved_student
+				console.log course.participants
+				course.save (err) ->
+					console.log "saving #{saved_student.name}"
+
+		among = (student, participants) ->
+			student.number in participants.map (p) -> p.number
+
+		registerToCourse = (students, course_id) ->
+			Course.findById(course_id)
+			.populate('participants')
+			.exec (err, course) ->
+				for student in students
+					if among(student, course.participants) 
+						console.log "old: #{student.number}"
+					else
+						console.log "new: #{student.number}"
+						registerStudent(student, course)
+					
 		isStudent = (s) ->
 			nro = s[0].value
 			(typeof nro == 'number') and (nro.toString().charAt(0)=='1' )
+
+		extractStudent = (data) ->
+			{	
+				number: data[0].value.toString(),
+				last_name: data[2].value,
+				first_name: data[3].value.replace("*","")
+			}
+
+		extractStudents = (data) ->
+			students = []
+			for s in data.worksheets[0].data
+				students.push extractStudent(s) if isStudent(s)
+			console.log students 
+			students
+
+		student = (data) ->
+	  		"#{data[0].value} #{data[2].value} #{data[3].value.replace("*","")}"
 
 		handleExcel = (data) ->
 			students = ""
 			for s in data.worksheets[0].data
 				if isStudent(s)
 					students+= student(s) + "\n" 
+			console.log students 
+			students 
 
-		console.log "entered"
-
-		console.log "request started"
-		console.log(req.body);
-		console.log(req.files);
-
-		id = req.param('course_id') #res.redirect("#/courses/#{id}")
-
-		console.log "entered #{id}"
-
-		form = new multiparty.Form();
-		buffer = null;
-
-		console.log "formi"
+		form = new multiparty.Form()
+		buffer = null
+		course_id = null
 
 		form.on('part', (part) ->
-			console.log "part"
-			buffer = new Buffer(0)
-			part.on('data', (chunck) ->
-				console.log "chunck"
-				buffer = Buffer.concat([buffer, chunck])
-			)
+			if typeof part.filename != 'undefined'
+				buffer = new Buffer(0)
+				part.on('data', (chunck) ->
+					console.log "chunck of data"
+					buffer = Buffer.concat([buffer, chunck])
+				)
+			else
+				if part.name == "course_id" 
+					part.on('data', (data) ->
+						course_id = data.toString();
+					)
 		)
 
 		form.on('close', () ->
-			console.log "closed"
 			students = handleExcel(xlsx.parse(buffer))
-			res.writeHead(200, {'content-type': 'text/plain'})
-			res.write(students.toString("utf8"))
-			res.end()
+			list = extractStudents xlsx.parse(buffer)
+			registerToCourse(list, course_id)
+			res.redirect("#courses/#{course_id}");
+			#res.writeHead(200, {'content-type': 'text/plain; charset=utf-8'})
+			#res.write("course #{course_id}"+ "\n")
+			#res.write(students.toString("utf8"))
+			#res.end()
 		)
 
-		form.parse(req, (err, fields, files) ->
-		)
-
-		#res.send "uploaded! #{id} #{backURL}"
+		form.parse( req, (err, fields, files) -> )
 
 exports.Students = Students

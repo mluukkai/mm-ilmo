@@ -1,5 +1,5 @@
 (function() {
-  var RegistrationSchema, app, controller, dburl, express, handleExcel, io, isStudent, multiparty, port, server, student, xlsx;
+  var RegistrationSchema, app, controller, dburl, express, io, port, server;
 
   express = require('express');
 
@@ -255,66 +255,6 @@
 
   app.post('/students', new controller.Students().create);
 
-  multiparty = require('multiparty');
-
-  xlsx = require('node-xlsx');
-
-  app.get('/upload', function(req, res) {
-    res.writeHead(200, {
-      'content-type': 'text/html'
-    });
-    return res.end('<form action="/upload" enctype="multipart/form-data" method="post">' + '<input type="file" name="upload" multiple="multiple"><br>' + '<input type="submit" value="Upload">' + '</form>');
-  });
-
-  app.post('/upload', function(req, res) {
-    var buffer, form;
-    form = new multiparty.Form();
-    buffer = null;
-    console.log("request started");
-    console.log(req.body);
-    console.log(req.files);
-    form.on('part', function(part) {
-      console.log("event fired");
-      buffer = new Buffer(0);
-      return part.on('data', function(chunck) {
-        console.log("chunck of data");
-        return buffer = Buffer.concat([buffer, chunck]);
-      });
-    });
-    form.on('close', function() {
-      var students;
-      students = handleExcel(xlsx.parse(buffer));
-      res.writeHead(200, {
-        'content-type': 'text/plain; charset=utf-8'
-      });
-      res.write(students.toString("utf8"));
-      return res.end();
-    });
-    return form.parse(req, function(err, fields, files) {});
-  });
-
-  student = function(data) {
-    return "" + data[0].value + " " + data[2].value + " " + data[3].value;
-  };
-
-  isStudent = function(s) {
-    var nro;
-    nro = s[0].value;
-    return (typeof nro === 'number') && (nro.toString().charAt(0) === '1');
-  };
-
-  handleExcel = function(data) {
-    var s, students, _i, _len, _ref;
-    students = "";
-    _ref = data.worksheets[0].data;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      s = _ref[_i];
-      if (isStudent(s)) {
-        students += student(s) + "\n";
-      }
-    }
-    console.log(students);
-    return students;
-  };
+  app.post('/upload', new controller.Students().upload);
 
 }).call(this);

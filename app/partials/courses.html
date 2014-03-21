@@ -1,6 +1,6 @@
 <h1>Courses</h1>
 
-<table class="table">
+<table class="table hover">
 	<thead>
 		<th>name</th>
 		<th>term</th>
@@ -8,10 +8,9 @@
 	</thead>
 	<tbody>
 		<tr ng-repeat="course in courses">
-			<td>{{course.name}}</td>
+			<td><a href="#courses/{{course._id}}">{{course.name}}</a></td>
 			<td>{{course.term}}</td>
 			<td>{{course.teachers}}</td>
-			<td><a href="#courses/{{course._id}}">open</a></td>
 		</tr>
 	</tbody>
 </table>
