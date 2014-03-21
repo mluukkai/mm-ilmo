@@ -70,6 +70,8 @@
 }).call(this);
 
 (function() {
+  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
   angular.module('registerApp', ['ngRoute']).config([
     '$routeProvider', function($routeProvider) {
       $routeProvider.when('/courses', {
@@ -175,6 +177,13 @@
         });
         return $scope.student = {};
       };
+      $scope.registered = function(student, lecture) {
+        var _ref;
+        if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
+          return "  X";
+        }
+        return "";
+      };
       today = new Date();
       month = "" + (today.getMonth() + 1);
       if ((today.getMonth() + 1) < 10) {
@@ -230,7 +239,13 @@
         return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 3;
       };
     }
-  ]);
+  ]).filter('date', function() {
+    return function(date) {
+      var parts;
+      parts = date.split("-");
+      return "" + parts[2] + "." + parts[1];
+    };
+  });
 
 }).call(this);
 

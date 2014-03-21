@@ -85,6 +85,7 @@ class Lectures
 					res.json lecture
 		)
 
+###
 		lecture.save (err) ->
 			if err?
 				res.json {}
@@ -94,6 +95,7 @@ class Lectures
 					course.save (err) ->
 						console.log err
 				res.json lecture
+###
 
 exports.Lectures = Lectures	
 

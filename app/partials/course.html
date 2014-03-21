@@ -12,6 +12,27 @@
   <input type="submit" value="Upload">
 </form>
 
+<h3>Participants</h3>
+
+<table border="1">
+	<thead>
+		<th>name</th>
+		<th>number</th>
+		<th ng-repeat="lecture in course.lectures">
+			&nbsp;{{lecture.date|date}}&nbsp;
+		</th>	
+	</thead>
+	<tbody>
+		<tr ng-repeat="student in course.participants">
+			<td>{{student.name}}</td>
+			<td>{{student.number}}</td>
+			<td ng-repeat="lecture in course.lectures">
+				&nbsp;&nbsp;&nbsp;{{registered(student, lecture)}}
+			</td>
+		</tr>	
+	</tbody>
+</table>	
+
 <h3>lectures</h3>
 
 <table class="table">
@@ -22,20 +43,12 @@
 	</thead>
 	<tbody>
 		<tr ng-repeat="lecture in course.lectures">
-			<td><a href="#lectures/{{lecture._id}}">{{lecture.date}}</a></td>
+			<td><a href="#lectures/{{lecture._id}}">{{lecture.date|date}}</a></td>
 			<td>{{lecture.time}}</td>
 			<td>{{lecture.place}}</td>
 		</tr>
 	</tbody>
 </table>
-
-<h3>Participants</h3>
-
-<ul>
-	<li ng-repeat="student in course.participants">
-		{{student.name}} {{student.number}}
-	</li>
-</ul>
 
 <h3>Register a student</h3>
 

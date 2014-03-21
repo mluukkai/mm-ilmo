@@ -86,6 +86,10 @@ angular
   				$scope.course.participants.push data
   			$scope.student = {}	
 
+  		$scope.registered = (student, lecture) ->
+  			return "  X" if student._id in lecture.participants
+  			return ""
+
   		today = new Date()
   		month = "#{today.getMonth()+1}"
   		month = "0"+month if (today.getMonth()+1)<10 
@@ -124,4 +128,8 @@ angular
 
     	$scope.condition = (item) ->
     		$scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<3
-    ])
+    ]).filter('date', () ->
+    	return (date) ->
+    		parts = date.split("-")
+    		"#{parts[2]}.#{parts[1]}"
+    )
