@@ -52,6 +52,7 @@ class Lectures
 	show: (req,res) ->
 		Lecture.findById(req.param('id'))
 		.populate('course', 'name term')
+		.populate('participants', 'name number')
 		.exec (err, lecture) ->
 			if err?
 				res.json {}

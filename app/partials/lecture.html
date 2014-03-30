@@ -1,26 +1,21 @@
 <h2>Lecture of {{lecture.course.name}} {{lecture.course.term}}</h2>
 
 <div>
-	{{lecture.date}} at {{lecture.time}} in {{lecture.place}}
+	{{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
 </div>
 
 <br>
 
-{{lecture}}
+<h3>Present</h3>
 
-<p><strong>start typing your name until it is found</strong></p>
-<input ng-model="search"></input>
+<ul>
+	<li ng-repeat="s in lecture.participants">
+		{{s.name}}
+	</li>
+</ul>
 
 <br>
-<strong>HUOMIOI JO REKISTERÖITYNEET, NO DUPLICATEZ</strong>
+
+<a href="#lectures/{{lecture._id}}/register">to registration page</a>
 <br>
-
-<p ng-repeat="student in students|filter:condition">
-	<strong>mark yourself as present</strong><br>
-	{{student.name}}
-	<input ng-click="register(student._id)" type="checkbox"></input>
-</p>
-
-<br><br>
-
 <a href="#courses/{{lecture.course._id}}">to course page</a>

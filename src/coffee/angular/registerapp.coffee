@@ -10,6 +10,9 @@ angular
     $routeProvider.when '/lectures/:id', 
     	templateUrl: 'partials/lecture.html' 
     	controller: 'LectureCtrl'	
+    $routeProvider.when '/lectures/:id/register', 
+      templateUrl: 'partials/lectureRegistration.html' 
+      controller: 'LectureRegistrationCtrl'     
     $routeProvider.when '/active', 
     	templateUrl: 'partials/active.html' 
     	controller: 'ActiveEventCtrl'	
@@ -19,8 +22,6 @@ angular
     $routeProvider.when '/events/:id', 
     	templateUrl: 'partials/event.html'
     	controller: 'EventCtrl'  
-    $routeProvider.otherwise
-    	redirectTo: '/events'
   ])
   .controller('ActiveEventCtrl', ['$scope', '$http', ($scope, $http)->
   		$scope.msg = "msg2";
@@ -100,34 +101,52 @@ angular
   			place: 'exactum'
   			time: "12:15"
   			date: "#{today.getYear()+1900}-#{month}-#{day}"
+    ])
+    .controller('LectureRegistrationCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->
+      matches = (word) ->
+        count = 0
+        for student in $scope.students  
+          count+=1 if student.name.toUpperCase().indexOf(word) != -1
+        count 
+
+      $http.get("lectures/#{$routeParams.id}").success (data) ->
+        $scope.lecture = data
+        $http.get("courses/#{data.course._id}").success (course) ->
+          $scope.students = course.participants
+
+      $scope.register = (student) ->
+        student_id = student._id
+        console.log student_id
+        data =
+          student_id: student_id
+          lecture_id: $routeParams.id
+        $http.post("registrations", data).success (response) ->
+          $scope.lecture.participants.push response.data.student 
+          $scope.flashed = true
+          $scope.flash = "#{student.name} registered"
+          $timeout( () ->
+            $scope.flash = null
+            $scope.flashed = false
+            $scope.search = ""
+          , 3000) 
+
+      $scope.search = ""
+      $scope.students = []
+      $scope.flashed = false
+
+      $scope.registered = (student) ->
+        student.number in $scope.lecture.participants.map (p) -> p.number 
+
+      $scope.condition = (item) ->
+        $scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<5
     ]) 
     .controller('LectureCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->
-    	matches = (word) ->
-    		count = 0
-    		for student in $scope.students	
-    			count+=1 if student.name.toUpperCase().indexOf(word) != -1
-    		count	
 
     	$http.get("lectures/#{$routeParams.id}").success (data) ->
     		$scope.lecture = data
     		$http.get("courses/#{data.course._id}").success (course) ->
     			$scope.students = course.participants
 
-    	$scope.register = (student_id) ->
-    		console.log student_id
-    		data =
-    			student_id: student_id
-    			lecture_id: $routeParams.id
-    		$http.post("registrations", data).success (response) ->
-    			console.log response
-    			console.log response.data.student
-    			$scope.lecture.participants.push response.data.student 
-
-    	$scope.search = ""
-    	$scope.students = []
-
-    	$scope.condition = (item) ->
-    		$scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<3
     ]).filter('date', () ->
     	return (date) ->
     		parts = date.split("-")

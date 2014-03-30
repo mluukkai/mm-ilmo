@@ -1,0 +1,24 @@
+<h2>Lecture of {{lecture.course.name}} {{lecture.course.term}}</h2>
+
+<div>
+	{{lecture.date}} at {{lecture.time}} in {{lecture.place}}
+</div>
+
+<br>
+
+<div ng-show="flashed" class="alert alert-success">{{flash}}</div>
+
+<div ng-hide="flashed">
+
+	<p><strong>start typing your name until it is found</strong></p>
+	<input ng-model="search"></input>
+
+	<br><br>
+
+	<p ng-repeat="student in students|filter:condition">
+		{{student.name}}
+		<input ng-hide="registered(student)" ng-click="register(student)" type="checkbox"></input>
+		<span ng-show="registered(student)"><em>registered already!</em></span>
+	</p>
+</div>
+
