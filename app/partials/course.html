@@ -35,7 +35,7 @@
 
 	<h3 ng-init="lectures=false" ng-click="lectures = !lectures">Lectures</h3>
 
-    <div ng-show="lectures"></div>
+    <div ng-show="lectures">
 
 	<table class="table">
 		<thead>
@@ -56,10 +56,19 @@
 
 		<h4 ng-init="createLectureForm=false" ng-click="createLectureForm=!createLectureForm">Create a new lecture</h4>
 
-			<form ng-show="createLectureForm">
-				date <input type="date" ng-model="lecture.date"></input>
-				time <input type="time" ng-model="lecture.time"></input>
-				place <input ng-model="lecture.place"></input>
+			<form ng-show="createLectureForm" role="form">
+				<div class="form-group">
+					<label>date</label>
+					<input type="date" ng-model="lecture.date" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>time</label>
+					<input type="time" ng-model="lecture.time" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>place</label>
+					<input type="text" ng-model="lecture.place" class="form-control">
+				</div>
 				<button class="btn btn-primary" ng-click="createLecture()">create</button>
 			</form>
 
@@ -67,14 +76,25 @@
 
 	</div>
 
+</div>	
+
 <div class="boxed">
 
 	<h3 ng-init="reg=false" ng-click="reg = !reg">Register a student</h3>
 
-	<form ng-show="reg">
-		first name <input ng-model="student.first_name"></input>
-		second name <input ng-model="student.last_name"></input>
-		number <input ng-model="student.number"></input>
+	<form ng-show="reg" role="form">
+		<div class="form-group">
+			<label>first name </label>   
+			<input type="text" ng-model="student.first_name" class="form-control">
+		</div>
+		<div class="form-group">
+			<label>last name </label>
+			<input type="text" ng-model="student.last_name" class="form-control">
+		</div>
+		<div class="form-group">
+			<label>student number</label>
+			<input type="text" ng-model="student.number" class="form-control">
+		</div>
 		<button class="btn btn-primary" ng-click="registerStudent()">register</button>
 	</form>
 

@@ -176,7 +176,7 @@
       };
     }
   ]).controller('CourseCtrl', [
-    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+    '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
       var day, month, today;
       $http.get("courses/" + $routeParams.id).success(function(data) {
         return $scope.course = data;
@@ -193,7 +193,14 @@
         $scope.student.course_id = $routeParams.id;
         $http.post('students', $scope.student).success(function(data) {
           console.log(data);
-          return $scope.course.participants.push(data);
+          $scope.course.participants.push(data);
+          $scope.reg = false;
+          $scope.flashed = true;
+          $scope.flash = "registered " + data.name + " to course";
+          return $timeout(function() {
+            $scope.flash = null;
+            return $scope.flashed = false;
+          }, 2500);
         });
         return $scope.student = {};
       };

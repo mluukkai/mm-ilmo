@@ -82,7 +82,7 @@ angular
             , 2500) 
           $scope.new = ""           
     ])   
-  .controller('CourseCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->
+  .controller('CourseCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->
 
   		$http.get("courses/#{$routeParams.id}").success (data) ->
   			$scope.course = data 
@@ -97,8 +97,15 @@ angular
   		$scope.registerStudent = ->
   			$scope.student.course_id = $routeParams.id
   			$http.post('students', $scope.student).success (data) ->
-  				console.log data
-  				$scope.course.participants.push data
+          console.log data
+          $scope.course.participants.push data
+          $scope.reg = false
+          $scope.flashed = true
+          $scope.flash = "registered #{data.name} to course"
+          $timeout( () ->
+            $scope.flash = null
+            $scope.flashed = false
+          , 2500) 
   			$scope.student = {}	
 
   		$scope.registered = (student, lecture) ->
