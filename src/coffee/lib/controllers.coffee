@@ -26,6 +26,15 @@ class Courses
 			else
 				res.json course
 
+	delete: (req, res) ->	
+		Course.findById(req.param('id'))
+		.exec (err, course) ->
+			if err?
+				res.json {}
+			else
+				course.remove()
+				res.json "removed"
+
 	lecture: (req, res) ->	
 		d = new Date
 		n = (val) ->
@@ -55,7 +64,7 @@ class Courses
 			if err?
 				res.json {}
 			else
-				res.json course
+				res.json course	
 
 exports.Courses = Courses
 

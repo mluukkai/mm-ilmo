@@ -1,18 +1,21 @@
 <h2>Lecture of {{lecture.course.name}} {{lecture.course.term}}</h2>
 
-<div>
+<div <div class="lecture">
 	{{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
 </div>
 
-<br>
+<div>
 
-<h3>Present</h3>
+	<h3>Present</h3>
 
-<ul>
-	<li ng-repeat="s in lecture.participants">
-		{{s.name}}
-	</li>
-</ul>
+	<table class="table table-hover">
+		<tr ng-repeat="s in lecture.participants">
+			<td>{{s.number}}</td>
+			<td>{{s.name}}</td>
+		</tr>
+	</table>
+
+</div>
 
 <br>
 

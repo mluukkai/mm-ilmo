@@ -148,19 +148,29 @@
       });
     }
   ]).controller('CoursesCtrl', [
-    '$scope', '$http', function($scope, $http) {
-      $scope["new"] = {
-        name: "Ohtu",
-        term: "spring 2014",
-        teacher: "mluukkai"
-      };
+    '$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+      /*
+      $scope.new = 
+        name: 'ohtu'
+        term: 'sprinr 2014'
+        teacher: 'mluukkai'
+      */
+
       $http.get("courses").success(function(data) {
         return $scope.courses = data;
       });
       return $scope.newCourse = function() {
+        console.log($scope["new"]);
+        $scope.visible = false;
         $http.post('courses', $scope["new"]).success(function(data) {
           console.log(data);
-          return $scope.courses.push(data);
+          $scope.courses.push(data);
+          $scope.flashed = true;
+          $scope.flash = "course " + data.name + " " + data.term + " created";
+          return $timeout(function() {
+            $scope.flash = null;
+            return $scope.flashed = false;
+          }, 2500);
         });
         return $scope["new"] = "";
       };
@@ -278,12 +288,12 @@
       });
     }
   ]).controller('RegistrationCtrl', [
-    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+    '$scope', '$http', '$routeParams', '$location', function($scope, $http, $routeParams, $location) {
       $http.get("courses").success(function(data) {
         return $scope.courses = data;
       });
       return $scope.clicked = function(id) {
-        return alert(id);
+        return $location.path("courses/" + id + "/register");
       };
     }
   ]).controller('ActiveLectureCtrl', [

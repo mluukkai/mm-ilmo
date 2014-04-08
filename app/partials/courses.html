@@ -1,4 +1,7 @@
+
 <h1>Courses</h1>
+
+<div ng-show="flashed" class="alert alert-success">{{flash}}</div>
 
 <table class="table hover">
 	<thead>
@@ -19,17 +22,20 @@
 
 	<h3 ng-init="visible=false" ng-click="visible=!visible">create a new course</h3>
 
-	<form ng-show="visible">
-		<div>
-			name <input ng-model="new.name"></input>
+	<form ng-show="visible" role="form">
+		<div class="form-group">
+	    	<label>name</label>
+	    	<input type="text" ng-model="new.name" class="form-control" placeholder="Enter course name">
+	  	</div>
+		<div class="form-group">
+			<label>term</label>
+			<input type="text" ng-model="new.term" class="form-control" placeholder="Enter term, eg. Spring 2014">
 		</div>
-		<div>
-			term <input ng-model="new.term"></input>	
-		</div>
-		<div>		
-			teacher <input ng-model="new.teacher"></input>
+		<div class="form-group">
+			<label>teached by</label>		
+			<input type="text" ng-model="new.teacher" class="form-control" placeholder="Enter teachers">	
 		</div>
 		<button class="btn btn-primary" ng-click="newCourse()">create</button>
-</form>
+	</form>
 
 </div>

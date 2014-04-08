@@ -154,6 +154,7 @@ controller = require('./lib/controllers')
 
 app.get '/courses', new controller.Courses().index
 app.get '/courses/:id', new controller.Courses().show
+app.get '/courses/:id/delete', new controller.Courses().delete
 app.post '/courses', new controller.Courses().create
 app.get '/courses/:id/active_lecture', new controller.Courses().lecture
 

@@ -57,23 +57,31 @@ angular
   		$http.get("events/#{$routeParams.id}").success (data) ->
   			$scope.event = data 
   			
-    ])  
-  .controller('CoursesCtrl', ['$scope', '$http',  ($scope, $http) ->
-  		$scope.new = 
-  			name:"Ohtu"
-  			term:"spring 2014"
-  			teacher:"mluukkai"
-
-  		$http.get("courses").success (data) ->
-  			$scope.courses = data 
-
-  		$scope.newCourse = () ->
-  			$http.post('courses', $scope.new).success (data) ->
-  				console.log data
-  				$scope.courses.push data
-  			$scope.new = ""	
-  			
     ])
+  .controller('CoursesCtrl', ['$scope', '$http', '$timeout', ($scope, $http, $timeout) ->
+        ###
+        $scope.new = 
+          name: 'ohtu'
+          term: 'sprinr 2014'
+          teacher: 'mluukkai'
+        ###
+        $http.get("courses").success (data) ->
+          $scope.courses = data
+
+        $scope.newCourse = () ->
+          console.log $scope.new
+          $scope.visible = false
+          $http.post('courses', $scope.new).success (data) ->
+            console.log data
+            $scope.courses.push data
+            $scope.flashed = true
+            $scope.flash = "course #{data.name} #{data.term} created"
+            $timeout( () ->
+              $scope.flash = null
+              $scope.flashed = false
+            , 2500) 
+          $scope.new = ""           
+    ])   
   .controller('CourseCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->
 
   		$http.get("courses/#{$routeParams.id}").success (data) ->
@@ -156,12 +164,13 @@ angular
         $scope.lecture.participants.push data
         $scope.$apply() 
     ]) 
-    .controller('RegistrationCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->      
+    .controller('RegistrationCtrl', ['$scope', '$http', '$routeParams', '$location',  ($scope, $http, $routeParams, $location) ->      
       $http.get("courses").success (data) ->
         $scope.courses = data 
 
       $scope.clicked = (id) ->
-        alert(id)  
+        $location.path("courses/#{id}/register")
+
     ]).controller('ActiveLectureCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->     
       matches = (word) ->
         count = 0
