@@ -1,5 +1,5 @@
 (function() {
-  var RegistrationSchema, app, controller, dburl, express, io, port, server;
+  var RegistrationSchema, app, controller, dburl, express, port, server;
 
   express = require('express');
 
@@ -7,7 +7,7 @@
 
   server = require('http').createServer(app);
 
-  io = require('socket.io').listen(server);
+  global.io = require('socket.io').listen(server);
 
   app.configure(function() {
     app.use(express["static"](__dirname + '/app'));
@@ -43,11 +43,15 @@
     socket.emit('news', {
       name: 'joined'
     });
-    return socket.on('my other event', function(data) {
+    socket.on('my other event', function(data) {
       io.sockets.emit('news', {
         name: data
       });
       return console.log(io.sockets);
+    });
+    return socket.on('register', function(data) {
+      io.sockets.emit('registration', data);
+      return console.log(data);
     });
   });
 
@@ -246,6 +250,8 @@
   app.get('/courses/:id', new controller.Courses().show);
 
   app.post('/courses', new controller.Courses().create);
+
+  app.get('/courses/:id/active_lecture', new controller.Courses().lecture);
 
   app.post('/lectures', new controller.Lectures().create);
 

@@ -1,1 +1,5 @@
-.menu{list-style:none;border-bottom:.1em solid #000;margin-bottom:2em;padding:0 0 .5em}
+.menu{list-style:none;margin-bottom:2em;padding:0}
+.content{margin-left:2em;margin-right:2em}
+.lecture{font-size:1.5em;padding:.4em .4em .4em .4em;background-color:#f2f2f2;-moz-border-radius:5px;border-radius:5px}
+.lecturers{font-size:1.5em;padding-left:5px;padding-top:5px}
+.boxed{margin-top:20px;padding:5px 5px 5px 10px;background-color:#f2f2f2;-moz-border-radius:5px;border-radius:5px}

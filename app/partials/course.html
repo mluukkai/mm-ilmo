@@ -2,71 +2,93 @@
 
 <h1>{{course.name}} {{course.term}}</h1>
 
-<p>by {{course.teachers.join(' ')}}</p>
+<div class="lecturers">
+	<p>by {{course.teachers.join(' ')}}</p>
+</div>
 
-<h3>Masregister</h3>
+<div class="boxed">
 
-<form action="/upload" enctype="multipart/form-data" method="post">
-  <input type="hidden" name="course_id" value="{{course._id}}">
-  <input id="file" type="file" name="upload" multiple="multiple"><br>
-  <input type="submit" value="Upload">
-</form>
+	<h3 ng-init="parti=false" ng-click="parti = !parti">Participants</h3>
 
-<h3>Participants</h3>
+	<table ng-show="parti" border="1">
+		<thead>
+			<th>name</th>
+			<th>number</th>
+			<th ng-repeat="lecture in course.lectures">
+				&nbsp;{{lecture.date|date}}&nbsp;
+			</th>	
+		</thead>
+		<tbody>
+			<tr ng-repeat="student in course.participants">
+				<td>{{student.name}}</td>
+				<td>{{student.number}}</td>
+				<td ng-repeat="lecture in course.lectures">
+					&nbsp;&nbsp;&nbsp;{{registered(student, lecture)}}
+				</td>
+			</tr>	
+		</tbody>
+	</table>	
 
-<table border="1">
-	<thead>
-		<th>name</th>
-		<th>number</th>
-		<th ng-repeat="lecture in course.lectures">
-			&nbsp;{{lecture.date|date}}&nbsp;
-		</th>	
-	</thead>
-	<tbody>
-		<tr ng-repeat="student in course.participants">
-			<td>{{student.name}}</td>
-			<td>{{student.number}}</td>
-			<td ng-repeat="lecture in course.lectures">
-				&nbsp;&nbsp;&nbsp;{{registered(student, lecture)}}
-			</td>
-		</tr>	
-	</tbody>
-</table>	
+</div>
 
-<h3>lectures</h3>
+<div class="boxed">
 
-<table class="table">
-	<thead>
-		<th>date</th>
-		<th>time</th>
-		<th>room</th>	
-	</thead>
-	<tbody>
-		<tr ng-repeat="lecture in course.lectures">
-			<td><a href="#lectures/{{lecture._id}}">{{lecture.date|date}}</a></td>
-			<td>{{lecture.time}}</td>
-			<td>{{lecture.place}}</td>
-		</tr>
-	</tbody>
-</table>
+	<h3 ng-init="lectures=false" ng-click="lectures = !lectures">Lectures</h3>
 
-<h3>Register a student</h3>
+	<table ng-show="lectures" class="table">
+		<thead>
+			<th>date</th>
+			<th>time</th>
+			<th>room</th>	
+		</thead>
+		<tbody>
+			<tr ng-repeat="lecture in course.lectures">
+				<td><a href="#lectures/{{lecture._id}}">{{lecture.date|date}}</a></td>
+				<td>{{lecture.time}}</td>
+				<td>{{lecture.place}}</td>
+			</tr>
+		</tbody>
+	</table>
 
-<form>
-	first name <input ng-model="student.first_name"></input>
-	second name <input ng-model="student.last_name"></input>
-	number <input ng-model="student.number"></input>
-	<button ng-click="registerStudent()">register</button>
-</form>
+</div>
 
-<h3 ng-init="visible=false" ng-click="visible=!visible">create a new lecture</h3>
+<div class="boxed">
 
-<form ng-show="visible">
-	date <input type="date" ng-model="lecture.date"></input>
-	time <input type="time" ng-model="lecture.time"></input>
-	place <input ng-model="lecture.place"></input>
-	<button ng-click="createLecture()">create</button>
-</form>
+	<h3 ng-init="visible=false" ng-click="visible=!visible">Create a new lecture</h3>
+
+	<form ng-show="visible">
+		date <input type="date" ng-model="lecture.date"></input>
+		time <input type="time" ng-model="lecture.time"></input>
+		place <input ng-model="lecture.place"></input>
+		<button class="btn btn-primary" ng-click="createLecture()">create</button>
+	</form>
+
+</div>
+
+<div class="boxed">
+
+	<h3 ng-init="reg=false" ng-click="reg = !reg">Register a student</h3>
+
+	<form ng-show="reg">
+		first name <input ng-model="student.first_name"></input>
+		second name <input ng-model="student.last_name"></input>
+		number <input ng-model="student.number"></input>
+		<button class="btn btn-primary" ng-click="registerStudent()">register</button>
+	</form>
+
+</div>
+
+<div class="boxed">
+
+	<h3 ng-init="mass=false" ng-click="mass = !mass">Import students from WebOodi excel</h3>
+
+	<form ng-show="mass" action="/upload" enctype="multipart/form-data" method="post">
+	  <input type="hidden" name="course_id" value="{{course._id}}">
+	  <input id="file" type="file" name="upload" multiple="multiple"><br>
+	  <input class="btn btn-primary" type="submit" value="Upload">
+	</form>
+
+</div>
 
 
 

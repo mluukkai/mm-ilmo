@@ -26,6 +26,23 @@ class Courses
 			else
 				res.json course
 
+	lecture: (req, res) ->	
+		d = new Date
+		n = (val) ->
+			return val if val>10
+			return "0"+val	
+		ds = "#{d.getYear()+1900}-#{n(d.getMonth()+1)}-#{n(d.getDate())}"
+		console.log ds
+
+		Lecture.findOne( { course:req.param('id'), date:ds } )
+		.populate('course', 'name term')
+		.populate('participants')
+		.exec (err, lectures) ->
+			if err?
+				res.json {}
+			else			
+				res.json lectures
+
 	create: (req,res) ->
 		data =
 			name: req.param('name')
@@ -106,14 +123,15 @@ class Registrations
 			for s in students
 				return true if s.toString()==student
 			false	
-
 		Lecture.findById req.param('lecture_id'), (err, lecture) ->
 			lecture.participants.push req.param('student_id') unless found(req.param('student_id'), lecture.participants)
-			lecture.save (err) ->	
-				data =
-					student: req.param('student_id')
-					lecture: lecture._id
-				res.json {data}
+			lecture.save (err) -> 	
+				Student.findById req.param('student_id'), (err, student) ->
+					data =
+						student: student
+						lecture: lecture._id		
+					global.io.sockets.emit 'registration', student
+					res.json {data}
 
 exports.Registrations = Registrations
 

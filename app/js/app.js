@@ -98,9 +98,17 @@
         templateUrl: 'partials/events.html',
         controller: 'EventsCtrl'
       });
-      return $routeProvider.when('/events/:id', {
+      $routeProvider.when('/events/:id', {
         templateUrl: 'partials/event.html',
         controller: 'EventCtrl'
+      });
+      $routeProvider.when('/registration', {
+        templateUrl: 'partials/registration.html',
+        controller: 'RegistrationCtrl'
+      });
+      return $routeProvider.when('/courses/:id/register', {
+        templateUrl: 'partials/lectureRegistration.html',
+        controller: 'ActiveLectureCtrl'
       });
     }
   ]).controller('ActiveEventCtrl', [
@@ -218,13 +226,13 @@
       $http.get("lectures/" + $routeParams.id).success(function(data) {
         $scope.lecture = data;
         return $http.get("courses/" + data.course._id).success(function(course) {
-          return $scope.students = course.participants;
+          $scope.students = course.participants;
+          return $scope.course = course;
         });
       });
       $scope.register = function(student) {
         var data, student_id;
         student_id = student._id;
-        console.log(student_id);
         data = {
           student_id: student_id,
           lecture_id: $routeParams.id
@@ -256,9 +264,84 @@
   ]).controller('LectureCtrl', [
     '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
       return $http.get("lectures/" + $routeParams.id).success(function(data) {
+        var socket;
         $scope.lecture = data;
-        return $http.get("courses/" + data.course._id).success(function(course) {
+        $http.get("courses/" + data.course._id).success(function(course) {
           return $scope.students = course.participants;
+        });
+        socket = io.connect();
+        return socket.on('registration', function(data) {
+          console.log(data);
+          $scope.lecture.participants.push(data);
+          return $scope.$apply();
+        });
+      });
+    }
+  ]).controller('RegistrationCtrl', [
+    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+      $http.get("courses").success(function(data) {
+        return $scope.courses = data;
+      });
+      return $scope.clicked = function(id) {
+        return alert(id);
+      };
+    }
+  ]).controller('ActiveLectureCtrl', [
+    '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
+      var d, matches;
+      matches = function(word) {
+        var count, student, _i, _len, _ref;
+        count = 0;
+        _ref = $scope.students;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          student = _ref[_i];
+          if (student.name.toUpperCase().indexOf(word) !== -1) {
+            count += 1;
+          }
+        }
+        return count;
+      };
+      $scope.register = function(student) {
+        var data, student_id;
+        student_id = student._id;
+        data = {
+          student_id: student_id,
+          lecture_id: $scope.lecture._id
+        };
+        return $http.post("registrations", data).success(function(response) {
+          $scope.lecture.participants.push(response.data.student);
+          $scope.flashed = true;
+          $scope.flash = "" + student.name + " registered";
+          return $timeout(function() {
+            $scope.flash = null;
+            $scope.flashed = false;
+            return $scope.search = "";
+          }, 3000);
+        });
+      };
+      $scope.search = "";
+      $scope.students = [];
+      $scope.flashed = false;
+      $scope.registered = function(student) {
+        var _ref;
+        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
+          return p.number;
+        }), _ref) >= 0;
+      };
+      $scope.condition = function(item) {
+        return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
+      };
+      d = new Date();
+      $scope.day = {
+        d: d.getDate(),
+        m: d.getMonth() + 1,
+        y: d.getYear() + 1900
+      };
+      return $http.get("courses/" + $routeParams.id).success(function(course) {
+        $scope.course = course;
+        $scope.students = course.participants;
+        return $http.get("courses/" + $routeParams.id + "/active_lecture").success(function(lecture) {
+          return $scope.lecture = lecture;
         });
       });
     }

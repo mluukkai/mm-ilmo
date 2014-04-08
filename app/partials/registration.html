@@ -1,0 +1,15 @@
+<h1>Registration</h1>
+
+<div class="lecturers">
+	<p>Select a course</p>
+</div>
+
+<table class="table table-hover">
+  	<tr ng-repeat="course in courses">
+  		<td ng-click="clicked(course._id)">
+  			<a href="#/courses/{{course._id}}/register">
+  				{{course.name}} {{course.term}}
+  			</a>
+  		</td>
+	</tr>
+</table>

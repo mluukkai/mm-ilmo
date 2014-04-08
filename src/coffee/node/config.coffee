@@ -1,7 +1,7 @@
 express = require 'express'
 global.app = app = express()
 server = require('http').createServer(app)
-io = require('socket.io').listen(server)
+global.io = require('socket.io').listen(server)
 
 app.configure ->
 	app.use(express.static(__dirname + '/app'))
@@ -32,6 +32,10 @@ io.sockets.on 'connection', (socket) ->
   	#socket.emit 'news', { name: 'itwasme!' } 
   	io.sockets.emit 'news', { name: data }
   	console.log io.sockets 
+  socket.on 'register', (data) ->
+  	io.sockets.emit 'registration', data
+  	console.log data
+ 
 
 global.Todo = mongoose.model 'Todo', new Schema
 	id: ObjectId
@@ -151,6 +155,7 @@ controller = require('./lib/controllers')
 app.get '/courses', new controller.Courses().index
 app.get '/courses/:id', new controller.Courses().show
 app.post '/courses', new controller.Courses().create
+app.get '/courses/:id/active_lecture', new controller.Courses().lecture
 
 app.post '/lectures', new controller.Lectures().create
 app.get '/lectures/:id', new controller.Lectures().show
