@@ -1,17 +1,14 @@
-<div ng-hide="lecture.course.name">
-	<h2>{{course.name}} {{course.term}}</h2>
+<h2>{{course.name}} {{course.term}}</h2>
 
+<div ng-show="nolecture">
 	<div class="lecture">
 		no lectures today!
 	</div>	
 </div>
 
 <div ng-show="lecture.course.name">
-
-	<h2>Lecture of {{lecture.course.name}} {{lecture.course.term}}</h2>
-
 	<div class="lecture">
-		{{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
+		Lecture of {{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
 	</div>
 
 	<br>

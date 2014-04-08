@@ -90,8 +90,9 @@ angular
   		$scope.createLecture = ->
   			$scope.lecture.course_id = $routeParams.id
   			$http.post('lectures', $scope.lecture ).success (data) ->
-  				console.log data	
-  				$scope.course.lectures.push data
+          console.log data	
+          $scope.course.lectures.push(data)
+          $scope.createLectureForm = false
 
   		$scope.registerStudent = ->
   			$scope.student.course_id = $routeParams.id
@@ -214,6 +215,7 @@ angular
         $scope.students = course.participants  
         $http.get("courses/#{$routeParams.id}/active_lecture").success (lecture) ->
           $scope.lecture = lecture
+          $scope.nolecture=(lecture.course == undefined)
 
     ])
     .filter('date', () ->

@@ -1,6 +1,6 @@
-
-
 <h1>{{course.name}} {{course.term}}</h1>
+
+<div ng-show="flashed" class="alert alert-success">{{flash}}</div>
 
 <div class="lecturers">
 	<p>by {{course.teachers.join(' ')}}</p>
@@ -35,7 +35,9 @@
 
 	<h3 ng-init="lectures=false" ng-click="lectures = !lectures">Lectures</h3>
 
-	<table ng-show="lectures" class="table">
+    <div ng-show="lectures"></div>
+
+	<table class="table">
 		<thead>
 			<th>date</th>
 			<th>time</th>
@@ -50,20 +52,20 @@
 		</tbody>
 	</table>
 
-</div>
+		<div class="whiteboxed">
 
-<div class="boxed">
+		<h4 ng-init="createLectureForm=false" ng-click="createLectureForm=!createLectureForm">Create a new lecture</h4>
 
-	<h3 ng-init="visible=false" ng-click="visible=!visible">Create a new lecture</h3>
+			<form ng-show="createLectureForm">
+				date <input type="date" ng-model="lecture.date"></input>
+				time <input type="time" ng-model="lecture.time"></input>
+				place <input ng-model="lecture.place"></input>
+				<button class="btn btn-primary" ng-click="createLecture()">create</button>
+			</form>
 
-	<form ng-show="visible">
-		date <input type="date" ng-model="lecture.date"></input>
-		time <input type="time" ng-model="lecture.time"></input>
-		place <input ng-model="lecture.place"></input>
-		<button class="btn btn-primary" ng-click="createLecture()">create</button>
-	</form>
+		</div>	
 
-</div>
+	</div>
 
 <div class="boxed">
 

@@ -185,7 +185,8 @@
         $scope.lecture.course_id = $routeParams.id;
         return $http.post('lectures', $scope.lecture).success(function(data) {
           console.log(data);
-          return $scope.course.lectures.push(data);
+          $scope.course.lectures.push(data);
+          return $scope.createLectureForm = false;
         });
       };
       $scope.registerStudent = function() {
@@ -351,7 +352,8 @@
         $scope.course = course;
         $scope.students = course.participants;
         return $http.get("courses/" + $routeParams.id + "/active_lecture").success(function(lecture) {
-          return $scope.lecture = lecture;
+          $scope.lecture = lecture;
+          return $scope.nolecture = lecture.course === void 0;
         });
       });
     }
