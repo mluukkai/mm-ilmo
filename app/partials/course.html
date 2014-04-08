@@ -10,7 +10,7 @@
 
 	<h3 ng-init="parti=false" ng-click="parti = !parti">Participants</h3>
 
-	<table ng-show="parti" border="1">
+	<table ng-show="parti && course.participants.length>0" border="1">
 		<thead>
 			<th>name</th>
 			<th>number</th>
@@ -37,7 +37,7 @@
 
     <div ng-show="lectures">
 
-	<table class="table">
+	<table class="table" ng-show="course.lectures.length>0">
 		<thead>
 			<th>date</th>
 			<th>time</th>
