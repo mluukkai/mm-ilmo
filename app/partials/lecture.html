@@ -9,7 +9,7 @@
 	<h3>Present</h3>
 
 	<table class="table table-hover">
-		<tr ng-repeat="s in lecture.participants">
+		<tr ng-repeat="s in lecture.participants|orderBy:'name'">
 			<td>{{s.number}}</td>
 			<td>{{s.name}}</td>
 		</tr>

@@ -28,6 +28,7 @@ angular
     $routeProvider.when '/courses/:id/register',
       templateUrl: 'partials/lectureRegistration.html'
       controller: 'ActiveLectureCtrl'
+    $routeProvider.otherwise({redirectTo: '/registration'})  
   ])
   .controller('ActiveEventCtrl', ['$scope', '$http', ($scope, $http)->
   		$scope.msg = "msg2";

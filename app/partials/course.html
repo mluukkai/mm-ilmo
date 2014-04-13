@@ -19,7 +19,7 @@
 			</th>	
 		</thead>
 		<tbody>
-			<tr ng-repeat="student in course.participants">
+			<tr ng-repeat="student in course.participants|orderBy:'name'">
 				<td>{{student.name}}</td>
 				<td>{{student.number}}</td>
 				<td ng-repeat="lecture in course.lectures">

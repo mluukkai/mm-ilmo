@@ -106,9 +106,12 @@
         templateUrl: 'partials/registration.html',
         controller: 'RegistrationCtrl'
       });
-      return $routeProvider.when('/courses/:id/register', {
+      $routeProvider.when('/courses/:id/register', {
         templateUrl: 'partials/lectureRegistration.html',
         controller: 'ActiveLectureCtrl'
+      });
+      return $routeProvider.otherwise({
+        redirectTo: '/registration'
       });
     }
   ]).controller('ActiveEventCtrl', [
