@@ -373,6 +373,15 @@
       parts = date.split("-");
       return "" + parts[2] + "." + parts[1];
     };
+  }).directive('togglable', function() {
+    return {
+      scope: {
+        title: '@'
+      },
+      restrict: 'AE',
+      replace: 'true',
+      template: '<h3 ng-init="vis=false" ng-click="vis=!vis">Hello {{title}}!! {{vis}}</h3>'
+    };
   });
 
 }).call(this);
