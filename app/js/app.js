@@ -380,7 +380,7 @@
       },
       restrict: 'AE',
       replace: 'true',
-      template: '<h3 ng-init="vis=false" ng-click="vis=!vis">Hello {{title}}!! {{vis}}</h3>'
+      template: '<div><h3 ng-init="vis=false" ng-click="vis=!vis">Hello {{title}}!! {{vis}}</h3><div ng-show="vis">lol</div></div>'
     };
   });
 
