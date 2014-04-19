@@ -26,7 +26,7 @@ angular
         $scope.students = course.data.participants
       )
     ])
-    .controller('ActiveLectureCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->     
+    .controller('ActiveLectureCtrl', ['$scope', '$http', '$routeParams', '$timeout', 'Flash',  ($scope, $http, $routeParams, $timeout, Flash) ->     
       matches = (word) ->
         count = 0
         for student in $scope.students  
@@ -40,13 +40,8 @@ angular
           lecture_id: $scope.lecture._id
         $http.post("registrations", data).success (response) ->
           $scope.lecture.participants.push response.data.student 
-          $scope.flashed = true
-          $scope.flash = "#{student.name} registered"
-          $timeout( () ->
-            $scope.flash = null
-            $scope.flashed = false
-            $scope.search = ""
-          , 3000) 
+          Flash.set("#{student.name} registered", $scope)
+          $scope.search = ""
 
       $scope.search = ""
       $scope.students = []
@@ -57,12 +52,6 @@ angular
 
       $scope.condition = (item) ->
         $scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<5  
-
-      d = new Date()      
-      $scope.day =
-        d: d.getDate()
-        m: (d.getMonth()+1)
-        y: (d.getYear()+1900)
 
       $http.get("courses/#{$routeParams.id}").success (course) ->
         $scope.course = course
@@ -85,10 +74,10 @@ angular
             Flash.set("course #{data.name} #{data.term} created", $scope)
           $scope.new = {}          
     ]) 
-    .controller('CourseCtrl', ['$scope', 'DateString','$routeParams', 'Course', 'Lecture', 'Flash', ($scope, DateString, $routeParams, Course, Lecture, Flash) ->
+    .controller('CourseCtrl', ['$scope', 'DateService','$routeParams', 'Course', 'Lecture', 'Flash', ($scope, DateService, $routeParams, Course, Lecture, Flash) ->
         $scope.lecture = 
             time: "12:15"
-            date: DateString.get()  
+            date: DateService.getString()  
         $scope.student = {}     
 
         Course.get($routeParams.id).success (data) ->

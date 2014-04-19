@@ -178,8 +178,8 @@
       });
     }
   ]).controller('ActiveLectureCtrl', [
-    '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
-      var d, matches;
+    '$scope', '$http', '$routeParams', '$timeout', 'Flash', function($scope, $http, $routeParams, $timeout, Flash) {
+      var matches;
       matches = function(word) {
         var count, student, _i, _len, _ref;
         count = 0;
@@ -201,13 +201,8 @@
         };
         return $http.post("registrations", data).success(function(response) {
           $scope.lecture.participants.push(response.data.student);
-          $scope.flashed = true;
-          $scope.flash = "" + student.name + " registered";
-          return $timeout(function() {
-            $scope.flash = null;
-            $scope.flashed = false;
-            return $scope.search = "";
-          }, 3000);
+          Flash.set("" + student.name + " registered", $scope);
+          return $scope.search = "";
         });
       };
       $scope.search = "";
@@ -221,12 +216,6 @@
       };
       $scope.condition = function(item) {
         return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
-      };
-      d = new Date();
-      $scope.day = {
-        d: d.getDate(),
-        m: d.getMonth() + 1,
-        y: d.getYear() + 1900
       };
       return $http.get("courses/" + $routeParams.id).success(function(course) {
         $scope.course = course;
@@ -253,10 +242,10 @@
       };
     }
   ]).controller('CourseCtrl', [
-    '$scope', 'DateString', '$routeParams', 'Course', 'Lecture', 'Flash', function($scope, DateString, $routeParams, Course, Lecture, Flash) {
+    '$scope', 'DateService', '$routeParams', 'Course', 'Lecture', 'Flash', function($scope, DateService, $routeParams, Course, Lecture, Flash) {
       $scope.lecture = {
         time: "12:15",
-        date: DateString.get()
+        date: DateService.getString()
       };
       $scope.student = {};
       Course.get($routeParams.id).success(function(data) {
@@ -424,9 +413,9 @@
         }, 2500);
       }
     };
-  }).factory('DateString', function() {
+  }).factory('DateService', function() {
     return {
-      get: function() {
+      getString: function() {
         var day, month, today;
         today = new Date();
         month = "" + (today.getMonth() + 1);

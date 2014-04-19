@@ -39,9 +39,9 @@ angular
         , 2500) 
     }
   )    
-  .factory('DateString', ->
+  .factory('DateService', ->
     {
-      get: ()->
+      getString: ()->
         today = new Date()
         month = "#{today.getMonth()+1}"
         month = "0"+month if (today.getMonth()+1)<10 
