@@ -23,4 +23,15 @@ angular
       create: (data) ->  
         $http.post('courses', data)
     }
-  ) 
+  )
+  .factory('Flash', ($timeout) ->
+    {
+      set: (message, scope) ->
+        scope.flashed = true
+        scope.flash = message
+        $timeout( () ->
+          scope.flash = null
+          scope.flashed = false
+        , 2500) 
+    }
+  )    

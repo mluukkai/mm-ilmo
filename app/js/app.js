@@ -200,8 +200,6 @@
 }).call(this);
 
 (function() {
-  angular.module('myApp.controllers', []).controller('MyCtrl1', ['$scope', function($scope) {}]).controller('MyCtrl2', ['$scope', function($scope) {}]);
-
   angular.module('registerApp').controller('RegistrationCtrl', [
     '$scope', '$location', 'Course', function($scope, $location, Course) {
       Course.all().then(function(course) {
@@ -229,20 +227,14 @@
       });
     }
   ]).controller('CoursesCtrl', [
-    '$scope', '$timeout', '$http', 'Course', function($scope, $timeout, $http, Course) {
+    '$scope', 'Course', 'Flash', function($scope, Course, Flash) {
       Course.all().then(function(course) {
         return $scope.courses = course.data;
       });
       return $scope.newCourse = function() {
         $scope.visible = false;
         Course.create($scope["new"]).success(function(data) {
-          $scope.courses.push(data);
-          $scope.flashed = true;
-          $scope.flash = "course " + data.name + " " + data.term + " created";
-          return $timeout(function() {
-            $scope.flash = null;
-            return $scope.flashed = false;
-          }, 2500);
+          return Flash.set("course " + data.name + " " + data.term + " created", $scope);
         });
         return $scope["new"] = "";
       };
@@ -358,6 +350,17 @@
       },
       create: function(data) {
         return $http.post('courses', data);
+      }
+    };
+  }).factory('Flash', function($timeout) {
+    return {
+      set: function(message, scope) {
+        scope.flashed = true;
+        scope.flash = message;
+        return $timeout(function() {
+          scope.flash = null;
+          return scope.flashed = false;
+        }, 2500);
       }
     };
   });
