@@ -163,22 +163,6 @@
         return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
       };
     }
-  ]).controller('LectureCtrl2', [
-    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
-      return $http.get("lectures/" + $routeParams.id).success(function(data) {
-        var socket;
-        $scope.lecture = data;
-        $http.get("courses/" + data.course._id).success(function(course) {
-          return $scope.students = course.participants;
-        });
-        socket = io.connect();
-        return socket.on('registration', function(data) {
-          console.log(data);
-          $scope.lecture.participants.push(data);
-          return $scope.$apply();
-        });
-      });
-    }
   ]).controller('ActiveLectureCtrl', [
     '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
       var d, matches;
@@ -257,19 +241,19 @@
       return koe.test('foobar');
     }
   ]).controller('LectureCtrl', [
-    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+    '$scope', '$routeParams', 'Lecture', 'Course', function($scope, $routeParams, Lecture, Course) {
       var socket;
-      $http.get("lectures/" + $routeParams.id).success(function(data) {
-        $scope.lecture = data;
-        return $http.get("courses/" + data.course._id).success(function(course) {
-          return $scope.students = course.participants;
-        });
-      });
       socket = io.connect();
-      return socket.on('registration', function(data) {
+      socket.on('registration', function(data) {
         console.log(data);
         $scope.lecture.participants.push(data);
         return $scope.$apply();
+      });
+      return Lecture.get($routeParams.id).then(function(data) {
+        $scope.lecture = data.data;
+        return Course.get($scope.lecture.course._id).then(function(course) {
+          return $scope.students = course.data.participants;
+        });
       });
     }
   ]);
@@ -362,6 +346,24 @@
     return {
       test: function(koe) {
         return console.log(koe);
+      }
+    };
+  }).factory('Lecture', function($http) {
+    return {
+      all: function() {
+        return console.log("all");
+      },
+      get: function(id) {
+        return $http.get("lectures/" + id);
+      }
+    };
+  }).factory('Course', function($http) {
+    return {
+      all: function() {
+        return console.log("all");
+      },
+      get: function(id) {
+        return $http.get("courses/" + id);
       }
     };
   });

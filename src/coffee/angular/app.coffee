@@ -124,17 +124,6 @@ angular
       $scope.condition = (item) ->
         $scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<5
     ]) 
-    .controller('LectureCtrl2', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->     
-    	$http.get("lectures/#{$routeParams.id}").success (data) ->
-    		$scope.lecture = data
-    		$http.get("courses/#{data.course._id}").success (course) ->
-    			$scope.students = course.participants
-      socket = io.connect()
-      socket.on 'registration', (data) -> 
-        console.log data
-        $scope.lecture.participants.push data
-        $scope.$apply() 
-    ]) 
     .controller('ActiveLectureCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->     
       matches = (word) ->
         count = 0
