@@ -18,3 +18,14 @@ angular
 
       koe.test('foobar')
     ])  
+  .controller('LectureCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->     
+      $http.get("lectures/#{$routeParams.id}").success (data) ->
+        $scope.lecture = data
+        $http.get("courses/#{data.course._id}").success (course) ->
+          $scope.students = course.participants
+      socket = io.connect()
+      socket.on 'registration', (data) -> 
+        console.log data
+        $scope.lecture.participants.push data
+        $scope.$apply() 
+    ])

@@ -7,58 +7,20 @@ angular
     $routeProvider.when '/courses/:id', 
       templateUrl: 'partials/course.html' 
       controller: 'CourseCtrl'
+    $routeProvider.when '/courses/:id/register',
+      templateUrl: 'partials/lectureRegistration.html'
+      controller: 'ActiveLectureCtrl'      
     $routeProvider.when '/lectures/:id', 
       templateUrl: 'partials/lecture.html' 
       controller: 'LectureCtrl'	
     $routeProvider.when '/lectures/:id/register', 
       templateUrl: 'partials/lectureRegistration.html' 
       controller: 'LectureRegistrationCtrl'     
-    $routeProvider.when '/active', 
-      templateUrl: 'partials/active.html' 
-      controller: 'ActiveEventCtrl'	
-    $routeProvider.when '/events',
-      templateUrl: 'partials/events.html' 
-      controller: 'EventsCtrl'
-    $routeProvider.when '/events/:id', 
-      templateUrl: 'partials/event.html'
-      controller: 'EventCtrl'  
     $routeProvider.when '/registration',
       templateUrl: 'partials/registration.html'
       controller: 'RegistrationCtrl'
-    $routeProvider.when '/courses/:id/register',
-      templateUrl: 'partials/lectureRegistration.html'
-      controller: 'ActiveLectureCtrl'
     $routeProvider.otherwise({redirectTo: '/registration'})  
   ])
-  .controller('ActiveEventCtrl', ['$scope', '$http', ($scope, $http)->
-  		$scope.msg = "msg2";
-  		socket = io.connect()
-
-  		$http.get('event').success (data) ->
-  			$scope.event = data 
-
-  		$scope.register = ->
-  			$http.post('event', { name: $scope.name}).success (data) ->
-  				console.log "yes!"
-  			$scope.name = ""
-  		
-  		socket.on 'news', (data) -> 
-    		$scope.event.registrations.push data
-    		$scope.$apply()	
-    ])
-  .controller('EventsCtrl', ['$scope', '$http', ($scope, $http)->
-    	$scope.msg = "msg";
-    	$http.get('events').success (data) ->
-    		$scope.events = data
-    ])
-  .controller('EventCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->
-  		$scope.msg = $routeParams.id
-  		console.log $routeParams.id
-
-  		$http.get("events/#{$routeParams.id}").success (data) ->
-  			$scope.event = data 
-  			
-    ])
   .controller('CoursesCtrl', ['$scope', '$http', '$timeout', ($scope, $http, $timeout) ->
         ###
         $scope.new = 
@@ -162,7 +124,7 @@ angular
       $scope.condition = (item) ->
         $scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<5
     ]) 
-    .controller('LectureCtrl', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->     
+    .controller('LectureCtrl2', ['$scope', '$http', '$routeParams',  ($scope, $http, $routeParams) ->     
     	$http.get("lectures/#{$routeParams.id}").success (data) ->
     		$scope.lecture = data
     		$http.get("courses/#{data.course._id}").success (course) ->
@@ -219,17 +181,3 @@ angular
           $scope.nolecture=(lecture.course == undefined)
 
     ])
-    .filter('date', () ->
-    	return (date) ->
-    		parts = date.split("-");
-    		"#{parts[2]}.#{parts[1]}"
-    )
-    .directive('togglable', ()->
-      scope: {
-        title: '@'
-      }
-      restrict: 'AE'
-      replace: 'true'
-      transclude: true
-      template: '<div><h3 ng-init="vis=false" ng-click="vis=!vis">{{title}}</h3><div ng-show="vis"><span ng-transclude></span></div></div>'
-    )

@@ -11,6 +11,10 @@
         templateUrl: 'partials/course.html',
         controller: 'CourseCtrl'
       });
+      $routeProvider.when('/courses/:id/register', {
+        templateUrl: 'partials/lectureRegistration.html',
+        controller: 'ActiveLectureCtrl'
+      });
       $routeProvider.when('/lectures/:id', {
         templateUrl: 'partials/lecture.html',
         controller: 'LectureCtrl'
@@ -19,64 +23,12 @@
         templateUrl: 'partials/lectureRegistration.html',
         controller: 'LectureRegistrationCtrl'
       });
-      $routeProvider.when('/active', {
-        templateUrl: 'partials/active.html',
-        controller: 'ActiveEventCtrl'
-      });
-      $routeProvider.when('/events', {
-        templateUrl: 'partials/events.html',
-        controller: 'EventsCtrl'
-      });
-      $routeProvider.when('/events/:id', {
-        templateUrl: 'partials/event.html',
-        controller: 'EventCtrl'
-      });
       $routeProvider.when('/registration', {
         templateUrl: 'partials/registration.html',
         controller: 'RegistrationCtrl'
       });
-      $routeProvider.when('/courses/:id/register', {
-        templateUrl: 'partials/lectureRegistration.html',
-        controller: 'ActiveLectureCtrl'
-      });
       return $routeProvider.otherwise({
         redirectTo: '/registration'
-      });
-    }
-  ]).controller('ActiveEventCtrl', [
-    '$scope', '$http', function($scope, $http) {
-      var socket;
-      $scope.msg = "msg2";
-      socket = io.connect();
-      $http.get('event').success(function(data) {
-        return $scope.event = data;
-      });
-      $scope.register = function() {
-        $http.post('event', {
-          name: $scope.name
-        }).success(function(data) {
-          return console.log("yes!");
-        });
-        return $scope.name = "";
-      };
-      return socket.on('news', function(data) {
-        $scope.event.registrations.push(data);
-        return $scope.$apply();
-      });
-    }
-  ]).controller('EventsCtrl', [
-    '$scope', '$http', function($scope, $http) {
-      $scope.msg = "msg";
-      return $http.get('events').success(function(data) {
-        return $scope.events = data;
-      });
-    }
-  ]).controller('EventCtrl', [
-    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
-      $scope.msg = $routeParams.id;
-      console.log($routeParams.id);
-      return $http.get("events/" + $routeParams.id).success(function(data) {
-        return $scope.event = data;
       });
     }
   ]).controller('CoursesCtrl', [
@@ -211,7 +163,7 @@
         return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
       };
     }
-  ]).controller('LectureCtrl', [
+  ]).controller('LectureCtrl2', [
     '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
       return $http.get("lectures/" + $routeParams.id).success(function(data) {
         var socket;
@@ -287,23 +239,7 @@
         });
       });
     }
-  ]).filter('date', function() {
-    return function(date) {
-      var parts;
-      parts = date.split("-");
-      return "" + parts[2] + "." + parts[1];
-    };
-  }).directive('togglable', function() {
-    return {
-      scope: {
-        title: '@'
-      },
-      restrict: 'AE',
-      replace: 'true',
-      transclude: true,
-      template: '<div><h3 ng-init="vis=false" ng-click="vis=!vis">{{title}}</h3><div ng-show="vis"><span ng-transclude></span></div></div>'
-    };
-  });
+  ]);
 
 }).call(this);
 
@@ -320,18 +256,38 @@
       };
       return koe.test('foobar');
     }
+  ]).controller('LectureCtrl', [
+    '$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+      var socket;
+      $http.get("lectures/" + $routeParams.id).success(function(data) {
+        $scope.lecture = data;
+        return $http.get("courses/" + data.course._id).success(function(course) {
+          return $scope.students = course.participants;
+        });
+      });
+      socket = io.connect();
+      return socket.on('registration', function(data) {
+        console.log(data);
+        $scope.lecture.participants.push(data);
+        return $scope.$apply();
+      });
+    }
   ]);
 
 }).call(this);
 
 (function() {
-  angular.module('myApp.directives', []).directive('appVersion', [
-    'version', function(version) {
-      return function(scope, elm, attrs) {
-        return elm.text(version);
-      };
-    }
-  ]);
+  angular.module('registerApp').directive('togglable', function() {
+    return {
+      scope: {
+        title: '@'
+      },
+      restrict: 'AE',
+      replace: 'true',
+      transclude: true,
+      template: '<div><h3 ng-init="vis=false" ng-click="vis=!vis">{{title}}</h3><div ng-show="vis"><span ng-transclude></span></div></div>'
+    };
+  });
 
 }).call(this);
 
@@ -368,6 +324,17 @@
       };
     }
   ]);
+
+  angular.module('registerApp').filter('date', function() {
+    return function(date) {
+      var parts;
+      if (date == null) {
+        return "";
+      }
+      parts = date.split("-");
+      return "" + parts[2] + "." + parts[1];
+    };
+  });
 
 }).call(this);
 
