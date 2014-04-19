@@ -24,6 +24,8 @@ angular
         $http.get("courses/#{id}")
       create: (data) ->  
         $http.post('courses', data)
+      registerStudent: (data) ->
+        $http.post('students', data)   
     }
   )
   .factory('Flash', ($timeout) ->
@@ -37,3 +39,15 @@ angular
         , 2500) 
     }
   )    
+  .factory('DateString', ->
+    {
+      get: ()->
+        today = new Date()
+        month = "#{today.getMonth()+1}"
+        month = "0"+month if (today.getMonth()+1)<10 
+        day = "#{today.getDate()}"
+        day = "0"+day if (today.getDate()<10)
+
+        "#{today.getYear()+1900}-#{month}-#{day}"
+    }
+  )

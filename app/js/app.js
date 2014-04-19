@@ -31,57 +31,6 @@
         redirectTo: '/registration'
       });
     }
-  ]).controller('CourseCtrl2', [
-    '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
-      var day, month, today;
-      $http.get("courses/" + $routeParams.id).success(function(data) {
-        return $scope.course = data;
-      });
-      $scope.createLecture = function() {
-        $scope.lecture.course_id = $routeParams.id;
-        return $http.post('lectures', $scope.lecture).success(function(data) {
-          console.log(data);
-          $scope.course.lectures.push(data);
-          return $scope.createLectureForm = false;
-        });
-      };
-      $scope.registerStudent = function() {
-        $scope.student.course_id = $routeParams.id;
-        $http.post('students', $scope.student).success(function(data) {
-          console.log(data);
-          $scope.course.participants.push(data);
-          $scope.reg = false;
-          $scope.flashed = true;
-          $scope.flash = "registered " + data.name + " to course";
-          return $timeout(function() {
-            $scope.flash = null;
-            return $scope.flashed = false;
-          }, 2500);
-        });
-        return $scope.student = {};
-      };
-      $scope.registered = function(student, lecture) {
-        var _ref;
-        if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
-          return "  X";
-        }
-        return "";
-      };
-      today = new Date();
-      month = "" + (today.getMonth() + 1);
-      if ((today.getMonth() + 1) < 10) {
-        month = "0" + month;
-      }
-      day = "" + (today.getDate());
-      if (today.getDate() < 10) {
-        day = "0" + day;
-      }
-      return $scope.lecture = {
-        place: 'exactum',
-        time: "12:15",
-        date: "" + (today.getYear() + 1900) + "-" + month + "-" + day
-      };
-    }
   ]).controller('LectureRegistrationCtrl', [
     '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
       var matches;
@@ -200,6 +149,8 @@
 }).call(this);
 
 (function() {
+  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
   angular.module('registerApp').controller('RegistrationCtrl', [
     '$scope', '$location', 'Course', function($scope, $location, Course) {
       Course.all().then(function(course) {
@@ -242,31 +193,36 @@
       };
     }
   ]).controller('CourseCtrl', [
-    '$scope', '$http', '$routeParams', 'Course', 'Lecture', function($scope, $http, $routeParams, Course, Lecture) {
-      var day, month, today;
+    '$scope', '$http', 'DateString', '$routeParams', 'Course', 'Lecture', 'Flash', function($scope, $http, DateString, $routeParams, Course, Lecture, Flash) {
       Course.get($routeParams.id).success(function(data) {
         return $scope.course = data;
       });
       $scope.createLecture = function() {
         $scope.lecture.course_id = $routeParams.id;
         return Lecture.create($scope.lecture).success(function(data) {
-          console.log(data);
           $scope.course.lectures.push(data);
-          return $scope.createLectureForm = false;
+          return $scope.createLectureFormVisible = false;
         });
       };
-      today = new Date();
-      month = "" + (today.getMonth() + 1);
-      if ((today.getMonth() + 1) < 10) {
-        month = "0" + month;
-      }
-      day = "" + (today.getDate());
-      if (today.getDate() < 10) {
-        day = "0" + day;
-      }
-      return $scope.lecture = {
+      $scope.lecture = {
         time: "12:15",
-        date: "" + (today.getYear() + 1900) + "-" + month + "-" + day
+        date: DateString.get()
+      };
+      $scope.registerStudent = function() {
+        $scope.student.course_id = $routeParams.id;
+        Course.registerStudent($scope.student).success(function(data) {
+          $scope.course.participants.push(data);
+          $scope.reg = false;
+          return Flash.set("registered " + data.name + " to course", $scope);
+        });
+        return $scope.student = {};
+      };
+      return $scope.registered = function(student, lecture) {
+        var _ref;
+        if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
+          return "  X";
+        }
+        return "";
       };
     }
   ]);
@@ -391,6 +347,9 @@
       },
       create: function(data) {
         return $http.post('courses', data);
+      },
+      registerStudent: function(data) {
+        return $http.post('students', data);
       }
     };
   }).factory('Flash', function($timeout) {
@@ -402,6 +361,22 @@
           scope.flash = null;
           return scope.flashed = false;
         }, 2500);
+      }
+    };
+  }).factory('DateString', function() {
+    return {
+      get: function() {
+        var day, month, today;
+        today = new Date();
+        month = "" + (today.getMonth() + 1);
+        if ((today.getMonth() + 1) < 10) {
+          month = "0" + month;
+        }
+        day = "" + (today.getDate());
+        if (today.getDate() < 10) {
+          day = "0" + day;
+        }
+        return "" + (today.getYear() + 1900) + "-" + month + "-" + day;
       }
     };
   });

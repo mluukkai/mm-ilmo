@@ -52,28 +52,25 @@
 		</tbody>
 	</table>
 
-		<div class="whiteboxed">
+	<togglable title="Create a new lecture" condition='createLectureFormVisible' class="whiteboxed">
+		<form role="form">
+			<div class="form-group">
+				<label>date</label>
+				<input type="date" ng-model="lecture.date" class="form-control">
+			</div>
+			<div class="form-group">
+				<label>time</label>
+				<input type="time" ng-model="lecture.time" class="form-control">
+			</div>
+			<div class="form-group">
+				<label>place</label>
+				<input type="text" ng-model="lecture.place" class="form-control"
+				placeholder="Enter lecture room">
+			</div>
+			<button class="btn btn-primary" ng-click="createLecture()">create</button>
+		</form>
 
-		<h4 ng-init="createLectureForm=false" ng-click="createLectureForm=!createLectureForm">Create a new lecture</h4>
-
-			<form ng-show="createLectureForm" role="form">
-				<div class="form-group">
-					<label>date</label>
-					<input type="date" ng-model="lecture.date" class="form-control">
-				</div>
-				<div class="form-group">
-					<label>time</label>
-					<input type="time" ng-model="lecture.time" class="form-control">
-				</div>
-				<div class="form-group">
-					<label>place</label>
-					<input type="text" ng-model="lecture.place" class="form-control"
-					placeholder="Enter lecture room">
-				</div>
-				<button class="btn btn-primary" ng-click="createLecture()">create</button>
-			</form>
-
-		</div>	
+	</togglable>
 
 	</div>
 

@@ -21,47 +21,6 @@ angular
       controller: 'RegistrationCtrl'
     $routeProvider.otherwise({redirectTo: '/registration'})  
   ]) 
-  .controller('CourseCtrl2', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->
-
-  		$http.get("courses/#{$routeParams.id}").success (data) ->
-  			$scope.course = data 
-  		
-  		$scope.createLecture = ->
-  			$scope.lecture.course_id = $routeParams.id
-  			$http.post('lectures', $scope.lecture ).success (data) ->
-          console.log data	
-          $scope.course.lectures.push(data)
-          $scope.createLectureForm = false
-
-  		$scope.registerStudent = ->
-  			$scope.student.course_id = $routeParams.id
-  			$http.post('students', $scope.student).success (data) ->
-          console.log data
-          $scope.course.participants.push data
-          $scope.reg = false
-          $scope.flashed = true
-          $scope.flash = "registered #{data.name} to course"
-          $timeout( () ->
-            $scope.flash = null
-            $scope.flashed = false
-          , 2500) 
-  			$scope.student = {}	
-
-  		$scope.registered = (student, lecture) ->
-  			return "  X" if student._id in lecture.participants
-  			return ""
-
-  		today = new Date()
-  		month = "#{today.getMonth()+1}"
-  		month = "0"+month if (today.getMonth()+1)<10 
-  		day = "#{today.getDate()}"
-  		day = "0"+day if (today.getDate()<10)
-
-  		$scope.lecture = 
-  			place: 'exactum'
-  			time: "12:15"
-  			date: "#{today.getYear()+1900}-#{month}-#{day}"
-    ])
     .controller('LectureRegistrationCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->
       matches = (word) ->
         count = 0
