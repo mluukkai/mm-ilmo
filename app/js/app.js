@@ -299,13 +299,14 @@
       });
     }
   ]).controller('RegistrationCtrl', [
-    '$scope', '$http', '$routeParams', '$location', function($scope, $http, $routeParams, $location) {
+    '$scope', '$http', '$routeParams', '$location', 'koe', function($scope, $http, $routeParams, $location, koe) {
       $http.get("courses").success(function(data) {
         return $scope.courses = data;
       });
-      return $scope.clicked = function(id) {
+      $scope.clicked = function(id) {
         return $location.path("courses/" + id + "/register");
       };
+      return koe.test('foobar');
     }
   ]).controller('ActiveLectureCtrl', [
     '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
@@ -389,5 +390,13 @@
 
 (function() {
   angular.module('myApp.services', []).value('version', '0.1');
+
+  angular.module('registerApp').factory('koe', function() {
+    return {
+      test: function(koe) {
+        return console.log(koe);
+      }
+    };
+  });
 
 }).call(this);

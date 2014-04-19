@@ -5,3 +5,12 @@
 angular
   .module('myApp.services', [])
   .value('version', '0.1')
+
+angular
+  .module('registerApp')
+  .factory('koe', ->
+    {
+      test: (koe)->
+        console.log koe
+    }
+  )  

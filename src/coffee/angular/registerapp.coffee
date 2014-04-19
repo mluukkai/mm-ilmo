@@ -1,27 +1,27 @@
 angular
   .module('registerApp', ['ngRoute'])
   .config(['$routeProvider', ($routeProvider)->
-	$routeProvider.when '/courses', 
-    	templateUrl: 'partials/courses.html' 
-    	controller: 'CoursesCtrl'
+    $routeProvider.when '/courses', 
+      templateUrl: 'partials/courses.html' 
+      controller: 'CoursesCtrl'
     $routeProvider.when '/courses/:id', 
-    	templateUrl: 'partials/course.html' 
-    	controller: 'CourseCtrl'
+      templateUrl: 'partials/course.html' 
+      controller: 'CourseCtrl'
     $routeProvider.when '/lectures/:id', 
-    	templateUrl: 'partials/lecture.html' 
-    	controller: 'LectureCtrl'	
+      templateUrl: 'partials/lecture.html' 
+      controller: 'LectureCtrl'	
     $routeProvider.when '/lectures/:id/register', 
       templateUrl: 'partials/lectureRegistration.html' 
       controller: 'LectureRegistrationCtrl'     
     $routeProvider.when '/active', 
-    	templateUrl: 'partials/active.html' 
-    	controller: 'ActiveEventCtrl'	
+      templateUrl: 'partials/active.html' 
+      controller: 'ActiveEventCtrl'	
     $routeProvider.when '/events',
-    	templateUrl: 'partials/events.html' 
-    	controller: 'EventsCtrl'
+      templateUrl: 'partials/events.html' 
+      controller: 'EventsCtrl'
     $routeProvider.when '/events/:id', 
-    	templateUrl: 'partials/event.html'
-    	controller: 'EventCtrl'  
+      templateUrl: 'partials/event.html'
+      controller: 'EventCtrl'  
     $routeProvider.when '/registration',
       templateUrl: 'partials/registration.html'
       controller: 'RegistrationCtrl'
@@ -173,13 +173,14 @@ angular
         $scope.lecture.participants.push data
         $scope.$apply() 
     ]) 
-    .controller('RegistrationCtrl', ['$scope', '$http', '$routeParams', '$location',  ($scope, $http, $routeParams, $location) ->      
+    .controller('RegistrationCtrl', ['$scope', '$http', '$routeParams', '$location', 'koe',  ($scope, $http, $routeParams, $location, koe) ->      
       $http.get("courses").success (data) ->
         $scope.courses = data 
 
       $scope.clicked = (id) ->
         $location.path("courses/#{id}/register")
 
+      koe.test('foobar')
     ]).controller('ActiveLectureCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->     
       matches = (word) ->
         count = 0
