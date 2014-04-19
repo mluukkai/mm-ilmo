@@ -1,75 +1,4 @@
 (function() {
-  angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 'myApp.controllers']).config([
-    '$routeProvider', function($routeProvider) {
-      $routeProvider.when('/view1', {
-        templateUrl: 'partials/partial1.html',
-        controller: 'MyCtrl1'
-      });
-      $routeProvider.when('/view2', {
-        templateUrl: 'partials/partial2.html',
-        controller: 'MyCtrl2'
-      });
-      return $routeProvider.otherwise({
-        redirectTo: '/view1'
-      });
-    }
-  ]);
-
-}).call(this);
-
-(function() {
-  angular.module('myApp.controllers', []).controller('MyCtrl1', ['$scope', function($scope) {}]).controller('MyCtrl2', ['$scope', function($scope) {}]);
-
-}).call(this);
-
-(function() {
-  angular.module('myApp.directives', []).directive('appVersion', [
-    'version', function(version) {
-      return function(scope, elm, attrs) {
-        return elm.text(version);
-      };
-    }
-  ]);
-
-}).call(this);
-
-(function() {
-  angular.module('eventApp', []).controller('EventCtrl', [
-    '$scope', '$http', function($scope, $http) {
-      var socket;
-      socket = io.connect();
-      $http.get('event').success(function(data) {
-        return $scope.event = data;
-      });
-      $scope.register = function() {
-        $http.post('event', {
-          name: $scope.name
-        }).success(function(data) {
-          return console.log("yes!");
-        });
-        return $scope.name = "";
-      };
-      return socket.on('news', function(data) {
-        $scope.event.registrations.push(data);
-        return $scope.$apply();
-      });
-    }
-  ]);
-
-}).call(this);
-
-(function() {
-  angular.module('myApp.filters', []).filter('interpolate', [
-    'version', function(version) {
-      return function(text) {
-        return String(text).replace(/\%VERSION\%/mg, version);
-      };
-    }
-  ]);
-
-}).call(this);
-
-(function() {
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('registerApp', ['ngRoute']).config([
@@ -298,16 +227,6 @@
         });
       });
     }
-  ]).controller('RegistrationCtrl', [
-    '$scope', '$http', '$routeParams', '$location', 'koe', function($scope, $http, $routeParams, $location, koe) {
-      $http.get("courses").success(function(data) {
-        return $scope.courses = data;
-      });
-      $scope.clicked = function(id) {
-        return $location.path("courses/" + id + "/register");
-      };
-      return koe.test('foobar');
-    }
   ]).controller('ActiveLectureCtrl', [
     '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
       var d, matches;
@@ -389,8 +308,89 @@
 }).call(this);
 
 (function() {
-  angular.module('myApp.services', []).value('version', '0.1');
+  angular.module('myApp.controllers', []).controller('MyCtrl1', ['$scope', function($scope) {}]).controller('MyCtrl2', ['$scope', function($scope) {}]);
 
+  angular.module('registerApp').controller('RegistrationCtrl', [
+    '$scope', '$http', '$routeParams', '$location', 'koe', function($scope, $http, $routeParams, $location, koe) {
+      $http.get("courses").success(function(data) {
+        return $scope.courses = data;
+      });
+      $scope.clicked = function(id) {
+        return $location.path("courses/" + id + "/register");
+      };
+      return koe.test('foobar');
+    }
+  ]);
+
+}).call(this);
+
+(function() {
+  angular.module('myApp.directives', []).directive('appVersion', [
+    'version', function(version) {
+      return function(scope, elm, attrs) {
+        return elm.text(version);
+      };
+    }
+  ]);
+
+}).call(this);
+
+(function() {
+  angular.module('eventApp', []).controller('EventCtrl', [
+    '$scope', '$http', function($scope, $http) {
+      var socket;
+      socket = io.connect();
+      $http.get('event').success(function(data) {
+        return $scope.event = data;
+      });
+      $scope.register = function() {
+        $http.post('event', {
+          name: $scope.name
+        }).success(function(data) {
+          return console.log("yes!");
+        });
+        return $scope.name = "";
+      };
+      return socket.on('news', function(data) {
+        $scope.event.registrations.push(data);
+        return $scope.$apply();
+      });
+    }
+  ]);
+
+}).call(this);
+
+(function() {
+  angular.module('myApp.filters', []).filter('interpolate', [
+    'version', function(version) {
+      return function(text) {
+        return String(text).replace(/\%VERSION\%/mg, version);
+      };
+    }
+  ]);
+
+}).call(this);
+
+(function() {
+  angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 'myApp.controllers']).config([
+    '$routeProvider', function($routeProvider) {
+      $routeProvider.when('/view1', {
+        templateUrl: 'partials/partial1.html',
+        controller: 'MyCtrl1'
+      });
+      $routeProvider.when('/view2', {
+        templateUrl: 'partials/partial2.html',
+        controller: 'MyCtrl2'
+      });
+      return $routeProvider.otherwise({
+        redirectTo: '/view1'
+      });
+    }
+  ]);
+
+}).call(this);
+
+(function() {
   angular.module('registerApp').factory('koe', function() {
     return {
       test: function(koe) {
