@@ -17,7 +17,7 @@ angular
   .factory('Course', ($http) ->
     {
       all: ()->
-        console.log "all"
+        $http.get("courses")
       get: (id)->
         $http.get("courses/#{id}")
     }

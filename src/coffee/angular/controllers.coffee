@@ -9,14 +9,13 @@ angular
 
 angular
   .module('registerApp')
-  .controller('RegistrationCtrl', ['$scope', '$http', '$routeParams', '$location', 'koe',  ($scope, $http, $routeParams, $location, koe) ->      
-      $http.get("courses").success (data) ->
-        $scope.courses = data 
+  .controller('RegistrationCtrl', ['$scope', '$location', 'Course', ($scope, $location, Course) ->      
+      Course.all().then (course) ->
+      	$scope.courses = course.data 
 
       $scope.clicked = (id) ->
         $location.path("courses/#{id}/register")
 
-      koe.test('foobar')
     ])  
   .controller('LectureCtrl', ['$scope', '$routeParams', 'Lecture', 'Course', ($scope, $routeParams, Lecture, Course) ->     
       socket = io.connect()
@@ -25,8 +24,15 @@ angular
         $scope.lecture.participants.push data
         $scope.$apply() 
 
-      Lecture.get($routeParams.id).then (data) ->	
-        $scope.lecture = data.data
-        Course.get($scope.lecture.course._id).then (course) ->	
-          $scope.students = course.data.participants
+      Lecture.get($routeParams.id)
+      .then( (lecture) ->	
+        $scope.lecture = lecture.data
+        return $scope.lecture.course._id
+      )
+      .then( (course_id) -> 
+      	Course.get(course_id)
+      )
+      .then( (course) ->	
+        $scope.students = course.data.participants
+      )
     ])

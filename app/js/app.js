@@ -231,14 +231,13 @@
   angular.module('myApp.controllers', []).controller('MyCtrl1', ['$scope', function($scope) {}]).controller('MyCtrl2', ['$scope', function($scope) {}]);
 
   angular.module('registerApp').controller('RegistrationCtrl', [
-    '$scope', '$http', '$routeParams', '$location', 'koe', function($scope, $http, $routeParams, $location, koe) {
-      $http.get("courses").success(function(data) {
-        return $scope.courses = data;
+    '$scope', '$location', 'Course', function($scope, $location, Course) {
+      Course.all().then(function(course) {
+        return $scope.courses = course.data;
       });
-      $scope.clicked = function(id) {
+      return $scope.clicked = function(id) {
         return $location.path("courses/" + id + "/register");
       };
-      return koe.test('foobar');
     }
   ]).controller('LectureCtrl', [
     '$scope', '$routeParams', 'Lecture', 'Course', function($scope, $routeParams, Lecture, Course) {
@@ -249,11 +248,13 @@
         $scope.lecture.participants.push(data);
         return $scope.$apply();
       });
-      return Lecture.get($routeParams.id).then(function(data) {
-        $scope.lecture = data.data;
-        return Course.get($scope.lecture.course._id).then(function(course) {
-          return $scope.students = course.data.participants;
-        });
+      return Lecture.get($routeParams.id).then(function(lecture) {
+        $scope.lecture = lecture.data;
+        return $scope.lecture.course._id;
+      }).then(function(course_id) {
+        return Course.get(course_id);
+      }).then(function(course) {
+        return $scope.students = course.data.participants;
       });
     }
   ]);
@@ -360,7 +361,7 @@
   }).factory('Course', function($http) {
     return {
       all: function() {
-        return console.log("all");
+        return $http.get("courses");
       },
       get: function(id) {
         return $http.get("courses/" + id);
