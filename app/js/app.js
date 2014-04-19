@@ -228,15 +228,17 @@
     }
   ]).controller('CoursesCtrl', [
     '$scope', 'Course', 'Flash', function($scope, Course, Flash) {
+      $scope["new"] = {};
       Course.all().then(function(course) {
         return $scope.courses = course.data;
       });
       return $scope.newCourse = function() {
-        $scope.visible = false;
+        $scope.creationFormVisible = false;
         Course.create($scope["new"]).success(function(data) {
+          $scope.courses.push(data);
           return Flash.set("course " + data.name + " " + data.term + " created", $scope);
         });
-        return $scope["new"] = "";
+        return $scope["new"] = {};
       };
     }
   ]);
@@ -247,12 +249,20 @@
   angular.module('registerApp').directive('togglable', function() {
     return {
       scope: {
-        title: '@'
+        title: '@',
+        vis: '=condition'
       },
       restrict: 'AE',
       replace: 'true',
       transclude: true,
       template: '<div><h3 ng-init="vis=false" ng-click="vis=!vis">{{title}}</h3><div ng-show="vis"><span ng-transclude></span></div></div>'
+    };
+  }).directive('flash', function() {
+    return {
+      scope: false,
+      restrict: 'AE',
+      replace: 'true',
+      template: '<div ng-show="flashed" class="alert alert-success">{{flash}}</div>'
     };
   });
 

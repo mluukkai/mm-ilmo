@@ -27,12 +27,15 @@ angular
       )
     ])
     .controller('CoursesCtrl', ['$scope', 'Course', 'Flash', ($scope, Course, Flash) ->
+        $scope.new = {}
+
         Course.all().then (course) ->
       	  $scope.courses = course.data 
 
-        $scope.newCourse = () ->
-          $scope.visible = false
+        $scope.newCourse = () ->	
+          $scope.creationFormVisible = false
           Course.create($scope.new).success (data) ->
-          	Flash.set("course #{data.name} #{data.term} created", $scope)
-          $scope.new = ""           
+            $scope.courses.push data        	
+            Flash.set("course #{data.name} #{data.term} created", $scope)
+          $scope.new = {}          
     ]) 
