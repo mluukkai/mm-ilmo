@@ -12,6 +12,8 @@ angular
         console.log "all"
       get: (id) ->
         $http.get("lectures/#{id}")
+      create: (data) ->  
+        $http.post('lectures', data)  
     }
   )   
   .factory('Course', ($http) ->

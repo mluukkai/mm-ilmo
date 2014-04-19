@@ -21,7 +21,7 @@ angular
       controller: 'RegistrationCtrl'
     $routeProvider.otherwise({redirectTo: '/registration'})  
   ]) 
-  .controller('CourseCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->
+  .controller('CourseCtrl2', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->
 
   		$http.get("courses/#{$routeParams.id}").success (data) ->
   			$scope.course = data 

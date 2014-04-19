@@ -39,3 +39,24 @@ angular
             Flash.set("course #{data.name} #{data.term} created", $scope)
           $scope.new = {}          
     ]) 
+    .controller('CourseCtrl', ['$scope','$http','$routeParams', 'Course', 'Lecture', ($scope, $http, $routeParams, Course, Lecture) ->
+        Course.get($routeParams.id).success (data) ->
+          $scope.course = data
+
+        $scope.createLecture = ->
+          $scope.lecture.course_id = $routeParams.id
+          Lecture.create($scope.lecture).success (data) ->
+            console.log data  
+            $scope.course.lectures.push(data)
+            $scope.createLectureForm = false 
+    
+        today = new Date()
+        month = "#{today.getMonth()+1}"
+        month = "0"+month if (today.getMonth()+1)<10 
+        day = "#{today.getDate()}"
+        day = "0"+day if (today.getDate()<10)
+
+        $scope.lecture = 
+            time: "12:15"
+            date: "#{today.getYear()+1900}-#{month}-#{day}"    
+    ])     

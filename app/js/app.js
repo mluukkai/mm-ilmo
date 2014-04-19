@@ -31,7 +31,7 @@
         redirectTo: '/registration'
       });
     }
-  ]).controller('CourseCtrl', [
+  ]).controller('CourseCtrl2', [
     '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
       var day, month, today;
       $http.get("courses/" + $routeParams.id).success(function(data) {
@@ -241,6 +241,34 @@
         return $scope["new"] = {};
       };
     }
+  ]).controller('CourseCtrl', [
+    '$scope', '$http', '$routeParams', 'Course', 'Lecture', function($scope, $http, $routeParams, Course, Lecture) {
+      var day, month, today;
+      Course.get($routeParams.id).success(function(data) {
+        return $scope.course = data;
+      });
+      $scope.createLecture = function() {
+        $scope.lecture.course_id = $routeParams.id;
+        return Lecture.create($scope.lecture).success(function(data) {
+          console.log(data);
+          $scope.course.lectures.push(data);
+          return $scope.createLectureForm = false;
+        });
+      };
+      today = new Date();
+      month = "" + (today.getMonth() + 1);
+      if ((today.getMonth() + 1) < 10) {
+        month = "0" + month;
+      }
+      day = "" + (today.getDate());
+      if (today.getDate() < 10) {
+        day = "0" + day;
+      }
+      return $scope.lecture = {
+        time: "12:15",
+        date: "" + (today.getYear() + 1900) + "-" + month + "-" + day
+      };
+    }
   ]);
 
 }).call(this);
@@ -348,6 +376,9 @@
       },
       get: function(id) {
         return $http.get("lectures/" + id);
+      },
+      create: function(data) {
+        return $http.post('lectures', data);
       }
     };
   }).factory('Course', function($http) {
