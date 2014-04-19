@@ -26,39 +26,28 @@ angular
         $scope.students = course.data.participants
       )
     ])
-    .controller('ActiveLectureCtrl', ['$scope', '$http', '$routeParams', '$timeout', 'Flash',  ($scope, $http, $routeParams, $timeout, Flash) ->     
-      matches = (word) ->
-        count = 0
-        for student in $scope.students  
-          count+=1 if student.name.toUpperCase().indexOf(word) != -1
-        count 
+    .controller('ActiveLectureCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->     
+      $scope.search = ""
+
+      Course.get($routeParams.id).success (course) ->
+        $scope.course = course
+        $scope.students = course.participants  
+
+      Course.activeLectureOf($routeParams.id).success (lecture) ->
+        $scope.lecture = lecture
+        $scope.nolecture = (lecture.course == undefined)
 
       $scope.register = (student) ->
-        student_id = student._id
-        data =
-          student_id: student_id
-          lecture_id: $scope.lecture._id
-        $http.post("registrations", data).success (response) ->
+        Lecture.register(student, $scope.lecture).success (response) ->
           $scope.lecture.participants.push response.data.student 
           Flash.set("#{student.name} registered", $scope)
           $scope.search = ""
 
-      $scope.search = ""
-      $scope.students = []
-      $scope.flashed = false
-
       $scope.registered = (student) ->
         student.number in $scope.lecture.participants.map (p) -> p.number 
 
-      $scope.condition = (item) ->
-        $scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<5  
-
-      $http.get("courses/#{$routeParams.id}").success (course) ->
-        $scope.course = course
-        $scope.students = course.participants  
-        $http.get("courses/#{$routeParams.id}/active_lecture").success (lecture) ->
-          $scope.lecture = lecture
-          $scope.nolecture=(lecture.course == undefined)
+      $scope.condition = (student) ->
+        Matcher.condition(student, $scope.search, $scope.students)
 
     ])
     .controller('CoursesCtrl', ['$scope', 'Course', 'Flash', ($scope, Course, Flash) ->
@@ -74,7 +63,7 @@ angular
             Flash.set("course #{data.name} #{data.term} created", $scope)
           $scope.new = {}          
     ]) 
-    .controller('CourseCtrl', ['$scope', 'DateService','$routeParams', 'Course', 'Lecture', 'Flash', ($scope, DateService, $routeParams, Course, Lecture, Flash) ->
+    .controller('CourseCtrl', ['$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', ($scope, $routeParams, DateService, Course, Lecture, Flash) ->
         $scope.lecture = 
             time: "12:15"
             date: DateService.getString()  

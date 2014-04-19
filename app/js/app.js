@@ -178,53 +178,32 @@
       });
     }
   ]).controller('ActiveLectureCtrl', [
-    '$scope', '$http', '$routeParams', '$timeout', 'Flash', function($scope, $http, $routeParams, $timeout, Flash) {
-      var matches;
-      matches = function(word) {
-        var count, student, _i, _len, _ref;
-        count = 0;
-        _ref = $scope.students;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          student = _ref[_i];
-          if (student.name.toUpperCase().indexOf(word) !== -1) {
-            count += 1;
-          }
-        }
-        return count;
-      };
+    '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
+      $scope.search = "";
+      Course.get($routeParams.id).success(function(course) {
+        $scope.course = course;
+        return $scope.students = course.participants;
+      });
+      Course.activeLectureOf($routeParams.id).success(function(lecture) {
+        $scope.lecture = lecture;
+        return $scope.nolecture = lecture.course === void 0;
+      });
       $scope.register = function(student) {
-        var data, student_id;
-        student_id = student._id;
-        data = {
-          student_id: student_id,
-          lecture_id: $scope.lecture._id
-        };
-        return $http.post("registrations", data).success(function(response) {
+        return Lecture.register(student, $scope.lecture).success(function(response) {
           $scope.lecture.participants.push(response.data.student);
           Flash.set("" + student.name + " registered", $scope);
           return $scope.search = "";
         });
       };
-      $scope.search = "";
-      $scope.students = [];
-      $scope.flashed = false;
       $scope.registered = function(student) {
         var _ref;
         return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
           return p.number;
         }), _ref) >= 0;
       };
-      $scope.condition = function(item) {
-        return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
+      return $scope.condition = function(student) {
+        return Matcher.condition(student, $scope.search, $scope.students);
       };
-      return $http.get("courses/" + $routeParams.id).success(function(course) {
-        $scope.course = course;
-        $scope.students = course.participants;
-        return $http.get("courses/" + $routeParams.id + "/active_lecture").success(function(lecture) {
-          $scope.lecture = lecture;
-          return $scope.nolecture = lecture.course === void 0;
-        });
-      });
     }
   ]).controller('CoursesCtrl', [
     '$scope', 'Course', 'Flash', function($scope, Course, Flash) {
@@ -242,7 +221,7 @@
       };
     }
   ]).controller('CourseCtrl', [
-    '$scope', 'DateService', '$routeParams', 'Course', 'Lecture', 'Flash', function($scope, DateService, $routeParams, Course, Lecture, Flash) {
+    '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', function($scope, $routeParams, DateService, Course, Lecture, Flash) {
       $scope.lecture = {
         time: "12:15",
         date: DateService.getString()
@@ -385,6 +364,14 @@
       },
       create: function(data) {
         return $http.post('lectures', data);
+      },
+      register: function(student, lecture) {
+        var data;
+        data = {
+          student_id: student._id,
+          lecture_id: lecture._id
+        };
+        return $http.post("registrations", data);
       }
     };
   }).factory('Course', function($http) {
@@ -397,6 +384,9 @@
       },
       create: function(data) {
         return $http.post('courses', data);
+      },
+      activeLectureOf: function(id) {
+        return $http.get("courses/" + id + "/active_lecture");
       },
       registerStudent: function(data) {
         return $http.post('students', data);
@@ -427,6 +417,27 @@
           day = "0" + day;
         }
         return "" + (today.getYear() + 1900) + "-" + month + "-" + day;
+      }
+    };
+  }).factory('Matcher', function() {
+    var mathes;
+    mathes = function(word, students) {
+      var count, student, _i, _len;
+      count = 0;
+      for (_i = 0, _len = students.length; _i < _len; _i++) {
+        student = students[_i];
+        if (student.name.toUpperCase().indexOf(word) !== -1) {
+          count += 1;
+        }
+      }
+      return count;
+    };
+    return {
+      condition: function(student, search, students) {
+        var student_name;
+        search = search.toUpperCase();
+        student_name = student.name.toUpperCase();
+        return search.length > 1 && student_name.indexOf(search) !== -1 && mathes(search, students) < 5;
       }
     };
   });

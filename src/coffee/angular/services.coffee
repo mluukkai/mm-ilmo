@@ -13,7 +13,12 @@ angular
       get: (id) ->
         $http.get("lectures/#{id}")
       create: (data) ->  
-        $http.post('lectures', data)  
+        $http.post('lectures', data)
+      register: (student, lecture) ->
+        data =
+          student_id: student._id
+          lecture_id: lecture._id
+        $http.post("registrations", data) 
     }
   )   
   .factory('Course', ($http) ->
@@ -23,9 +28,11 @@ angular
       get: (id) ->
         $http.get("courses/#{id}")
       create: (data) ->  
-        $http.post('courses', data)
+        $http.post('courses', data)  
+      activeLectureOf: (id) ->
+        $http.get("courses/#{id}/active_lecture")
       registerStudent: (data) ->
-        $http.post('students', data)   
+        $http.post('students', data)     
     }
   )
   .factory('Flash', ($timeout) ->
@@ -49,5 +56,19 @@ angular
         day = "0"+day if (today.getDate()<10)
 
         "#{today.getYear()+1900}-#{month}-#{day}"
+    }
+  )
+  .factory('Matcher', ->
+    mathes = (word, students) ->
+      count = 0
+      for student in students  
+        count+=1 if student.name.toUpperCase().indexOf(word) != -1
+      count
+
+    {
+      condition: (student, search, students) ->
+        search = search.toUpperCase()
+        student_name = student.name.toUpperCase()
+        search.length>1 and student_name.indexOf(search) != -1 and mathes(search, students )<5  
     }
   )
