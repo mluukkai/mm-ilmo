@@ -20,7 +20,6 @@ angular
   .controller('LectureCtrl', ['$scope', '$routeParams', 'Lecture', 'Course', ($scope, $routeParams, Lecture, Course) ->     
       socket = io.connect()
       socket.on 'registration', (data) -> 
-        console.log data
         $scope.lecture.participants.push data
         $scope.$apply() 
 
@@ -36,3 +35,19 @@ angular
         $scope.students = course.data.participants
       )
     ])
+    .controller('CoursesCtrl', ['$scope', '$timeout', '$http', 'Course', ($scope, $timeout, $http, Course) ->
+        Course.all().then (course) ->
+      	  $scope.courses = course.data 
+
+        $scope.newCourse = () ->
+          $scope.visible = false
+          Course.create($scope.new).success (data) ->
+            $scope.courses.push data
+            $scope.flashed = true
+            $scope.flash = "course #{data.name} #{data.term} created"
+            $timeout( () ->
+              $scope.flash = null
+              $scope.flashed = false
+            , 2500) 
+          $scope.new = ""           
+    ]) 

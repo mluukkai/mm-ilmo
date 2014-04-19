@@ -31,34 +31,6 @@
         redirectTo: '/registration'
       });
     }
-  ]).controller('CoursesCtrl', [
-    '$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-      /*
-      $scope.new = 
-        name: 'ohtu'
-        term: 'sprinr 2014'
-        teacher: 'mluukkai'
-      */
-
-      $http.get("courses").success(function(data) {
-        return $scope.courses = data;
-      });
-      return $scope.newCourse = function() {
-        console.log($scope["new"]);
-        $scope.visible = false;
-        $http.post('courses', $scope["new"]).success(function(data) {
-          console.log(data);
-          $scope.courses.push(data);
-          $scope.flashed = true;
-          $scope.flash = "course " + data.name + " " + data.term + " created";
-          return $timeout(function() {
-            $scope.flash = null;
-            return $scope.flashed = false;
-          }, 2500);
-        });
-        return $scope["new"] = "";
-      };
-    }
   ]).controller('CourseCtrl', [
     '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
       var day, month, today;
@@ -244,7 +216,6 @@
       var socket;
       socket = io.connect();
       socket.on('registration', function(data) {
-        console.log(data);
         $scope.lecture.participants.push(data);
         return $scope.$apply();
       });
@@ -256,6 +227,25 @@
       }).then(function(course) {
         return $scope.students = course.data.participants;
       });
+    }
+  ]).controller('CoursesCtrl', [
+    '$scope', '$timeout', '$http', 'Course', function($scope, $timeout, $http, Course) {
+      Course.all().then(function(course) {
+        return $scope.courses = course.data;
+      });
+      return $scope.newCourse = function() {
+        $scope.visible = false;
+        Course.create($scope["new"]).success(function(data) {
+          $scope.courses.push(data);
+          $scope.flashed = true;
+          $scope.flash = "course " + data.name + " " + data.term + " created";
+          return $timeout(function() {
+            $scope.flash = null;
+            return $scope.flashed = false;
+          }, 2500);
+        });
+        return $scope["new"] = "";
+      };
     }
   ]);
 
@@ -365,6 +355,9 @@
       },
       get: function(id) {
         return $http.get("courses/" + id);
+      },
+      create: function(data) {
+        return $http.post('courses', data);
       }
     };
   });

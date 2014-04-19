@@ -20,31 +20,7 @@ angular
       templateUrl: 'partials/registration.html'
       controller: 'RegistrationCtrl'
     $routeProvider.otherwise({redirectTo: '/registration'})  
-  ])
-  .controller('CoursesCtrl', ['$scope', '$http', '$timeout', ($scope, $http, $timeout) ->
-        ###
-        $scope.new = 
-          name: 'ohtu'
-          term: 'sprinr 2014'
-          teacher: 'mluukkai'
-        ###
-        $http.get("courses").success (data) ->
-          $scope.courses = data
-
-        $scope.newCourse = () ->
-          console.log $scope.new
-          $scope.visible = false
-          $http.post('courses', $scope.new).success (data) ->
-            console.log data
-            $scope.courses.push data
-            $scope.flashed = true
-            $scope.flash = "course #{data.name} #{data.term} created"
-            $timeout( () ->
-              $scope.flash = null
-              $scope.flashed = false
-            , 2500) 
-          $scope.new = ""           
-    ])   
+  ]) 
   .controller('CourseCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->
 
   		$http.get("courses/#{$routeParams.id}").success (data) ->

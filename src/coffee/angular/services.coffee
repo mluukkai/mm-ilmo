@@ -8,17 +8,19 @@ angular
   )
   .factory('Lecture', ($http) ->
     {
-      all: ()->
+      all: () ->
         console.log "all"
-      get: (id)->
+      get: (id) ->
         $http.get("lectures/#{id}")
     }
   )   
   .factory('Course', ($http) ->
     {
-      all: ()->
+      all: () ->
         $http.get("courses")
-      get: (id)->
+      get: (id) ->
         $http.get("courses/#{id}")
+      create: (data) ->  
+        $http.post('courses', data)
     }
   ) 
