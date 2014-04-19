@@ -84,7 +84,7 @@
         return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
       };
     }
-  ]).controller('ActiveLectureCtrl', [
+  ]).controller('ActiveLectureCtrl2', [
     '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
       var d, matches;
       matches = function(word) {
@@ -177,6 +177,66 @@
         return $scope.students = course.data.participants;
       });
     }
+  ]).controller('ActiveLectureCtrl', [
+    '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
+      var d, matches;
+      matches = function(word) {
+        var count, student, _i, _len, _ref;
+        count = 0;
+        _ref = $scope.students;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          student = _ref[_i];
+          if (student.name.toUpperCase().indexOf(word) !== -1) {
+            count += 1;
+          }
+        }
+        return count;
+      };
+      $scope.register = function(student) {
+        var data, student_id;
+        student_id = student._id;
+        data = {
+          student_id: student_id,
+          lecture_id: $scope.lecture._id
+        };
+        return $http.post("registrations", data).success(function(response) {
+          $scope.lecture.participants.push(response.data.student);
+          $scope.flashed = true;
+          $scope.flash = "" + student.name + " registered";
+          return $timeout(function() {
+            $scope.flash = null;
+            $scope.flashed = false;
+            return $scope.search = "";
+          }, 3000);
+        });
+      };
+      $scope.search = "";
+      $scope.students = [];
+      $scope.flashed = false;
+      $scope.registered = function(student) {
+        var _ref;
+        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
+          return p.number;
+        }), _ref) >= 0;
+      };
+      $scope.condition = function(item) {
+        return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
+      };
+      d = new Date();
+      $scope.day = {
+        d: d.getDate(),
+        m: d.getMonth() + 1,
+        y: d.getYear() + 1900
+      };
+      return $http.get("courses/" + $routeParams.id).success(function(course) {
+        $scope.course = course;
+        $scope.students = course.participants;
+        return $http.get("courses/" + $routeParams.id + "/active_lecture").success(function(lecture) {
+          $scope.lecture = lecture;
+          return $scope.nolecture = lecture.course === void 0;
+        });
+      });
+    }
   ]).controller('CoursesCtrl', [
     '$scope', 'Course', 'Flash', function($scope, Course, Flash) {
       $scope["new"] = {};
@@ -193,7 +253,12 @@
       };
     }
   ]).controller('CourseCtrl', [
-    '$scope', '$http', 'DateString', '$routeParams', 'Course', 'Lecture', 'Flash', function($scope, $http, DateString, $routeParams, Course, Lecture, Flash) {
+    '$scope', 'DateString', '$routeParams', 'Course', 'Lecture', 'Flash', function($scope, DateString, $routeParams, Course, Lecture, Flash) {
+      $scope.lecture = {
+        time: "12:15",
+        date: DateString.get()
+      };
+      $scope.student = {};
       Course.get($routeParams.id).success(function(data) {
         return $scope.course = data;
       });
@@ -204,15 +269,11 @@
           return $scope.createLectureFormVisible = false;
         });
       };
-      $scope.lecture = {
-        time: "12:15",
-        date: DateString.get()
-      };
       $scope.registerStudent = function() {
         $scope.student.course_id = $routeParams.id;
         Course.registerStudent($scope.student).success(function(data) {
           $scope.course.participants.push(data);
-          $scope.reg = false;
+          $scope.registrationFormVisible = false;
           return Flash.set("registered " + data.name + " to course", $scope);
         });
         return $scope.student = {};

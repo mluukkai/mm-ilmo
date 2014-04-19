@@ -76,11 +76,8 @@
 
 </div>	
 
-<div class="boxed">
-
-	<h3 ng-init="reg=false" ng-click="reg = !reg">Register a student</h3>
-
-	<form ng-show="reg" role="form">
+<togglable title="Register a student" condition='registrationFormVisible' class="boxed">
+	<form role="form">
 		<div class="form-group">
 			<label>first name </label>   
 			<input type="text" ng-model="student.first_name" class="form-control">
@@ -95,8 +92,7 @@
 		</div>
 		<button class="btn btn-primary" ng-click="registerStudent()">register</button>
 	</form>
-
-</div>
+</togglable>
 
 <div class="boxed">
 

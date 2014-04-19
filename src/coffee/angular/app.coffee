@@ -59,7 +59,7 @@ angular
       $scope.condition = (item) ->
         $scope.search.length>1 and item.name.toUpperCase().indexOf($scope.search.toUpperCase()) != -1 and matches($scope.search.toUpperCase())<5
     ]) 
-    .controller('ActiveLectureCtrl', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->     
+    .controller('ActiveLectureCtrl2', ['$scope', '$http', '$routeParams', '$timeout',  ($scope, $http, $routeParams, $timeout) ->     
       matches = (word) ->
         count = 0
         for student in $scope.students  
