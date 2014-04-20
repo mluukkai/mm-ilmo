@@ -86,17 +86,7 @@ angular
 
     ])
     .controller('CoursesCtrl', ['$scope', 'Course', 'Flash', ($scope, Course, Flash) ->
-        $scope.new = {}
-
-        Course.all().then (course) ->
-      	  $scope.courses = course.data 
-
-        $scope.newCourse = () ->	
-          $scope.creationFormVisible = false
-          Course.create($scope.new).success (data) ->
-            $scope.courses.push data        	
-            Flash.set("course #{data.name} #{data.term} created", $scope)
-          $scope.new = {}          
+        new CoursesController($scope, Course, Flash).initialize() 
     ]) 
     .controller('CourseCtrl', ['$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', ($scope, $routeParams, DateService, Course, Lecture, Flash) ->
         $scope.lecture = 
@@ -125,3 +115,20 @@ angular
           return "  X" if student._id in lecture.participants
           return ""        
     ])     
+
+class CoursesController
+  constructor: (@scope, @Course, @Flash) ->
+
+  initialize: () ->  
+    $scope = @scope
+
+    $scope.new = {}
+    @Course.all().then (course) =>
+      $scope.courses = course.data
+
+    $scope .newCourse = () =>  
+      $scope.creationFormVisible = false
+      @Course.create($scope.new).success (data) ->
+        $scope.courses.push data          
+        @Flash.set("course #{data.name} #{data.term} created", $scope )
+      $scope.new = {} 

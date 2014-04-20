@@ -34,7 +34,8 @@
 }).call(this);
 
 (function() {
-  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var CoursesController,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('registerApp').controller('RegistrationCtrl', [
     '$scope', '$location', 'Course', function($scope, $location, Course) {
@@ -129,18 +130,7 @@
     }
   ]).controller('CoursesCtrl', [
     '$scope', 'Course', 'Flash', function($scope, Course, Flash) {
-      $scope["new"] = {};
-      Course.all().then(function(course) {
-        return $scope.courses = course.data;
-      });
-      return $scope.newCourse = function() {
-        $scope.creationFormVisible = false;
-        Course.create($scope["new"]).success(function(data) {
-          $scope.courses.push(data);
-          return Flash.set("course " + data.name + " " + data.term + " created", $scope);
-        });
-        return $scope["new"] = {};
-      };
+      return new CoursesController($scope, Course, Flash).initialize();
     }
   ]).controller('CourseCtrl', [
     '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', function($scope, $routeParams, DateService, Course, Lecture, Flash) {
@@ -177,6 +167,35 @@
       };
     }
   ]);
+
+  CoursesController = (function() {
+    function CoursesController(scope, Course, Flash) {
+      this.scope = scope;
+      this.Course = Course;
+      this.Flash = Flash;
+    }
+
+    CoursesController.prototype.initialize = function() {
+      var $scope,
+        _this = this;
+      $scope = this.scope;
+      $scope["new"] = {};
+      this.Course.all().then(function(course) {
+        return $scope.courses = course.data;
+      });
+      return $scope.newCourse = function() {
+        $scope.creationFormVisible = false;
+        _this.Course.create($scope["new"]).success(function(data) {
+          $scope.courses.push(data);
+          return this.Flash.set("course " + data.name + " " + data.term + " created", $scope);
+        });
+        return $scope["new"] = {};
+      };
+    };
+
+    return CoursesController;
+
+  })();
 
 }).call(this);
 
