@@ -122,6 +122,6 @@ angular
           $scope.student = {} 
 
         $scope.registered = (student, lecture) ->
-            return "  X" if student._id in lecture.participants
-            return ""        
+          return "  X" if student._id in lecture.participants
+          return ""        
     ])     
