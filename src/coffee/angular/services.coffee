@@ -1,11 +1,5 @@
 angular
   .module('registerApp')
-  .factory('koe', ->
-    {
-      test: (koe)->
-        console.log koe
-    }
-  )
   .factory('Lecture', ($http) ->
     {
       all: () ->

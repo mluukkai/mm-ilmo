@@ -26,16 +26,51 @@ angular
         $scope.students = course.data.participants
       )
     ])
-    .controller('ActiveLectureCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->     
+    .controller('LectureRegistrationCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher',  ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->
+
+      initialize = ->
+        Lecture.get($routeParams.id)
+        .then(
+          (lecture) -> 
+            $scope.lecture = lecture.data
+            lecture.data
+        ).then(
+          (lecture) ->
+            Course.get(lecture.course._id)
+        ).then(
+          (course) ->
+            $scope.course = course.data
+            $scope.students = course.data.participants  
+        )
+
       $scope.search = ""
 
-      Course.get($routeParams.id).success (course) ->
-        $scope.course = course
-        $scope.students = course.participants  
+      initialize()
 
-      Course.activeLectureOf($routeParams.id).success (lecture) ->
-        $scope.lecture = lecture
-        $scope.nolecture = (lecture.course == undefined)
+      $scope.register = (student) ->
+        Lecture.register(student, $scope.lecture).success (response) ->
+          $scope.lecture.participants.push response.data.student 
+          Flash.set("#{student.name} registered", $scope)
+          $scope.search = ""
+
+      $scope.registered = (student) ->
+        student.number in $scope.lecture.participants.map (p) -> p.number 
+
+      $scope.condition = (student) ->
+        Matcher.condition(student, $scope.search, $scope.students)
+    ]) 
+    .controller('ActiveLectureCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->     
+      initialize = ->
+        Course.get($routeParams.id).success (course) ->
+          $scope.course = course
+          $scope.students = course.participants  
+        Course.activeLectureOf($routeParams.id).success (lecture) ->
+          $scope.lecture = lecture
+          $scope.nolecture = (lecture.course == undefined)
+
+      $scope.search = ""
+
+      initialize()
 
       $scope.register = (student) ->
         Lecture.register(student, $scope.lecture).success (response) ->

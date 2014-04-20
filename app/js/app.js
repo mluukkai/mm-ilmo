@@ -1,6 +1,4 @@
 (function() {
-  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
   angular.module('registerApp', ['ngRoute']).config([
     '$routeProvider', function($routeProvider) {
       $routeProvider.when('/courses', {
@@ -29,119 +27,6 @@
       });
       return $routeProvider.otherwise({
         redirectTo: '/registration'
-      });
-    }
-  ]).controller('LectureRegistrationCtrl', [
-    '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
-      var matches;
-      matches = function(word) {
-        var count, student, _i, _len, _ref;
-        count = 0;
-        _ref = $scope.students;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          student = _ref[_i];
-          if (student.name.toUpperCase().indexOf(word) !== -1) {
-            count += 1;
-          }
-        }
-        return count;
-      };
-      $http.get("lectures/" + $routeParams.id).success(function(data) {
-        $scope.lecture = data;
-        return $http.get("courses/" + data.course._id).success(function(course) {
-          $scope.students = course.participants;
-          return $scope.course = course;
-        });
-      });
-      $scope.register = function(student) {
-        var data, student_id;
-        student_id = student._id;
-        data = {
-          student_id: student_id,
-          lecture_id: $routeParams.id
-        };
-        return $http.post("registrations", data).success(function(response) {
-          $scope.lecture.participants.push(response.data.student);
-          $scope.flashed = true;
-          $scope.flash = "" + student.name + " registered";
-          return $timeout(function() {
-            $scope.flash = null;
-            $scope.flashed = false;
-            return $scope.search = "";
-          }, 3000);
-        });
-      };
-      $scope.search = "";
-      $scope.students = [];
-      $scope.flashed = false;
-      $scope.registered = function(student) {
-        var _ref;
-        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
-          return p.number;
-        }), _ref) >= 0;
-      };
-      return $scope.condition = function(item) {
-        return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
-      };
-    }
-  ]).controller('ActiveLectureCtrl2', [
-    '$scope', '$http', '$routeParams', '$timeout', function($scope, $http, $routeParams, $timeout) {
-      var d, matches;
-      matches = function(word) {
-        var count, student, _i, _len, _ref;
-        count = 0;
-        _ref = $scope.students;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          student = _ref[_i];
-          if (student.name.toUpperCase().indexOf(word) !== -1) {
-            count += 1;
-          }
-        }
-        return count;
-      };
-      $scope.register = function(student) {
-        var data, student_id;
-        student_id = student._id;
-        data = {
-          student_id: student_id,
-          lecture_id: $scope.lecture._id
-        };
-        return $http.post("registrations", data).success(function(response) {
-          $scope.lecture.participants.push(response.data.student);
-          $scope.flashed = true;
-          $scope.flash = "" + student.name + " registered";
-          return $timeout(function() {
-            $scope.flash = null;
-            $scope.flashed = false;
-            return $scope.search = "";
-          }, 3000);
-        });
-      };
-      $scope.search = "";
-      $scope.students = [];
-      $scope.flashed = false;
-      $scope.registered = function(student) {
-        var _ref;
-        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
-          return p.number;
-        }), _ref) >= 0;
-      };
-      $scope.condition = function(item) {
-        return $scope.search.length > 1 && item.name.toUpperCase().indexOf($scope.search.toUpperCase()) !== -1 && matches($scope.search.toUpperCase()) < 5;
-      };
-      d = new Date();
-      $scope.day = {
-        d: d.getDate(),
-        m: d.getMonth() + 1,
-        y: d.getYear() + 1900
-      };
-      return $http.get("courses/" + $routeParams.id).success(function(course) {
-        $scope.course = course;
-        $scope.students = course.participants;
-        return $http.get("courses/" + $routeParams.id + "/active_lecture").success(function(lecture) {
-          $scope.lecture = lecture;
-          return $scope.nolecture = lecture.course === void 0;
-        });
       });
     }
   ]);
@@ -177,17 +62,54 @@
         return $scope.students = course.data.participants;
       });
     }
+  ]).controller('LectureRegistrationCtrl', [
+    '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
+      var initialize;
+      initialize = function() {
+        return Lecture.get($routeParams.id).then(function(lecture) {
+          $scope.lecture = lecture.data;
+          return lecture.data;
+        }).then(function(lecture) {
+          return Course.get(lecture.course._id);
+        }).then(function(course) {
+          $scope.course = course.data;
+          return $scope.students = course.data.participants;
+        });
+      };
+      $scope.search = "";
+      initialize();
+      $scope.register = function(student) {
+        return Lecture.register(student, $scope.lecture).success(function(response) {
+          $scope.lecture.participants.push(response.data.student);
+          Flash.set("" + student.name + " registered", $scope);
+          return $scope.search = "";
+        });
+      };
+      $scope.registered = function(student) {
+        var _ref;
+        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
+          return p.number;
+        }), _ref) >= 0;
+      };
+      return $scope.condition = function(student) {
+        return Matcher.condition(student, $scope.search, $scope.students);
+      };
+    }
   ]).controller('ActiveLectureCtrl', [
     '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
+      var initialize;
+      initialize = function() {
+        Course.get($routeParams.id).success(function(course) {
+          $scope.course = course;
+          return $scope.students = course.participants;
+        });
+        return Course.activeLectureOf($routeParams.id).success(function(lecture) {
+          $scope.lecture = lecture;
+          return $scope.nolecture = lecture.course === void 0;
+        });
+      };
       $scope.search = "";
-      Course.get($routeParams.id).success(function(course) {
-        $scope.course = course;
-        return $scope.students = course.participants;
-      });
-      Course.activeLectureOf($routeParams.id).success(function(lecture) {
-        $scope.lecture = lecture;
-        return $scope.nolecture = lecture.course === void 0;
-      });
+      initialize();
       $scope.register = function(student) {
         return Lecture.register(student, $scope.lecture).success(function(response) {
           $scope.lecture.participants.push(response.data.student);
@@ -307,14 +229,6 @@
 }).call(this);
 
 (function() {
-  angular.module('myApp.filters', []).filter('interpolate', [
-    'version', function(version) {
-      return function(text) {
-        return String(text).replace(/\%VERSION\%/mg, version);
-      };
-    }
-  ]);
-
   angular.module('registerApp').filter('date', function() {
     return function(date) {
       var parts;
@@ -348,13 +262,7 @@
 }).call(this);
 
 (function() {
-  angular.module('registerApp').factory('koe', function() {
-    return {
-      test: function(koe) {
-        return console.log(koe);
-      }
-    };
-  }).factory('Lecture', function($http) {
+  angular.module('registerApp').factory('Lecture', function($http) {
     return {
       all: function() {
         return console.log("all");

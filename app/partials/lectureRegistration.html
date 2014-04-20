@@ -20,7 +20,9 @@
 		<p ng-repeat="student in students|filter:condition">
 			{{student.name}}
 			<a ng-hide="registered(student)" ng-click="register(student)" class="btn btn-primary">register</a>
-			<span ng-show="registered(student)"><em>registered already!</em></span>
+			<span ng-show="registered(student)">
+			  <em>registered already!</em>
+			</span>
 		</p>
 
 		<p><strong>start typing your name until it is found</strong></p>
