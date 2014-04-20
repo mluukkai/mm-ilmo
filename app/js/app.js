@@ -34,7 +34,7 @@
 }).call(this);
 
 (function() {
-  var CoursesController,
+  var CoursesController, RegistrationController,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   angular.module('registerApp').controller('RegistrationCtrl', [
@@ -65,72 +65,19 @@
     }
   ]).controller('LectureRegistrationCtrl', [
     '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
-      var initialize;
-      initialize = function() {
-        return Lecture.get($routeParams.id).then(function(lecture) {
-          $scope.lecture = lecture.data;
-          return lecture.data;
-        }).then(function(lecture) {
-          return Course.get(lecture.course._id);
-        }).then(function(course) {
-          $scope.course = course.data;
-          return $scope.students = course.data.participants;
-        });
-      };
-      $scope.search = "";
-      initialize();
-      $scope.register = function(student) {
-        return Lecture.register(student, $scope.lecture).success(function(response) {
-          $scope.lecture.participants.push(response.data.student);
-          Flash.set("" + student.name + " registered", $scope);
-          return $scope.search = "";
-        });
-      };
-      $scope.registered = function(student) {
-        var _ref;
-        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
-          return p.number;
-        }), _ref) >= 0;
-      };
-      return $scope.condition = function(student) {
-        return Matcher.condition(student, $scope.search, $scope.students);
-      };
+      var ctrl;
+      ctrl = new RegistrationController($scope, $routeParams.id, Course, Lecture, Flash, Matcher);
+      return ctrl.initialize_lecture().run();
     }
   ]).controller('ActiveLectureCtrl', [
     '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
-      var initialize;
-      initialize = function() {
-        Course.get($routeParams.id).success(function(course) {
-          $scope.course = course;
-          return $scope.students = course.participants;
-        });
-        return Course.activeLectureOf($routeParams.id).success(function(lecture) {
-          $scope.lecture = lecture;
-          return $scope.nolecture = lecture.course === void 0;
-        });
-      };
-      $scope.search = "";
-      initialize();
-      $scope.register = function(student) {
-        return Lecture.register(student, $scope.lecture).success(function(response) {
-          $scope.lecture.participants.push(response.data.student);
-          Flash.set("" + student.name + " registered", $scope);
-          return $scope.search = "";
-        });
-      };
-      $scope.registered = function(student) {
-        var _ref;
-        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
-          return p.number;
-        }), _ref) >= 0;
-      };
-      return $scope.condition = function(student) {
-        return Matcher.condition(student, $scope.search, $scope.students);
-      };
+      var ctrl;
+      ctrl = new RegistrationController($scope, $routeParams.id, Course, Lecture, Flash, Matcher);
+      return ctrl.initialize_active().run();
     }
   ]).controller('CoursesCtrl', [
     '$scope', 'Course', 'Flash', function($scope, Course, Flash) {
-      return new CoursesController($scope, Course, Flash).initialize();
+      return new CoursesController($scope, Course, Flash).run();
     }
   ]).controller('CourseCtrl', [
     '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', function($scope, $routeParams, DateService, Course, Lecture, Flash) {
@@ -168,14 +115,20 @@
     }
   ]);
 
+  /*
+    Controller classes
+  */
+
+
   CoursesController = (function() {
     function CoursesController(scope, Course, Flash) {
       this.scope = scope;
       this.Course = Course;
       this.Flash = Flash;
+      this.scope.search = "";
     }
 
-    CoursesController.prototype.initialize = function() {
+    CoursesController.prototype.run = function() {
       var $scope,
         _this = this;
       $scope = this.scope;
@@ -194,6 +147,72 @@
     };
 
     return CoursesController;
+
+  })();
+
+  RegistrationController = (function() {
+    function RegistrationController(scope, id, Course, Lecture, Flash, Matcher) {
+      this.scope = scope;
+      this.id = id;
+      this.Course = Course;
+      this.Lecture = Lecture;
+      this.Flash = Flash;
+      this.Matcher = Matcher;
+    }
+
+    RegistrationController.prototype.initialize_lecture = function() {
+      var $scope,
+        _this = this;
+      $scope = this.scope;
+      this.Lecture.get(this.id).then(function(lecture) {
+        $scope.lecture = lecture.data;
+        return lecture.data;
+      }).then(function(lecture) {
+        return _this.Course.get(lecture.course._id);
+      }).then(function(course) {
+        $scope.course = course.data;
+        return $scope.students = course.data.participants;
+      });
+      return this;
+    };
+
+    RegistrationController.prototype.initialize_active = function() {
+      var $scope;
+      $scope = this.scope;
+      this.Course.get(this.id).success(function(course) {
+        $scope.course = course;
+        return $scope.students = course.participants;
+      });
+      this.Course.activeLectureOf(this.id).success(function(lecture) {
+        $scope.lecture = lecture;
+        return $scope.nolecture = lecture.course === void 0;
+      });
+      return this;
+    };
+
+    RegistrationController.prototype.run = function() {
+      var $scope,
+        _this = this;
+      $scope = this.scope;
+      $scope.register = function(student) {
+        return _this.Lecture.register(student, $scope.lecture).success(function(response) {
+          $scope.lecture.participants.push(response.data.student);
+          _this.Flash.set("" + student.name + " registered", $scope);
+          return $scope.search = "";
+        });
+      };
+      $scope.registered = function(student) {
+        var _ref;
+        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
+          return p.number;
+        }), _ref) >= 0;
+      };
+      return $scope.condition = function(student) {
+        return _this.Matcher.condition(student, $scope.search, $scope.students);
+      };
+    };
+
+    return RegistrationController;
 
   })();
 

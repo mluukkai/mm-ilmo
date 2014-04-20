@@ -27,58 +27,15 @@ angular
       )
     ])
     .controller('LectureRegistrationCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher',  ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->
-
-      initialize = ->
-        Lecture.get($routeParams.id)
-        .then(
-          (lecture) -> 
-            $scope.lecture = lecture.data
-            lecture.data
-        ).then(
-          (lecture) ->
-            Course.get(lecture.course._id)
-        ).then(
-          (course) ->
-            $scope.course = course.data
-            $scope.students = course.data.participants  
-        )
-
-      $scope.search = ""
-
-      initialize()
-
       ctrl = new RegistrationController($scope, $routeParams.id, Course, Lecture, Flash, Matcher)
-      ctrl.initialize()
-
+      ctrl.initialize_lecture().run()
     ]) 
     .controller('ActiveLectureCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->     
-      initialize = ->
-        Course.get($routeParams.id).success (course) ->
-          $scope.course = course
-          $scope.students = course.participants  
-        Course.activeLectureOf($routeParams.id).success (lecture) ->
-          $scope.lecture = lecture
-          $scope.nolecture = (lecture.course == undefined)
-
-      $scope.search = ""
-
-      initialize()
-
-      $scope.register = (student) ->
-        Lecture.register(student, $scope.lecture).success (response) ->
-          $scope.lecture.participants.push response.data.student 
-          Flash.set("#{student.name} registered", $scope)
-          $scope.search = ""
-
-      $scope.registered = (student) ->
-        student.number in $scope.lecture.participants.map (p) -> p.number 
-
-      $scope.condition = (student) ->
-        Matcher.condition(student, $scope.search, $scope.students)
-
+      ctrl = new RegistrationController($scope, $routeParams.id, Course, Lecture, Flash, Matcher)
+      ctrl.initialize_active().run()
     ])
     .controller('CoursesCtrl', ['$scope', 'Course', 'Flash', ($scope, Course, Flash) ->
-        new CoursesController($scope, Course, Flash).initialize() 
+        new CoursesController($scope, Course, Flash).run() 
     ]) 
     .controller('CourseCtrl', ['$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', ($scope, $routeParams, DateService, Course, Lecture, Flash) ->
         $scope.lecture = 
@@ -108,10 +65,15 @@ angular
           return ""        
     ])     
 
+###
+  Controller classes
+###
+
 class CoursesController
   constructor: (@scope, @Course, @Flash) ->
+    @scope.search = ""
 
-  initialize: () ->  
+  run: () -> 
     $scope = @scope
 
     $scope.new = {}
@@ -125,20 +87,51 @@ class CoursesController
         @Flash.set("course #{data.name} #{data.term} created", $scope )
       $scope.new = {} 
 
+
+
 class RegistrationController
   constructor: (@scope, @id, @Course, @Lecture, @Flash, @Matcher) ->    
 
-  initialize: () ->
+  initialize_lecture: ->
     $scope = @scope
 
-    $scope.register = (student) ->
+    @Lecture.get(@id)
+    .then(
+      (lecture) => 
+        $scope.lecture = lecture.data
+        lecture.data
+    ).then(
+      (lecture) =>
+        @Course.get(lecture.course._id)
+    ).then(
+      (course) =>
+        $scope.course = course.data
+        $scope.students = course.data.participants  
+    )
+    this
+
+  initialize_active: ->
+    $scope = @scope
+
+    @Course.get(@id).success (course) ->
+      $scope.course = course
+      $scope.students = course.participants  
+    @Course.activeLectureOf(@id).success (lecture) ->
+      $scope.lecture = lecture
+      $scope.nolecture = (lecture.course == undefined)
+    this
+
+  run: () ->
+    $scope = @scope
+
+    $scope.register = (student) =>
       @Lecture.register(student, $scope.lecture).success (response) =>
         $scope.lecture.participants.push response.data.student 
         @Flash.set("#{student.name} registered", $scope)
         $scope.search = ""
 
-    $scope.registered = (student) ->
+    $scope.registered = (student) =>
       student.number in $scope.lecture.participants.map (p) -> p.number 
 
-    $scope.condition = (student) ->
+    $scope.condition = (student) =>
       @Matcher.condition(student, $scope.search, $scope.students)  
