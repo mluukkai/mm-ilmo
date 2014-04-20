@@ -47,17 +47,9 @@ angular
 
       initialize()
 
-      $scope.register = (student) ->
-        Lecture.register(student, $scope.lecture).success (response) ->
-          $scope.lecture.participants.push response.data.student 
-          Flash.set("#{student.name} registered", $scope)
-          $scope.search = ""
+      ctrl = new RegistrationController($scope, $routeParams.id, Course, Lecture, Flash, Matcher)
+      ctrl.initialize()
 
-      $scope.registered = (student) ->
-        student.number in $scope.lecture.participants.map (p) -> p.number 
-
-      $scope.condition = (student) ->
-        Matcher.condition(student, $scope.search, $scope.students)
     ]) 
     .controller('ActiveLectureCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->     
       initialize = ->
@@ -132,3 +124,21 @@ class CoursesController
         $scope.courses.push data          
         @Flash.set("course #{data.name} #{data.term} created", $scope )
       $scope.new = {} 
+
+class RegistrationController
+  constructor: (@scope, @id, @Course, @Lecture, @Flash, @Matcher) ->    
+
+  initialize: () ->
+    $scope = @scope
+
+    $scope.register = (student) ->
+      @Lecture.register(student, $scope.lecture).success (response) =>
+        $scope.lecture.participants.push response.data.student 
+        @Flash.set("#{student.name} registered", $scope)
+        $scope.search = ""
+
+    $scope.registered = (student) ->
+      student.number in $scope.lecture.participants.map (p) -> p.number 
+
+    $scope.condition = (student) ->
+      @Matcher.condition(student, $scope.search, $scope.students)  
