@@ -185,6 +185,8 @@
 
   app.get('/lectures/:id', new controller.Lectures().show);
 
+  app.put('/lectures/:id', new controller.Lectures().edit);
+
   app.post('/registrations', new controller.Registrations().create);
 
   app.post('/students', new controller.Students().create);

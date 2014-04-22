@@ -165,6 +165,7 @@ app.get '/courses/:id/active_lectures', new controller.Courses().lectures
 
 app.post '/lectures', new controller.Lectures().create
 app.get '/lectures/:id', new controller.Lectures().show
+app.put '/lectures/:id', new controller.Lectures().edit
 
 app.post '/registrations', new controller.Registrations().create
 

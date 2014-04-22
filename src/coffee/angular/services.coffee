@@ -6,6 +6,8 @@ angular
         console.log "all"
       get: (id) ->
         $http.get("lectures/#{id}")
+      save: (id, data) ->
+        $http.put("lectures/#{id}", data)  
       create: (data) ->  
         $http.post('lectures', data)
       register: (student, lecture) ->

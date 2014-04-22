@@ -102,6 +102,36 @@ class Lectures
 			else
 				res.json lecture
 
+	edit: (req,res) ->
+		data =
+			date: req.param('date')
+			time: req.param('time')
+			place: req.param('place')
+			seminar: req.param('seminar')
+			course: req.param('course_id')
+		data.speaker = req.param('speaker') if data.seminar
+
+		console.log("----------------------------")
+		console.log(data)
+
+		Lecture.findById(req.param('id'))
+		.populate('course', 'name term')
+		.populate('participants', 'name number')
+		.exec (err, lecture) ->
+			if err?
+				res.json {}
+			else
+				lecture.place = req.param('place') if req.param('place')?
+				lecture.time = req.param('time') if req.param('time')?
+				lecture.time = req.param('date') if req.param('date')?
+				lecture.time = req.param('seminar') if req.param('seminar')?
+				lecture.time = req.param('speaker') if req.param('speaker')?
+				lecture.save (err) ->
+				if err?
+					res.json {}
+				else
+					res.json lecture
+
 	create: (req,res) ->
 		data =
 			date: req.param('date')

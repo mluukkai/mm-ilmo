@@ -8,7 +8,7 @@ angular
         $location.path("courses/#{id}/register")
 
     ])  
-  .controller('LectureCtrl', ['$scope', '$routeParams', 'Lecture', 'Course', ($scope, $routeParams, Lecture, Course) ->     
+  .controller('LectureCtrl', ['$scope', '$routeParams', 'Lecture', 'Course','Flash', ($scope, $routeParams, Lecture, Course, Flash) ->     
       socket = io.connect()
       socket.on 'registration', (data) -> 
         $scope.lecture.participants.push data
@@ -20,11 +20,18 @@ angular
         return $scope.lecture.course._id
       )
       .then( (course_id) -> 
-      	Course.get(course_id)
+        Course.get(course_id)
       )
       .then( (course) ->	
         $scope.students = course.data.participants
       )
+
+      $scope.saveLecture = () ->     
+        Lecture.save($routeParams.id, $scope.lecture).success (data) ->
+          console.log($scope.lecture)
+          $scope.editformVisible = false
+          Flash.set("changes saved", $scope)
+
     ])
     .controller('LectureRegistrationCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher',  ($scope, $routeParams, Course, Lecture, Flash, Matcher) ->
       p = 

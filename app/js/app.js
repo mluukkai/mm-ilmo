@@ -52,14 +52,14 @@
       };
     }
   ]).controller('LectureCtrl', [
-    '$scope', '$routeParams', 'Lecture', 'Course', function($scope, $routeParams, Lecture, Course) {
+    '$scope', '$routeParams', 'Lecture', 'Course', 'Flash', function($scope, $routeParams, Lecture, Course, Flash) {
       var socket;
       socket = io.connect();
       socket.on('registration', function(data) {
         $scope.lecture.participants.push(data);
         return $scope.$apply();
       });
-      return Lecture.get($routeParams.id).then(function(lecture) {
+      Lecture.get($routeParams.id).then(function(lecture) {
         $scope.lecture = lecture.data;
         return $scope.lecture.course._id;
       }).then(function(course_id) {
@@ -67,6 +67,13 @@
       }).then(function(course) {
         return $scope.students = course.data.participants;
       });
+      return $scope.saveLecture = function() {
+        return Lecture.save($routeParams.id, $scope.lecture).success(function(data) {
+          console.log($scope.lecture);
+          $scope.editformVisible = false;
+          return Flash.set("changes saved", $scope);
+        });
+      };
     }
   ]).controller('LectureRegistrationCtrl', [
     '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
@@ -340,6 +347,9 @@
       },
       get: function(id) {
         return $http.get("lectures/" + id);
+      },
+      save: function(id, data) {
+        return $http.put("lectures/" + id, data);
       },
       create: function(data) {
         return $http.post('lectures', data);

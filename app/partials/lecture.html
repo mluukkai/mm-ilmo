@@ -12,9 +12,13 @@
 	</div>
 </div>
 
-<div>
+<flash></flash>
+
+<div ng-hide="editformVisible">
 
 	<h3>Present</h3>
+
+	<p ng-show="lecture.participants.length==0">so far no one presnet!</p>
 
 	<table class="table table-hover">
 		<tr ng-repeat="s in lecture.participants|orderBy:'name'">
@@ -25,14 +29,53 @@
 
 </div>
 
-<br>
+<div ng-show="editformVisible">
+<h3>edit 
+	<span ng-hide="lecture.seminar">lecture</span> 
+    <span ng-show="lecture.seminar">session</span>
+data</h3>
+<form>
+	<form role="form">
+		<div class="form-group">
+			<label>date</label>
+			<input type="date" ng-model="lecture.date" class="form-control">
+		</div>
+		<div class="form-group">
+			<label>time</label>
+			<input type="time" ng-model="lecture.time" class="form-control">
+		</div>
+		<div class="form-group">
+			<label>place</label>
+			<input type="text" ng-model="lecture.place" class="form-control"
+			placeholder="Enter lecture room">
+		</div>
+		<div class="checkbox">
+			<label>
+  				<input type="checkbox" ng-model="lecture.seminar" > seminar
+			</label>
+			</div>
+		<div class="form-group" ng-show="lecture.seminar">
+			<label>speaker</label>
+			<input type="text" ng-model="lecture.speaker" class="form-control"
+			placeholder="Enter the speaker of the seminar session">
+		</div>
+		<div>
+			<button class="btn btn-primary" ng-click="saveLecture()">save information</button>	
+		</div>
+		
+	</form>
+
+</div>
 
 <div class="btn-group">
 	<a href="#courses/{{lecture.course._id}}" class="btn">to course page</a>
 	<a href="#lectures/{{lecture._id}}/register" class="btn">to registration page</a>
-	<a href="#courses/{{lecture.course._id}}" class="btn">edit 
+	<a ng-click="editformVisible=true" ng-hide="editformVisible" class="btn">edit 
 	  <span ng-hide="lecture.seminar">lecture</span> 
       <span ng-show="lecture.seminar">session</span>
 	information</a>
+	<a ng-click="editformVisible=false" ng-show="editformVisible" class="btn">close edit form</a>
 </div>
+
+{{place}}
 
