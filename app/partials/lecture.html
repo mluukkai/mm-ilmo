@@ -1,10 +1,16 @@
-<h2>Lecture of {{lecture.course.name}} {{lecture.course.term}}</h2>
+<h2>{{lecture.course.name}} {{lecture.course.term}}</h2>
 
-<div <div class="lecture">
-	{{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
+<div class="lecture" ng-hide="lecture.seminar">
+    Lecture of {{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
 </div>
 
-{{lecture2.data}}
+<div class="lecture" ng-show="lecture.seminar">
+	Seminar session of {{lecture.date|date}},
+	<strong>starting at {{lecture.time}}</strong> in {{lecture.place}}
+	<div class="presenter">
+		presentation given by <em>{{lecture.speaker}}</em>
+	</div>
+</div>
 
 <div>
 
@@ -21,6 +27,12 @@
 
 <br>
 
-<a href="#lectures/{{lecture._id}}/register">to registration page</a>
-<br>
-<a href="#courses/{{lecture.course._id}}">to course page</a>
+<div class="btn-group">
+	<a href="#courses/{{lecture.course._id}}" class="btn">to course page</a>
+	<a href="#lectures/{{lecture._id}}/register" class="btn">to registration page</a>
+	<a href="#courses/{{lecture.course._id}}" class="btn">edit 
+	  <span ng-hide="lecture.seminar">lecture</span> 
+      <span ng-show="lecture.seminar">session</span>
+	information</a>
+</div>
+

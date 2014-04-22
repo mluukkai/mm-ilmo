@@ -42,19 +42,21 @@
 		<thead>
 			<th>date</th>
 			<th>time</th>
-			<th>room</th>	
+			<th>room</th>
+			<th>speaker</th>	
 		</thead>
 		<tbody>
 			<tr ng-repeat="lecture in course.lectures">
 				<td><a href="#lectures/{{lecture._id}}">{{lecture.date|date}}</a></td>
 				<td>{{lecture.time}}</td>
 				<td>{{lecture.place}}</td>
+				<td>{{lecture.speaker}}</td>
 			</tr>
 		</tbody>
 	</table>
 
-	<togglable title="Create a new lecture" condition='createLectureFormVisible' class="whiteboxed">
-		<form role="form">
+	<togglable title="Create a new lecture or seminar session" condition='createLectureFormVisible' class="whiteboxed">
+<form role="form">
 			<div class="form-group">
 				<label>date</label>
 				<input type="date" ng-model="lecture.date" class="form-control">
@@ -68,7 +70,20 @@
 				<input type="text" ng-model="lecture.place" class="form-control"
 				placeholder="Enter lecture room">
 			</div>
-			<button class="btn btn-primary" ng-click="createLecture()">create</button>
+			<div class="checkbox">
+    			<label>
+      				<input type="checkbox" ng-model="lecture.seminar" > seminar
+    			</label>
+  			</div>
+			<div class="form-group" ng-show="lecture.seminar">
+				<label>speaker</label>
+				<input type="text" ng-model="lecture.speaker" class="form-control"
+				placeholder="Enter the speaker of the seminar session">
+			</div>
+			<div>
+				<button class="btn btn-primary" ng-click="createLecture()">create</button>	
+			</div>
+			
 		</form>
 
 	</togglable>

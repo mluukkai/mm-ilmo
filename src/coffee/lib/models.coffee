@@ -25,6 +25,8 @@ LectureSchema = new Schema
 	time: String
 	date: String
 	place: String
+	seminar: Boolean
+	speaker: String
 	course:
 		type: mongoose.Schema.Types.ObjectId
 		ref: 'Course'

@@ -7,8 +7,16 @@
 </div>
 
 <div ng-show="lecture.course.name">
-	<div class="lecture">
+	<div class="lecture" ng-hide="lecture.seminar">
 		Lecture of {{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
+	</div>
+
+	<div class="lecture" ng-show="lecture.seminar">
+		Seminar session of {{lecture.date|date}},
+		<strong>starting at {{lecture.time}}</strong> in {{lecture.place}}
+		<div class="presenter">
+			presentation given by <em>{{lecture.speaker}}</em>
+		</div>
 	</div>
 
 	<br>

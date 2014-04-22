@@ -58,15 +58,18 @@ angular
         new CoursesController(p).run() 
     ]) 
     .controller('CourseCtrl', ['$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', ($scope, $routeParams, DateService, Course, Lecture, Flash) ->
+        init_lecture = =>
+          $scope.lecture = 
+            time: "12:15"
+            date: DateService.getString() 
+
         time = ( s ) -> 
           t = s.time.split(':')
           d = s.date.split('-')
           1500*(31*parseInt(d[1],10)+parseInt(d[2],10)) + 60*parseInt(t[0],10)+parseInt(t[1],10)
-
-        $scope.lecture = 
-            time: "12:15"
-            date: DateService.getString()  
+ 
         $scope.student = {}     
+        init_lecture()
 
         Course.get($routeParams.id).success (data) ->
           $scope.course = data
@@ -76,6 +79,7 @@ angular
           $scope.lecture.course_id = $routeParams.id
           Lecture.create($scope.lecture).success (data) ->
             $scope.course.lectures.push(data)
+            init_lecture()
             $scope.course.lectures = $scope.course.lectures.sort (a,b) -> time(a)-time(b)
             $scope.createLectureFormVisible = false   
 

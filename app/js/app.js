@@ -109,18 +109,22 @@
     }
   ]).controller('CourseCtrl', [
     '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', function($scope, $routeParams, DateService, Course, Lecture, Flash) {
-      var time;
+      var init_lecture, time,
+        _this = this;
+      init_lecture = function() {
+        return $scope.lecture = {
+          time: "12:15",
+          date: DateService.getString()
+        };
+      };
       time = function(s) {
         var d, t;
         t = s.time.split(':');
         d = s.date.split('-');
         return 1500 * (31 * parseInt(d[1], 10) + parseInt(d[2], 10)) + 60 * parseInt(t[0], 10) + parseInt(t[1], 10);
       };
-      $scope.lecture = {
-        time: "12:15",
-        date: DateService.getString()
-      };
       $scope.student = {};
+      init_lecture();
       Course.get($routeParams.id).success(function(data) {
         $scope.course = data;
         return $scope.course.lectures = $scope.course.lectures.sort(function(a, b) {
@@ -131,6 +135,7 @@
         $scope.lecture.course_id = $routeParams.id;
         return Lecture.create($scope.lecture).success(function(data) {
           $scope.course.lectures.push(data);
+          init_lecture();
           $scope.course.lectures = $scope.course.lectures.sort(function(a, b) {
             return time(a) - time(b);
           });
@@ -314,31 +319,6 @@
 }).call(this);
 
 (function() {
-  angular.module('eventApp', []).controller('EventCtrl', [
-    '$scope', '$http', function($scope, $http) {
-      var socket;
-      socket = io.connect();
-      $http.get('event').success(function(data) {
-        return $scope.event = data;
-      });
-      $scope.register = function() {
-        $http.post('event', {
-          name: $scope.name
-        }).success(function(data) {
-          return console.log("yes!");
-        });
-        return $scope.name = "";
-      };
-      return socket.on('news', function(data) {
-        $scope.event.registrations.push(data);
-        return $scope.$apply();
-      });
-    }
-  ]);
-
-}).call(this);
-
-(function() {
   angular.module('registerApp').filter('date', function() {
     return function(date) {
       var parts;
@@ -349,25 +329,6 @@
       return "" + parts[2] + "." + parts[1];
     };
   });
-
-}).call(this);
-
-(function() {
-  angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 'myApp.controllers']).config([
-    '$routeProvider', function($routeProvider) {
-      $routeProvider.when('/view1', {
-        templateUrl: 'partials/partial1.html',
-        controller: 'MyCtrl1'
-      });
-      $routeProvider.when('/view2', {
-        templateUrl: 'partials/partial2.html',
-        controller: 'MyCtrl2'
-      });
-      return $routeProvider.otherwise({
-        redirectTo: '/view1'
-      });
-    }
-  ]);
 
 }).call(this);
 

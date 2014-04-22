@@ -107,7 +107,10 @@ class Lectures
 			date: req.param('date')
 			time: req.param('time')
 			place: req.param('place')
+			seminar: req.param('seminar')
 			course: req.param('course_id')
+		data.speaker = req.param('speaker') if data.seminar
+
 		lecture = new Lecture(data)
 
 		async.parallel(
