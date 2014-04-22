@@ -15,8 +15,9 @@
 			<th>name</th>
 			<th>number</th>
 			<th ng-repeat="lecture in course.lectures">
-				&nbsp;{{lecture.date|date}}&nbsp;
-			</th>	
+				{{lecture.date|date}}
+				{{lecture.time}}
+			</th>		
 		</thead>
 		<tbody>
 			<tr ng-repeat="student in course.participants|orderBy:'name'">

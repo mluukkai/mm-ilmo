@@ -25,6 +25,8 @@ angular
         $http.post('courses', data)  
       activeLectureOf: (id) ->
         $http.get("courses/#{id}/active_lecture")
+      activeLecturesOf: (id) ->
+        $http.get("courses/#{id}/active_lectures")        
       registerStudent: (data) ->
         $http.post('students', data)     
     }
@@ -42,7 +44,7 @@ angular
   )    
   .factory('DateService', ->
     {
-      getString: ()->
+      getString: () ->
         today = new Date()
         month = "#{today.getMonth()+1}"
         month = "0"+month if (today.getMonth()+1)<10 
@@ -50,6 +52,11 @@ angular
         day = "0"+day if (today.getDate()<10)
 
         "#{today.getYear()+1900}-#{month}-#{day}"
+      now: () ->
+        d = new Date()
+        now = ""+ d.getHours()+ ":"+ d.getMinutes()
+        t = now.split(':')
+        parseInt(t[0],10)*60+parseInt(t[1],10)
     }
   )
   .factory('Matcher', ->
@@ -61,8 +68,20 @@ angular
 
     {
       condition: (student, search, students) ->
-        search = search.toUpperCase()
-        student_name = student.name.toUpperCase()
+        search = "" if not search?
+        search = search.toUpperCase() 
+        student_name = student.name.toUpperCase() 
         search.length>1 and student_name.indexOf(search) != -1 and mathes(search, students )<5  
     }
+  ).factory('myInterceptor', ($q) ->
+    (promise) -> 
+      promise.then(
+        (response) ->
+          #console.log response
+          response
+        ,  
+        (response) -> 
+          #console.log response
+          $q.reject(response) 
+      )
   )

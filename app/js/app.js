@@ -29,13 +29,18 @@
         redirectTo: '/registration'
       });
     }
+  ]).config([
+    '$httpProvider', function($httpProvider) {
+      return $httpProvider.responseInterceptors.push('myInterceptor');
+    }
   ]);
 
 }).call(this);
 
 (function() {
   var CoursesController, RegistrationController,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   angular.module('registerApp').controller('RegistrationCtrl', [
     '$scope', '$location', 'Course', function($scope, $location, Course) {
@@ -65,34 +70,70 @@
     }
   ]).controller('LectureRegistrationCtrl', [
     '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
-      var ctrl;
-      ctrl = new RegistrationController($scope, $routeParams.id, Course, Lecture, Flash, Matcher);
+      var ctrl, p;
+      p = {
+        scope: $scope,
+        id: $routeParams.id,
+        Lecture: Lecture,
+        Course: Course,
+        Flash: Flash,
+        Matcher: Matcher
+      };
+      ctrl = new RegistrationController(p);
       return ctrl.initialize_lecture().run();
     }
   ]).controller('ActiveLectureCtrl', [
-    '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, Course, Lecture, Flash, Matcher) {
-      var ctrl;
-      ctrl = new RegistrationController($scope, $routeParams.id, Course, Lecture, Flash, Matcher);
-      return ctrl.initialize_active().run();
+    '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', 'DateService', function($scope, $routeParams, Course, Lecture, Flash, Matcher, DateService) {
+      var ctrl, p;
+      p = {
+        scope: $scope,
+        id: $routeParams.id,
+        Lecture: Lecture,
+        Course: Course,
+        Flash: Flash,
+        Matcher: Matcher,
+        DateService: DateService
+      };
+      ctrl = new RegistrationController(p);
+      return ctrl.initialize_actives().run();
     }
   ]).controller('CoursesCtrl', [
     '$scope', 'Course', 'Flash', function($scope, Course, Flash) {
-      return new CoursesController($scope, Course, Flash).run();
+      var p;
+      p = {
+        scope: $scope,
+        Course: Course,
+        Flash: Flash
+      };
+      return new CoursesController(p).run();
     }
   ]).controller('CourseCtrl', [
     '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', function($scope, $routeParams, DateService, Course, Lecture, Flash) {
+      var time;
+      time = function(s) {
+        var d, t;
+        t = s.time.split(':');
+        d = s.date.split('-');
+        return 1500 * (31 * parseInt(d[1], 10) + parseInt(d[2], 10)) + 60 * parseInt(t[0], 10) + parseInt(t[1], 10);
+      };
       $scope.lecture = {
         time: "12:15",
         date: DateService.getString()
       };
       $scope.student = {};
       Course.get($routeParams.id).success(function(data) {
-        return $scope.course = data;
+        $scope.course = data;
+        return $scope.course.lectures = $scope.course.lectures.sort(function(a, b) {
+          return time(a) - time(b);
+        });
       });
       $scope.createLecture = function() {
         $scope.lecture.course_id = $routeParams.id;
         return Lecture.create($scope.lecture).success(function(data) {
           $scope.course.lectures.push(data);
+          $scope.course.lectures = $scope.course.lectures.sort(function(a, b) {
+            return time(a) - time(b);
+          });
           return $scope.createLectureFormVisible = false;
         });
       };
@@ -121,26 +162,23 @@
 
 
   CoursesController = (function() {
-    function CoursesController(scope, Course, Flash) {
-      this.scope = scope;
-      this.Course = Course;
-      this.Flash = Flash;
-      this.scope.search = "";
+    function CoursesController(p) {
+      this.p = p;
     }
 
     CoursesController.prototype.run = function() {
       var $scope,
         _this = this;
-      $scope = this.scope;
+      $scope = this.p.scope;
       $scope["new"] = {};
-      this.Course.all().then(function(course) {
+      this.p.Course.all().then(function(course) {
         return $scope.courses = course.data;
       });
       return $scope.newCourse = function() {
         $scope.creationFormVisible = false;
-        _this.Course.create($scope["new"]).success(function(data) {
+        _this.p.Course.create($scope["new"]).success(function(data) {
           $scope.courses.push(data);
-          return this.Flash.set("course " + data.name + " " + data.term + " created", $scope);
+          return _this.p.Flash.set("course " + data.name + " " + data.term + " created", $scope);
         });
         return $scope["new"] = {};
       };
@@ -151,24 +189,20 @@
   })();
 
   RegistrationController = (function() {
-    function RegistrationController(scope, id, Course, Lecture, Flash, Matcher) {
-      this.scope = scope;
-      this.id = id;
-      this.Course = Course;
-      this.Lecture = Lecture;
-      this.Flash = Flash;
-      this.Matcher = Matcher;
+    function RegistrationController(p) {
+      this.p = p;
+      this.current_of = __bind(this.current_of, this);
     }
 
     RegistrationController.prototype.initialize_lecture = function() {
       var $scope,
         _this = this;
-      $scope = this.scope;
-      this.Lecture.get(this.id).then(function(lecture) {
+      $scope = this.p.scope;
+      this.p.Lecture.get(this.p.id).then(function(lecture) {
         $scope.lecture = lecture.data;
         return lecture.data;
       }).then(function(lecture) {
-        return _this.Course.get(lecture.course._id);
+        return _this.p.Course.get(lecture.course._id);
       }).then(function(course) {
         $scope.course = course.data;
         return $scope.students = course.data.participants;
@@ -178,14 +212,52 @@
 
     RegistrationController.prototype.initialize_active = function() {
       var $scope;
-      $scope = this.scope;
-      this.Course.get(this.id).success(function(course) {
+      $scope = this.p.scope;
+      this.p.Course.get(this.p.id).success(function(course) {
         $scope.course = course;
         return $scope.students = course.participants;
       });
-      this.Course.activeLectureOf(this.id).success(function(lecture) {
+      this.p.Course.activeLectureOf(this.p.id).success(function(lecture) {
         $scope.lecture = lecture;
         return $scope.nolecture = lecture.course === void 0;
+      });
+      return this;
+    };
+
+    RegistrationController.prototype.current_of = function(lectures) {
+      var no_started, time,
+        _this = this;
+      time = function(s) {
+        var t;
+        t = s.time.split(':');
+        return parseInt(t[0], 10) * 60 + parseInt(t[1], 10);
+      };
+      lectures = lectures.sort(function(a, b) {
+        return time(a) - time(b);
+      });
+      no_started = lectures.filter(function(l) {
+        return time(l) > _this.p.DateService.now();
+      });
+      if (no_started.length === 0) {
+        return lectures[lectures.length - 1];
+      } else {
+        return no_started[0];
+      }
+    };
+
+    RegistrationController.prototype.initialize_actives = function() {
+      var $scope,
+        _this = this;
+      $scope = this.p.scope;
+      this.p.Course.get(this.p.id).success(function(course) {
+        $scope.course = course;
+        return $scope.students = course.participants;
+      });
+      this.p.Course.activeLecturesOf(this.p.id).success(function(lectures) {
+        $scope.nolecture = lectures.length === 0;
+        if (lectures.length > 0) {
+          return $scope.lecture = _this.current_of(lectures);
+        }
       });
       return this;
     };
@@ -193,11 +265,11 @@
     RegistrationController.prototype.run = function() {
       var $scope,
         _this = this;
-      $scope = this.scope;
+      $scope = this.p.scope;
       $scope.register = function(student) {
-        return _this.Lecture.register(student, $scope.lecture).success(function(response) {
+        return _this.p.Lecture.register(student, $scope.lecture).success(function(response) {
           $scope.lecture.participants.push(response.data.student);
-          _this.Flash.set("" + student.name + " registered", $scope);
+          _this.p.Flash.set("" + student.name + " registered", $scope);
           return $scope.search = "";
         });
       };
@@ -208,7 +280,7 @@
         }), _ref) >= 0;
       };
       return $scope.condition = function(student) {
-        return _this.Matcher.condition(student, $scope.search, $scope.students);
+        return _this.p.Matcher.condition(student, $scope.search, $scope.students);
       };
     };
 
@@ -334,6 +406,9 @@
       activeLectureOf: function(id) {
         return $http.get("courses/" + id + "/active_lecture");
       },
+      activeLecturesOf: function(id) {
+        return $http.get("courses/" + id + "/active_lectures");
+      },
       registerStudent: function(data) {
         return $http.post('students', data);
       }
@@ -363,6 +438,13 @@
           day = "0" + day;
         }
         return "" + (today.getYear() + 1900) + "-" + month + "-" + day;
+      },
+      now: function() {
+        var d, now, t;
+        d = new Date();
+        now = "" + d.getHours() + ":" + d.getMinutes();
+        t = now.split(':');
+        return parseInt(t[0], 10) * 60 + parseInt(t[1], 10);
       }
     };
   }).factory('Matcher', function() {
@@ -381,10 +463,21 @@
     return {
       condition: function(student, search, students) {
         var student_name;
+        if (search == null) {
+          search = "";
+        }
         search = search.toUpperCase();
         student_name = student.name.toUpperCase();
         return search.length > 1 && student_name.indexOf(search) !== -1 && mathes(search, students) < 5;
       }
+    };
+  }).factory('myInterceptor', function($q) {
+    return function(promise) {
+      return promise.then(function(response) {
+        return response;
+      }, function(response) {
+        return $q.reject(response);
+      });
     };
   });
 

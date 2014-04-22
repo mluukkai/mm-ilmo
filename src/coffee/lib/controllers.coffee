@@ -52,6 +52,23 @@ class Courses
 			else			
 				res.json lectures
 
+	lectures: (req, res) ->	
+		d = new Date
+		n = (val) ->
+			return val if val>10
+			return "0"+val	
+		ds = "#{d.getYear()+1900}-#{n(d.getMonth()+1)}-#{n(d.getDate())}"
+		console.log ds
+
+		Lecture.find( { course:req.param('id'), date:ds } )
+		.populate('course', 'name term')
+		.populate('participants')
+		.exec (err, lectures) ->
+			if err?
+				res.json {}
+			else			
+				res.json lectures
+
 	create: (req,res) ->
 		data =
 			name: req.param('name')

@@ -24,6 +24,8 @@ io.configure () ->
   io.set("transports", ["xhr-polling"]) 
   io.set("polling duration", 20)
 
+###
+
 io.sockets.on 'connection', (socket) ->
   console.log "new socket registered"
   console.log io.sockets 
@@ -150,6 +152,8 @@ app.post '/event', (req,res) ->
 			else
 				res.json event
 
+###
+
 controller = require('./lib/controllers')
 
 app.get '/courses', new controller.Courses().index
@@ -157,6 +161,7 @@ app.get '/courses/:id', new controller.Courses().show
 app.get '/courses/:id/delete', new controller.Courses().delete
 app.post '/courses', new controller.Courses().create
 app.get '/courses/:id/active_lecture', new controller.Courses().lecture
+app.get '/courses/:id/active_lectures', new controller.Courses().lectures
 
 app.post '/lectures', new controller.Lectures().create
 app.get '/lectures/:id', new controller.Lectures().show

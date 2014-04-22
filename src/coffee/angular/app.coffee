@@ -21,3 +21,6 @@ angular
       controller: 'RegistrationCtrl'
     $routeProvider.otherwise({redirectTo: '/registration'})  
   ])
+  . config(['$httpProvider', ($httpProvider) ->
+      $httpProvider.responseInterceptors.push('myInterceptor')
+  ])
