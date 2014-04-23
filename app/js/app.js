@@ -61,6 +61,7 @@
       });
       Lecture.get($routeParams.id).then(function(lecture) {
         $scope.lecture = lecture.data;
+        $scope.editedLecture = angular.copy($scope.lecture);
         return $scope.lecture.course._id;
       }).then(function(course_id) {
         return Course.get(course_id);
@@ -68,8 +69,8 @@
         return $scope.students = course.data.participants;
       });
       return $scope.saveLecture = function() {
+        $scope.lecture = angular.copy($scope.editedLecture);
         return Lecture.save($routeParams.id, $scope.lecture).success(function(data) {
-          console.log($scope.lecture);
           $scope.editformVisible = false;
           return Flash.set("changes saved", $scope);
         });

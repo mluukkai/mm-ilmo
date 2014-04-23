@@ -17,6 +17,7 @@ angular
       Lecture.get($routeParams.id)
       .then( (lecture) ->	
         $scope.lecture = lecture.data
+        $scope.editedLecture = angular.copy($scope.lecture)  
         return $scope.lecture.course._id
       )
       .then( (course_id) -> 
@@ -26,9 +27,9 @@ angular
         $scope.students = course.data.participants
       )
 
-      $scope.saveLecture = () ->     
+      $scope.saveLecture = () ->  
+        $scope.lecture = angular.copy($scope.editedLecture)   
         Lecture.save($routeParams.id, $scope.lecture).success (data) ->
-          console.log($scope.lecture)
           $scope.editformVisible = false
           Flash.set("changes saved", $scope)
 
