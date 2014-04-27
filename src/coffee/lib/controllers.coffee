@@ -92,6 +92,15 @@ class Lectures
 			else
 				res.json data	
 
+	delete: (req, res) ->	
+		Lecture.findById(req.param('id'))
+		.exec (err, lecture) ->
+			if err?
+				res.json {}
+			else
+				lecture.remove()
+				res.json "removed"
+
 	show: (req,res) ->
 		Lecture.findById(req.param('id'))
 		.populate('course', 'name term')
@@ -123,9 +132,9 @@ class Lectures
 			else
 				lecture.place = req.param('place') if req.param('place')?
 				lecture.time = req.param('time') if req.param('time')?
-				lecture.time = req.param('date') if req.param('date')?
-				lecture.time = req.param('seminar') if req.param('seminar')?
-				lecture.time = req.param('speaker') if req.param('speaker')?
+				lecture.date = req.param('date') if req.param('date')?
+				lecture.seminar = req.param('seminar') if req.param('seminar')?
+				lecture.speaker = req.param('speaker') if req.param('speaker')?
 				lecture.save (err) ->
 				if err?
 					res.json {}
