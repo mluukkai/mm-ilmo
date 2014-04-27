@@ -92,21 +92,33 @@
 
 </div>	
 
-<togglable title="Register a student" condition='registrationFormVisible' class="boxed">
-	<form role="form">
+<togglable title="Register a student" alternative="Register a student" condition='registrationFormVisible' class="boxed">
+	<form role="form" name="form">
 		<div class="form-group">
 			<label>first name </label>   
-			<input type="text" ng-model="student.first_name" class="form-control">
+			<input type="text" ng-model="student.first_name" class="form-control" required
+			placeholder="first name">
 		</div>
 		<div class="form-group">
 			<label>last name </label>
-			<input type="text" ng-model="student.last_name" class="form-control">
+			<input type="text" ng-model="student.last_name" class="form-control" required
+			placeholder="last name">
 		</div>
 		<div class="form-group">
 			<label>student number</label>
-			<input type="text" ng-model="student.number" class="form-control">
+			<input type="text" ng-model="student.number" class="form-control" required ng-pattern="student_number" name="number"
+			placeholder="student number">
 		</div>
-		<button class="btn btn-primary" ng-click="registerStudent()">register</button>
+		<div ng-show="form.number.$error.pattern">
+			<em>student number with leading zero!</em>
+    		</div>
+		<button ng-disabled="form.$invalid"  
+			ng-click="registerStudent()"
+			class='btn'
+			ng-class="{'btn btn-primary': form.$valid}"
+		>register
+		</button>
+
 	</form>
 </togglable>
 

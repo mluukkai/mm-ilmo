@@ -1,13 +1,30 @@
 angular
   .module('registerApp')
-  .controller('RegistrationCtrl', ['$scope', '$location', 'Course', ($scope, $location, Course) ->      
+  .controller('RegistrationCtrl', ['$dialogs', '$scope', '$location', 'Course', ($dialogs, $scope, $location, Course) ->      
       Course.all().then (course) ->
       	$scope.courses = course.data 
+
+      $scope.test2 = () ->
+        dlg = $dialogs.create('partials/logindialog.html', 'LoginModalCtrl',{},{});
+        dlg.result.then(
+          (data) ->
+            console.log(data)
+          , (data) ->
+            console.log(data)  
+        )
 
       $scope.clicked = (id) ->
         $location.path("courses/#{id}/register")
 
-    ])  
+  ])  
+  .controller('LoginModalCtrl', ['$scope','$modalInstance','data', ($scope,$modalInstance,data) ->
+    $scope.user = {}
+
+    $scope.login = () ->
+      $modalInstance.close($scope.user);
+    $scope.kansel = () ->
+      $modalInstance.dismiss('Canceled')
+  ])
   .controller('LectureCtrl', ['$scope', '$routeParams', 'Lecture', 'Course','Flash', ($scope, $routeParams, Lecture, Course, Flash) ->     
       socket = io.connect()
       socket.on 'registration', (data) -> 
@@ -76,6 +93,7 @@ angular
           d = s.date.split('-')
           1500*(31*parseInt(d[1],10)+parseInt(d[2],10)) + 60*parseInt(t[0],10)+parseInt(t[1],10)
  
+        $scope.student_number = /0\d{8}$/
         $scope.student = {}     
         init_lecture()
 
@@ -187,6 +205,29 @@ class RegistrationController
 
   run: () ->
     $scope = @p.scope
+    $scope.student = {}
+    $scope.student_number = /0\d{8}$/
+
+    $scope.registerNewStudent = =>
+      $scope.student.course_id = $scope.lecture.course._id
+      @p.Course.registerStudent($scope.student).then(
+        (student) =>
+          $scope.students.push student.data
+          $scope.registrationFormVisible = false
+          student.data
+      ).then(
+        (student) =>
+          @p.Lecture.register(student, $scope.lecture)
+      ).then(
+        (response) =>
+          response.data.data.student
+      ).then(
+        (student) =>    
+          $scope.lecture.participants.push student 
+          @p.Flash.set("#{student.name} added to course and registered", $scope)
+          $scope.search = ""
+      )
+      $scope.student = {} 
 
     $scope.register = (student) =>
       @p.Lecture.register(student, $scope.lecture).success (response) =>

@@ -1,0 +1,25 @@
+{
+  "name": "angular-dialog-service",
+  "version": "3.1.0",
+  "dependencies": {
+    "angular": "1.2.x",
+    "angular-bootstrap": "0.10.x",
+    "bootstrap": "3.0.x",
+    "angular-sanitize": "1.2.x"
+  },
+  "main": [
+    "dialogs.css",
+    "dialogs.js"
+  ],
+  "homepage": "https://github.com/m-e-conroy/angular-dialog-service",
+  "_release": "3.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v3.1.0",
+    "commit": "7aeccf39b43283cb5f4027c7aebb2c04fc06cd46"
+  },
+  "_source": "git://github.com/m-e-conroy/angular-dialog-service.git",
+  "_target": "~3.1.0",
+  "_originalSource": "angular-dialog-service",
+  "_direct": true
+}

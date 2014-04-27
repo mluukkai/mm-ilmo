@@ -1,5 +1,5 @@
 angular
-  .module('registerApp', ['ngRoute'])
+  .module('registerApp', ['ngRoute','ui.bootstrap','dialogs'])
   .config(['$routeProvider', ($routeProvider) ->
     $routeProvider.when '/courses', 
       templateUrl: 'partials/courses.html' 
@@ -24,3 +24,5 @@ angular
   . config(['$httpProvider', ($httpProvider) ->
       $httpProvider.responseInterceptors.push('myInterceptor')
   ])
+
+ 

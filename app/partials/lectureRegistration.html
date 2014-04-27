@@ -21,7 +21,7 @@
 
 	<br>
 
-    <flash></flash>
+    <div flash></div>
 
 	<div ng-hide="flashed">
 
@@ -33,9 +33,41 @@
 			</span>
 		</p>
 
-		<p><strong>start typing your name until it is found</strong></p>
-		<input ng-model="search"></input>
+		<h3>start typing your name until it is found</h3>
+		<input ng-model="search" placeholder="start typing either your first name or surename"></input>
 
+		<div togglable alternative="Register yourself to the course"
+		  title="If your name is not found, click here" 
+		  condition='registrationFormVisible' class="register">
+			<form role="form" name="form">
+				<div class="form-group">
+					<label>first name </label>   
+					<input type="text" ng-model="student.first_name" class="form-control" required
+					placeholder="first name">
+				</div>
+				<div class="form-group">
+					<label>last name </label>
+					<input type="text" ng-model="student.last_name" class="form-control" required
+					placeholder="last name">
+				</div>
+				<div class="form-group">
+					<label>student number</label>
+					<input type="text" ng-model="student.number" class="form-control" required ng-pattern="student_number" name="number"
+					placeholder="student number">
+				</div>
+				<div ng-show="form.number.$error.pattern">
+    				<em>student number with leading zero!</em>
+  	    		</div>
+				<button ng-disabled="form.$invalid"  
+					ng-click="registerNewStudent()"
+					class='btn'
+					ng-class="{'btn btn-primary': form.$valid}">register
+				</button>
+
+			</form>
+
+		</div>
+		
 	</div>
 
 <div>

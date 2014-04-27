@@ -3,12 +3,18 @@ angular
     .directive('togglable', ()->
       scope: {
         title: '@'
+        alternative: '@'
         vis: '=condition'
       }
       restrict: 'AE'
       replace: 'true'
       transclude: true
-      template: '<div><h3 ng-init="vis=false" ng-click="vis=!vis">{{title}}</h3><div ng-show="vis"><span ng-transclude></span></div></div>'
+      templateUrl: 'partials/togglable.html' 
+      link: (scope) ->
+        nonvis = scope.alternative || scope.title 
+        scope.titles = {}
+        scope.titles.nonvis = scope.title
+        scope.titles.vis = nonvis
     )
     .directive('flash', () ->
       scope: false

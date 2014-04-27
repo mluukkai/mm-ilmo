@@ -1,5 +1,5 @@
 (function() {
-  angular.module('registerApp', ['ngRoute']).config([
+  angular.module('registerApp', ['ngRoute', 'ui.bootstrap', 'dialogs']).config([
     '$routeProvider', function($routeProvider) {
       $routeProvider.when('/courses', {
         templateUrl: 'partials/courses.html',
@@ -43,12 +43,31 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   angular.module('registerApp').controller('RegistrationCtrl', [
-    '$scope', '$location', 'Course', function($scope, $location, Course) {
+    '$dialogs', '$scope', '$location', 'Course', function($dialogs, $scope, $location, Course) {
       Course.all().then(function(course) {
         return $scope.courses = course.data;
       });
+      $scope.test2 = function() {
+        var dlg;
+        dlg = $dialogs.create('partials/logindialog.html', 'LoginModalCtrl', {}, {});
+        return dlg.result.then(function(data) {
+          return console.log(data);
+        }, function(data) {
+          return console.log(data);
+        });
+      };
       return $scope.clicked = function(id) {
         return $location.path("courses/" + id + "/register");
+      };
+    }
+  ]).controller('LoginModalCtrl', [
+    '$scope', '$modalInstance', 'data', function($scope, $modalInstance, data) {
+      $scope.user = {};
+      $scope.login = function() {
+        return $modalInstance.close($scope.user);
+      };
+      return $scope.kansel = function() {
+        return $modalInstance.dismiss('Canceled');
       };
     }
   ]).controller('LectureCtrl', [
@@ -131,6 +150,7 @@
         d = s.date.split('-');
         return 1500 * (31 * parseInt(d[1], 10) + parseInt(d[2], 10)) + 60 * parseInt(t[0], 10) + parseInt(t[1], 10);
       };
+      $scope.student_number = /0\d{8}$/;
       $scope.student = {};
       init_lecture();
       Course.get($routeParams.id).success(function(data) {
@@ -279,6 +299,25 @@
       var $scope,
         _this = this;
       $scope = this.p.scope;
+      $scope.student = {};
+      $scope.student_number = /0\d{8}$/;
+      $scope.registerNewStudent = function() {
+        $scope.student.course_id = $scope.lecture.course._id;
+        _this.p.Course.registerStudent($scope.student).then(function(student) {
+          $scope.students.push(student.data);
+          $scope.registrationFormVisible = false;
+          return student.data;
+        }).then(function(student) {
+          return _this.p.Lecture.register(student, $scope.lecture);
+        }).then(function(response) {
+          return response.data.data.student;
+        }).then(function(student) {
+          $scope.lecture.participants.push(student);
+          _this.p.Flash.set("" + student.name + " added to course and registered", $scope);
+          return $scope.search = "";
+        });
+        return $scope.student = {};
+      };
       $scope.register = function(student) {
         return _this.p.Lecture.register(student, $scope.lecture).success(function(response) {
           $scope.lecture.participants.push(response.data.student);
@@ -308,12 +347,20 @@
     return {
       scope: {
         title: '@',
+        alternative: '@',
         vis: '=condition'
       },
       restrict: 'AE',
       replace: 'true',
       transclude: true,
-      template: '<div><h3 ng-init="vis=false" ng-click="vis=!vis">{{title}}</h3><div ng-show="vis"><span ng-transclude></span></div></div>'
+      templateUrl: 'partials/togglable.html',
+      link: function(scope) {
+        var nonvis;
+        nonvis = scope.alternative || scope.title;
+        scope.titles = {};
+        scope.titles.nonvis = scope.title;
+        return scope.titles.vis = nonvis;
+      }
     };
   }).directive('flash', function() {
     return {
