@@ -189,18 +189,17 @@ class RegistrationController
     started = lectures.filter (l) => time(l)<=@p.DateService.now()
     started = started.sort (a,b) -> time(b)-time(a)
 
-    console.log no_started.map (p) -> p.time
-    console.log started.map (p) -> p.time
+    #console.log no_started.map (p) -> p.time
+    #console.log started.map (p) -> p.time
     next_lecture = started[0] || no_started[0] 
-    console.log "-->"+ next_lecture.time
 
     one_after = null
     one_after = no_started[0] if no_started.length>0
 
-    if not one_after?
-      console.log("now: "+next_lecture.time+" last of the day")
-    else
-      console.log("now: "+next_lecture.time+" then: "+one_after.time)
+    #if not one_after?
+    #  console.log("now: "+next_lecture.time+" last of the day")
+    #else
+    #  console.log("now: "+next_lecture.time+" then: "+one_after.time)
     
     diff = -1
     diff = time(one_after)-@p.DateService.now() if one_after?
@@ -232,7 +231,7 @@ class RegistrationController
         if time_diff >= 0
           console.log "timeout set"
           MINUTE = 60000
-          DELTA = 30000
+          DELTA = 10000
           delay = MINUTE*time_diff+DELTA
           console.log "delay min: "+ delay/60000
           @p.timeout( () =>

@@ -281,22 +281,10 @@
       started = started.sort(function(a, b) {
         return time(b) - time(a);
       });
-      console.log(no_started.map(function(p) {
-        return p.time;
-      }));
-      console.log(started.map(function(p) {
-        return p.time;
-      }));
       next_lecture = started[0] || no_started[0];
-      console.log("-->" + next_lecture.time);
       one_after = null;
       if (no_started.length > 0) {
         one_after = no_started[0];
-      }
-      if (one_after == null) {
-        console.log("now: " + next_lecture.time + " last of the day");
-      } else {
-        console.log("now: " + next_lecture.time + " then: " + one_after.time);
       }
       diff = -1;
       if (one_after != null) {
@@ -331,7 +319,7 @@
         if (time_diff >= 0) {
           console.log("timeout set");
           MINUTE = 60000;
-          DELTA = 30000;
+          DELTA = 10000;
           delay = MINUTE * time_diff + DELTA;
           console.log("delay min: " + delay / 60000);
           return _this.p.timeout(function() {
