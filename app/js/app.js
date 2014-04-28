@@ -110,7 +110,7 @@
       return ctrl.initialize_lecture().run();
     }
   ]).controller('ActiveLectureCtrl', [
-    '$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', 'DateService', function($scope, $routeParams, Course, Lecture, Flash, Matcher, DateService) {
+    '$scope', '$timeout', '$location', '$route', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', 'DateService', function($scope, $timeout, $location, $route, $routeParams, Course, Lecture, Flash, Matcher, DateService) {
       var ctrl, p;
       p = {
         scope: $scope,
@@ -119,7 +119,10 @@
         Course: Course,
         Flash: Flash,
         Matcher: Matcher,
-        DateService: DateService
+        DateService: DateService,
+        timeout: $timeout,
+        location: $location,
+        route: $route
       };
       ctrl = new RegistrationController(p);
       return ctrl.initialize_actives().run();
@@ -224,6 +227,7 @@
   RegistrationController = (function() {
     function RegistrationController(p) {
       this.p = p;
+      this.initialize_actives = __bind(this.initialize_actives, this);
       this.current_of = __bind(this.current_of, this);
     }
 
@@ -258,7 +262,7 @@
     };
 
     RegistrationController.prototype.current_of = function(lectures) {
-      var no_started, time,
+      var diff, next_lecture, no_started, one_after, started, time,
         _this = this;
       time = function(s) {
         var t;
@@ -271,11 +275,35 @@
       no_started = lectures.filter(function(l) {
         return time(l) > _this.p.DateService.now();
       });
-      if (no_started.length === 0) {
-        return lectures[lectures.length - 1];
-      } else {
-        return no_started[0];
+      started = lectures.filter(function(l) {
+        return time(l) <= _this.p.DateService.now();
+      });
+      started = started.sort(function(a, b) {
+        return time(b) - time(a);
+      });
+      console.log(no_started.map(function(p) {
+        return p.time;
+      }));
+      console.log(started.map(function(p) {
+        return p.time;
+      }));
+      next_lecture = started[0] || no_started[0];
+      console.log("-->" + next_lecture.time);
+      one_after = null;
+      if (no_started.length > 0) {
+        one_after = no_started[0];
       }
+      if (one_after == null) {
+        console.log("now: " + next_lecture.time + " last of the day");
+      } else {
+        console.log("now: " + next_lecture.time + " then: " + one_after.time);
+      }
+      diff = -1;
+      if (one_after != null) {
+        diff = time(one_after) - this.p.DateService.now();
+      }
+      console.log(diff);
+      return [next_lecture, diff];
     };
 
     RegistrationController.prototype.initialize_actives = function() {
@@ -286,10 +314,33 @@
         $scope.course = course;
         return $scope.students = course.participants;
       });
-      this.p.Course.activeLecturesOf(this.p.id).success(function(lectures) {
+      this.p.Course.activeLecturesOf(this.p.id).then(function(lectures) {
+        return lectures.data;
+      }).then(function(lectures) {
+        var current_lecture, time_diff, _ref;
         $scope.nolecture = lectures.length === 0;
         if (lectures.length > 0) {
-          return $scope.lecture = _this.current_of(lectures);
+          _ref = _this.current_of(lectures), current_lecture = _ref[0], time_diff = _ref[1];
+          $scope.lecture = current_lecture;
+        }
+        return time_diff;
+      }).then(function(time_diff) {
+        var DELTA, MINUTE, delay;
+        console.log("time diff: " + time_diff);
+        _this.old_location = _this.p.location.path();
+        if (time_diff >= 0) {
+          console.log("timeout set");
+          MINUTE = 60000;
+          DELTA = 30000;
+          delay = MINUTE * time_diff + DELTA;
+          console.log("delay min: " + delay / 60000);
+          return _this.p.timeout(function() {
+            console.log("timeout fired");
+            if (_this.old_location === _this.p.location.path()) {
+              console.log("should reload");
+              return _this.p.route.reload();
+            }
+          }, delay);
         }
       });
       return this;

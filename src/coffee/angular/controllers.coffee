@@ -62,7 +62,7 @@ angular
       ctrl = new RegistrationController(p)
       ctrl.initialize_lecture().run()
     ]) 
-    .controller('ActiveLectureCtrl', ['$scope', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', 'DateService', ($scope, $routeParams, Course, Lecture, Flash, Matcher, DateService) ->     
+    .controller('ActiveLectureCtrl', ['$scope', '$timeout', '$location', '$route', '$routeParams', 'Course', 'Lecture', 'Flash', 'Matcher', 'DateService', ($scope, $timeout, $location, $route, $routeParams, Course, Lecture, Flash, Matcher, DateService) ->     
       p = 
           scope: $scope
           id: $routeParams.id 
@@ -71,6 +71,9 @@ angular
           Flash: Flash
           Matcher: Matcher
           DateService: DateService
+          timeout: $timeout
+          location: $location
+          route: $route
       ctrl = new RegistrationController(p)
       #initialize_actives
       ctrl.initialize_actives().run()
@@ -183,13 +186,28 @@ class RegistrationController
 
     lectures = lectures.sort (a,b) -> time(a)-time(b)
     no_started = lectures.filter (l) => time(l)>@p.DateService.now()   
- 
-    if no_started.length==0
-      lectures[lectures.length-1]
-    else  
-      no_started[0]  
+    started = lectures.filter (l) => time(l)<=@p.DateService.now()
+    started = started.sort (a,b) -> time(b)-time(a)
 
-  initialize_actives: ->    
+    console.log no_started.map (p) -> p.time
+    console.log started.map (p) -> p.time
+    next_lecture = started[0] || no_started[0] 
+    console.log "-->"+ next_lecture.time
+
+    one_after = null
+    one_after = no_started[0] if no_started.length>0
+
+    if not one_after?
+      console.log("now: "+next_lecture.time+" last of the day")
+    else
+      console.log("now: "+next_lecture.time+" then: "+one_after.time)
+    
+    diff = -1
+    diff = time(one_after)-@p.DateService.now() if one_after?
+    console.log diff
+    [ next_lecture, diff ]  
+
+  initialize_actives: =>    
 
     $scope = @p.scope
 
@@ -197,14 +215,41 @@ class RegistrationController
       $scope.course = course
       $scope.students = course.participants  
 
-    @p.Course.activeLecturesOf(@p.id).success (lectures) =>
-      $scope.nolecture = lectures.length==0
-      $scope.lecture = @current_of(lectures) if lectures.length>0
+    @p.Course.activeLecturesOf(@p.id).then(
+      (lectures) =>
+        lectures.data
+    ).then( 
+      (lectures) =>
+        $scope.nolecture = lectures.length==0
+        if lectures.length>0
+          [current_lecture, time_diff] = @current_of(lectures) 
+          $scope.lecture = current_lecture
+        time_diff
+    ).then(
+      (time_diff) =>
+        console.log "time diff: "+time_diff  
+        @old_location = @p.location.path()
+        if time_diff >= 0
+          console.log "timeout set"
+          MINUTE = 60000
+          DELTA = 30000
+          delay = MINUTE*time_diff+DELTA
+          console.log "delay min: "+ delay/60000
+          @p.timeout( () =>
+            console.log "timeout fired"
+            #console.log(@old_location)
+            #console.log @p.location.path()
+            if @old_location==@p.location.path()
+              console.log "should reload"
+              @p.route.reload()
+          , delay)
+    )      
 
     this  
 
   run: () ->
     $scope = @p.scope
+    
     $scope.student = {}
     $scope.student_number = /0\d{8}$/
 
