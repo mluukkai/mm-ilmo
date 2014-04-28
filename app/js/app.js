@@ -366,8 +366,8 @@
       };
       $scope.registered = function(student) {
         var _ref;
-        return _ref = student.number, __indexOf.call($scope.lecture.participants.map(function(p) {
-          return p.number;
+        return _ref = student._id, __indexOf.call($scope.lecture.participants.map(function(p) {
+          return p._id;
         }), _ref) >= 0;
       };
       return $scope.condition = function(student) {

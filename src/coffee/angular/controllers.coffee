@@ -280,7 +280,7 @@ class RegistrationController
         $scope.search = ""
 
     $scope.registered = (student) =>
-      student.number in $scope.lecture.participants.map (p) -> p.number 
+      student._id in $scope.lecture.participants.map (p) -> p._id
 
     $scope.condition = (student) =>
       @p.Matcher.condition(student, $scope.search, $scope.students)  
