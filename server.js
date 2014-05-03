@@ -65,4 +65,8 @@
 
   app.post('/upload', new controller.Students().upload);
 
+  app.post('/login', new controller.Auth().login);
+
+  app["delete"]('/logout', new controller.Auth().logout);
+
 }).call(this);

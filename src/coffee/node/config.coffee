@@ -45,4 +45,8 @@ app.post '/registrations', new controller.Registrations().create
 app.post '/students', new controller.Students().create	
 
 app.post '/upload', new controller.Students().upload
+
+app.post '/login', new controller.Auth().login
+app.delete '/logout', new controller.Auth().logout 
+
 	

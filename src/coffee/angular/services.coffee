@@ -1,5 +1,27 @@
 angular
   .module('registerApp')
+  .factory('Auth', ($http) ->
+    current_token = 'null'
+    {
+      token: () -> 
+        current_token
+      login: (credentials) ->
+        $http.post('login', credentials).then(
+          (response) ->
+            current_token = response.data
+            $http.defaults.headers.common.Authorization = current_token.token
+            response.data
+        )
+      logout: () ->
+        current_token = null
+        $http.delete('logout').then(
+          (resp) ->
+            $http.defaults.headers.common.Authorization = null  
+            #current_token = response.data
+            console.log('doo')
+        )
+    }
+  )
   .factory('Lecture', ($http) ->
     {
       all: () ->
@@ -75,7 +97,7 @@ angular
         student_name = student.name.toUpperCase() 
         search.length>1 and student_name.indexOf(search) != -1 and mathes(search, students )<5  
     }
-  ).factory('myInterceptor', ($q) ->
+  ).factory('myInterceptor', ($q, $location) ->
     (promise) -> 
       promise.then(
         (response) ->
@@ -83,7 +105,8 @@ angular
           response
         ,  
         (response) -> 
-          #console.log response
-          $q.reject(response) 
+          console.log response
+          $q.reject(response)
+          #$location.path("registration") 
       )
   )

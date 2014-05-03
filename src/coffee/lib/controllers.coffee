@@ -8,8 +8,23 @@ Course = models.Course
 Student = models.Student
 Lecture = models.Lecture
 
+class Auth
+	login: (req, res) ->
+		console.log req.param('username')
+		console.log req.param('password')
+		token = '1234' if req.param('username') == req.param('password')
+		res.send {token:token}
+	logout: (req, res) ->	
+		console.log req.param('auth')
+		res.send {}
+
+exports.Auth = Auth
+
 class Courses
 	index: (req, res) ->
+		token = req.headers['authorization']
+		console.log( 'token '+token)
+
 		Course.find {}, (err, courses) ->
 			if err?
 				res.send {}
@@ -24,7 +39,8 @@ class Courses
 			if err?
 				res.json {}
 			else
-				res.json course
+				#res.json course
+				res.send(401)
 
 	delete: (req, res) ->	
 		Course.findById(req.param('id'))
@@ -41,7 +57,6 @@ class Courses
 			return val if val>10
 			return "0"+val	
 		ds = "#{d.getYear()+1900}-#{n(d.getMonth()+1)}-#{n(d.getDate())}"
-		console.log ds
 
 		Lecture.findOne( { course:req.param('id'), date:ds } )
 		.populate('course', 'name term')
@@ -53,6 +68,9 @@ class Courses
 				res.json lectures
 
 	lectures: (req, res) ->	
+		token = req.headers['authorization']
+		console.log( 'token '+token)
+
 		d = new Date
 		n = (val) ->
 			return val if val>10

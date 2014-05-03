@@ -1,16 +1,26 @@
 angular
   .module('registerApp')
-  .controller('RegistrationCtrl', ['$dialogs', '$scope', '$location', 'Course', ($dialogs, $scope, $location, Course) ->      
+  .controller('RegistrationCtrl', ['$http','$dialogs', '$scope', '$location', 'Course', 'Auth',($http, $dialogs, $scope, $location, Course, Auth) ->      
       Course.all().then (course) ->
       	$scope.courses = course.data 
 
-      $scope.test2 = () ->
+      $scope.token = () ->
+        Auth.token()
+
+      $scope.logout = () ->  
+        Auth.logout().then( 
+          (data) ->
+            console.log data
+        )    
+
+      $scope.login_dialog = () ->
         dlg = $dialogs.create('partials/logindialog.html', 'LoginModalCtrl',{},{});
         dlg.result.then(
-          (data) ->
-            console.log(data)
-          , (data) ->
-            console.log(data)  
+          (cred) ->
+            Auth.login(cred) 
+        ).then(
+          (response) ->
+            console.log(response)
         )
 
       $scope.clicked = (id) ->

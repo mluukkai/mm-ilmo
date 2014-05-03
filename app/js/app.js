@@ -43,17 +43,25 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   angular.module('registerApp').controller('RegistrationCtrl', [
-    '$dialogs', '$scope', '$location', 'Course', function($dialogs, $scope, $location, Course) {
+    '$http', '$dialogs', '$scope', '$location', 'Course', 'Auth', function($http, $dialogs, $scope, $location, Course, Auth) {
       Course.all().then(function(course) {
         return $scope.courses = course.data;
       });
-      $scope.test2 = function() {
+      $scope.token = function() {
+        return Auth.token();
+      };
+      $scope.logout = function() {
+        return Auth.logout().then(function(data) {
+          return console.log(data);
+        });
+      };
+      $scope.login_dialog = function() {
         var dlg;
         dlg = $dialogs.create('partials/logindialog.html', 'LoginModalCtrl', {}, {});
-        return dlg.result.then(function(data) {
-          return console.log(data);
-        }, function(data) {
-          return console.log(data);
+        return dlg.result.then(function(cred) {
+          return Auth.login(cred);
+        }).then(function(response) {
+          return console.log(response);
         });
       };
       return $scope.clicked = function(id) {
@@ -427,7 +435,29 @@
 }).call(this);
 
 (function() {
-  angular.module('registerApp').factory('Lecture', function($http) {
+  angular.module('registerApp').factory('Auth', function($http) {
+    var current_token;
+    current_token = 'null';
+    return {
+      token: function() {
+        return current_token;
+      },
+      login: function(credentials) {
+        return $http.post('login', credentials).then(function(response) {
+          current_token = response.data;
+          $http.defaults.headers.common.Authorization = current_token.token;
+          return response.data;
+        });
+      },
+      logout: function() {
+        current_token = null;
+        return $http["delete"]('logout').then(function(resp) {
+          $http.defaults.headers.common.Authorization = null;
+          return console.log('doo');
+        });
+      }
+    };
+  }).factory('Lecture', function($http) {
     return {
       all: function() {
         return console.log("all");
@@ -529,11 +559,12 @@
         return search.length > 1 && student_name.indexOf(search) !== -1 && mathes(search, students) < 5;
       }
     };
-  }).factory('myInterceptor', function($q) {
+  }).factory('myInterceptor', function($q, $location) {
     return function(promise) {
       return promise.then(function(response) {
         return response;
       }, function(response) {
+        console.log(response);
         return $q.reject(response);
       });
     };
