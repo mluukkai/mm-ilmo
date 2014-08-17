@@ -283,4 +283,3 @@ class RegistrationController
 
     $scope.condition = (student) =>
       @p.Matcher.condition(student, $scope.search, $scope.students)
-

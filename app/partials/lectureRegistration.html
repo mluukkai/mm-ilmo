@@ -3,7 +3,7 @@
 <div ng-show="nolecture">
 	<div class="lecture">
 		no lectures today!
-	</div>	
+	</div>
 </div>
 
 <div ng-show="lecture.course.name">
@@ -15,7 +15,7 @@
 		Seminar session of {{lecture.date|date}},
 		<strong>starting at {{lecture.time}}</strong> in {{lecture.place}}
 		<div class="presenter">
-			presentation given by <em>{{lecture.speaker}}</em>
+			presentation given by <em>{{lecture.speaker}}</em>, opponent <em>{{lecture.opponent}}</em> and chair <em>{{lecture.chair}}</em>
 		</div>
 	</div>
 
@@ -37,11 +37,11 @@
 		<input ng-model="search" placeholder="start typing either your first name or surename"></input>
 
 		<div togglable alternative="Register yourself to the course"
-		  title="If your name is not found, click here" 
+		  title="If your name is not found, click here"
 		  condition='registrationFormVisible' class="register">
 			<form role="form" name="form">
 				<div class="form-group">
-					<label>first name </label>   
+					<label>first name </label>
 					<input type="text" ng-model="student.first_name" class="form-control" required
 					placeholder="first name">
 				</div>
@@ -58,7 +58,7 @@
 				<div ng-show="form.number.$error.pattern">
     				<em>student number with leading zero!</em>
   	    		</div>
-				<button ng-disabled="form.$invalid"  
+				<button ng-disabled="form.$invalid"
 					ng-click="registerNewStudent()"
 					class='btn'
 					ng-class="{'btn btn-primary': form.$valid}">register
@@ -67,7 +67,7 @@
 			</form>
 
 		</div>
-		
+
 	</div>
 
 <div>
