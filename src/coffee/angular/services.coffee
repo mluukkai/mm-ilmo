@@ -3,7 +3,7 @@ angular
   .factory('Auth', ($http) ->
     current_token = {}
     {
-      token: () -> 
+      token: () ->
         current_token
       login: (credentials) ->
         $http.post('login', credentials).then(
@@ -16,7 +16,7 @@ angular
         current_token = {}
         $http.delete('logout').then(
           (resp) ->
-            $http.defaults.headers.common.Authorization = null  
+            $http.defaults.headers.common.Authorization = null
         )
     }
   )
@@ -27,16 +27,16 @@ angular
       get: (id) ->
         $http.get("lectures/#{id}")
       save: (id, data) ->
-        $http.put("lectures/#{id}", data)  
-      create: (data) ->  
+        $http.put("lectures/#{id}", data)
+      create: (data) ->
         $http.post('lectures', data)
       register: (student, lecture) ->
         data =
           student_id: student._id
           lecture_id: lecture._id
-        $http.post("registrations", data) 
+        $http.post("registrations", data)
     }
-  )   
+  )
   .factory('Course', ($http) ->
     {
       all: () ->
@@ -45,14 +45,14 @@ angular
         $http.get("courses/#{id}")
       participants_of: (id) ->
         $http.get("courses/#{id}/participants")
-      create: (data) ->  
-        $http.post('courses', data)  
+      create: (data) ->
+        $http.post('courses', data)
       activeLectureOf: (id) ->
         $http.get("courses/#{id}/active_lecture")
       activeLecturesOf: (id) ->
-        $http.get("courses/#{id}/active_lectures")        
+        $http.get("courses/#{id}/active_lectures")
       registerStudent: (data) ->
-        $http.post('students', data)     
+        $http.post('students', data)
     }
   )
   .factory('Flash', ($timeout) ->
@@ -63,15 +63,15 @@ angular
         $timeout( () ->
           scope.flash = null
           scope.flashed = false
-        , 2500) 
+        , 2500)
     }
-  )    
+  )
   .factory('DateService', ->
     {
       getString: () ->
         today = new Date()
         month = "#{today.getMonth()+1}"
-        month = "0"+month if (today.getMonth()+1)<10 
+        month = "0"+month if (today.getMonth()+1)<10
         day = "#{today.getDate()}"
         day = "0"+day if (today.getDate()<10)
 
@@ -84,32 +84,49 @@ angular
     }
   )
   .factory('Matcher', ->
-    mathes = (word, students) ->
-      count = 0
-      for student in students  
-        count+=1 if student.name.toUpperCase().indexOf(word) != -1
-      count
+
+    part_matches = (part, name) ->
+      name_parts = name.split(' ')
+      match = false
+      name_parts.forEach (name_part) ->
+        if name_part.indexOf(part) != -1
+          match = true
+      match
+
+    match = (search, name, students) ->
+      search_parts = search.split(' ')
+      n = 0
+      search_parts.forEach (part) ->
+        n += 1 if part_matches(part, name)
+      n >= search_parts.length
+
+    match_count = (search, students) ->
+      n = 0
+      students.forEach (student) ->
+        student_name = student.name.toUpperCase().replace /-/, " "
+        n += 1 if match(search, student_name, students)
+      n
 
     {
       condition: (student, search, students) ->
         search = "" if not search?
-        search = search.toUpperCase() 
-        student_name = student.name.toUpperCase() 
-        search.length>1 and student_name.indexOf(search) != -1 and mathes(search, students )<5  
+        search = search.toUpperCase().replace /-/, " "
+        student_name = student.name.toUpperCase().replace /-/, " "
+        search.length>1 and match(search, student_name, students) and match_count(search, students)<4
     }
   ).factory('myInterceptor', ($q, $location, $rootScope, $timeout) ->
-    (promise) -> 
+    (promise) ->
       promise.then(
         (response) ->
           response
-        ,  
-        (response) -> 
+        ,
+        (response) ->
           $rootScope.authFlash = "Please log to enter the page!"
           $rootScope.authFlashed = true
           $timeout( () ->
-            $rootScope.authFlashed = false 
+            $rootScope.authFlashed = false
           ,10000)
 
-          $location.path("registration") 
+          $location.path("registration")
       )
   )

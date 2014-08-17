@@ -541,17 +541,40 @@
       }
     };
   }).factory('Matcher', function() {
-    var mathes;
-    mathes = function(word, students) {
-      var count, student, _i, _len;
-      count = 0;
-      for (_i = 0, _len = students.length; _i < _len; _i++) {
-        student = students[_i];
-        if (student.name.toUpperCase().indexOf(word) !== -1) {
-          count += 1;
+    var match, match_count, part_matches;
+    part_matches = function(part, name) {
+      var match, name_parts;
+      name_parts = name.split(' ');
+      match = false;
+      name_parts.forEach(function(name_part) {
+        if (name_part.indexOf(part) !== -1) {
+          return match = true;
         }
-      }
-      return count;
+      });
+      return match;
+    };
+    match = function(search, name, students) {
+      var n, search_parts;
+      search_parts = search.split(' ');
+      n = 0;
+      search_parts.forEach(function(part) {
+        if (part_matches(part, name)) {
+          return n += 1;
+        }
+      });
+      return n >= search_parts.length;
+    };
+    match_count = function(search, students) {
+      var n;
+      n = 0;
+      students.forEach(function(student) {
+        var student_name;
+        student_name = student.name.toUpperCase().replace(/-/, " ");
+        if (match(search, student_name, students)) {
+          return n += 1;
+        }
+      });
+      return n;
     };
     return {
       condition: function(student, search, students) {
@@ -559,9 +582,9 @@
         if (search == null) {
           search = "";
         }
-        search = search.toUpperCase();
-        student_name = student.name.toUpperCase();
-        return search.length > 1 && student_name.indexOf(search) !== -1 && mathes(search, students) < 5;
+        search = search.toUpperCase().replace(/-/, " ");
+        student_name = student.name.toUpperCase().replace(/-/, " ");
+        return search.length > 1 && match(search, student_name, students) && match_count(search, students) < 4;
       }
     };
   }).factory('myInterceptor', function($q, $location, $rootScope, $timeout) {
