@@ -149,7 +149,7 @@
     }
   ]).controller('CourseCtrl', [
     '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', function($scope, $routeParams, DateService, Course, Lecture, Flash) {
-      var init_lecture, time,
+      var init_lecture, number_of_registrations, time,
         _this = this;
       init_lecture = function() {
         return $scope.lecture = {
@@ -163,11 +163,32 @@
         d = s.date.split('-');
         return 1500 * (31 * parseInt(d[1], 10) + parseInt(d[2], 10)) + 60 * parseInt(t[0], 10) + parseInt(t[1], 10);
       };
+      number_of_registrations = function(student) {
+        var n;
+        n = 0;
+        $scope.course.lectures.forEach(function(lecture) {
+          var _ref;
+          if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
+            return n += 1;
+          }
+        });
+        return n;
+      };
       $scope.student_number = /0\d{8}$/;
       $scope.student = {};
       init_lecture();
+      $scope.all = false;
+      $scope.show = function(item) {
+        if ($scope.all) {
+          return true;
+        }
+        return item.present > 0;
+      };
       Course.get($routeParams.id).success(function(data) {
         $scope.course = data;
+        $scope.course.participants.forEach(function(participant) {
+          return participant.present = number_of_registrations(participant);
+        });
         return $scope.course.lectures = $scope.course.lectures.sort(function(a, b) {
           return time(a) - time(b);
         });
@@ -192,23 +213,12 @@
         });
         return $scope.student = {};
       };
-      $scope.registered = function(student, lecture) {
+      return $scope.registered = function(student, lecture) {
         var _ref;
         if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
-          return "  X";
+          return "X";
         }
         return "";
-      };
-      return $scope.number_of_registrations = function(student) {
-        var n;
-        n = 0;
-        $scope.course.lectures.forEach(function(lecture) {
-          var _ref;
-          if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
-            return n += 1;
-          }
-        });
-        return n;
       };
     }
   ]);

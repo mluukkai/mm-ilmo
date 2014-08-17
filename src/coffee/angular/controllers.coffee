@@ -110,12 +110,26 @@ angular
           d = s.date.split('-')
           1500*(31*parseInt(d[1],10)+parseInt(d[2],10)) + 60*parseInt(t[0],10)+parseInt(t[1],10)
 
+        number_of_registrations = (student) ->
+          n = 0
+          $scope.course.lectures.forEach (lecture) ->
+            n+=1 if student._id in lecture.participants
+          return n
+
         $scope.student_number = /0\d{8}$/
         $scope.student = {}
         init_lecture()
 
+        $scope.all = false
+
+        $scope.show = (item) ->
+          return true if $scope.all
+          return item.present > 0
+
         Course.get($routeParams.id).success (data) ->
           $scope.course = data
+          $scope.course.participants.forEach (participant) ->
+            participant.present = number_of_registrations(participant)
           $scope.course.lectures = $scope.course.lectures.sort (a,b) -> time(a)-time(b)
 
         $scope.createLecture = ->
@@ -135,14 +149,8 @@ angular
           $scope.student = {}
 
         $scope.registered = (student, lecture) ->
-          return "  X" if student._id in lecture.participants
+          return "X" if student._id in lecture.participants
           return ""
-
-        $scope.number_of_registrations = (student) ->
-          n = 0
-          $scope.course.lectures.forEach (lecture) ->
-            n+=1 if student._id in lecture.participants
-          return n
     ])
 
 ###
