@@ -177,9 +177,9 @@
       $scope.student_number = /0\d{8}$/;
       $scope.student = {};
       init_lecture();
-      $scope.all = false;
+      $scope.participated = false;
       $scope.show = function(item) {
-        if ($scope.all) {
+        if (!$scope.participated) {
           return true;
         }
         return item.present > 0;

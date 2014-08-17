@@ -120,10 +120,10 @@ angular
         $scope.student = {}
         init_lecture()
 
-        $scope.all = false
+        $scope.participated = false
 
         $scope.show = (item) ->
-          return true if $scope.all
+          return true unless $scope.participated
           return item.present > 0
 
         Course.get($routeParams.id).success (data) ->

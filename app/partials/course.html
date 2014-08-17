@@ -11,8 +11,8 @@
 	<h3 ng-init="parti=false" ng-click="parti = !parti">Participants</h3>
 
 <div ng-show="parti">
-	show all students
-	<input type="checkbox"  ng-model="all">
+	show only students who have been present
+	<input type="checkbox" ng-model="participated">
 </div>
 
 	<table ng-show="parti && course.participants.length>0" border="1">
