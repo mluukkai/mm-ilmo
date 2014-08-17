@@ -8,7 +8,16 @@
 </head>
 <body>
 
-  <MyDirective></MyDirective>
+  <div ng-controller="NavbarCtrl" class="navbar">
+    <div ng-show="navbarVisible()">
+      <a href="#courses" class="navitem">courses</a>
+      <a ng-click="logout()" class="navitem">logout</a>
+    </div>
+  </div>
+
+  <div ng-show="authFlashed" class="alert">
+    {{authFlash}}
+  </div>
 
   <div class="content" ng-view></div>
 

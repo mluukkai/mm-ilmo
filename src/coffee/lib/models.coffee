@@ -27,13 +27,15 @@ LectureSchema = new Schema
 	place: String
 	seminar: Boolean
 	speaker: String
+	chair: String
+	opponent: String
 	course:
 		type: mongoose.Schema.Types.ObjectId
 		ref: 'Course'
 	participants: [
 		type: mongoose.Schema.Types.ObjectId
 		ref: 'Student'
-	]	
+	]
 	created_at:
 		type: Date
 		default: Date.now
@@ -46,9 +48,9 @@ StudentSchema = new Schema
 	number: String
 	created_at:
 		type: Date
-		default: Date.now		
+		default: Date.now
 
-Course = mongoose.model 'Course', CourseSchema	
+Course = mongoose.model 'Course', CourseSchema
 Lecture = mongoose.model 'Lecture', LectureSchema
 Student = mongoose.model 'Student', StudentSchema
 

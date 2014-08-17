@@ -1,11 +1,5 @@
 <h1>Registration</h1>
 
-<button ng-click="login_dialog()">login</button>
-
-<button ng-click="logout()">logout</button>
-
-{{token()}}
-
 <div class="lecturers">
 	<p>Select a course</p>
 </div>
@@ -19,3 +13,5 @@
   		</td>
 	</tr>
 </table>
+
+<button ng-hide="loginHidden()" ng-click="login_dialog()" class="btn btn-primary">login</button>

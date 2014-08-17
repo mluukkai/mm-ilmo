@@ -9,14 +9,25 @@ Student = models.Student
 Lecture = models.Lecture
 
 class Auth
+	token_valid: (token) ->
+		true
+		#token?
+
 	login: (req, res) ->
 		console.log req.param('username')
 		console.log req.param('password')
 		token = '1234' if req.param('username') == req.param('password')
 		res.send {token:token}
-	logout: (req, res) ->	
+	logout: (req, res) ->
 		console.log req.param('auth')
 		res.send {}
+	perform: (req, res, next) =>
+		whitelisted = ['/courses', '/login','/registrations']
+		token = req.headers['authorization']
+		return next() if req.url in whitelisted or @token_valid(token)
+		return next() if /courses.*active_lecture/.test(req.url)
+		return next() if /courses.*participants/.test(req.url)
+		res.send(401)
 
 exports.Auth = Auth
 
@@ -31,7 +42,16 @@ class Courses
 			else
 				res.json courses
 
-	show: (req, res) ->	
+	participants: (req, res) ->
+		Course.findById(req.param('id'))
+		.populate('participants')
+		.exec (err, course) ->
+			if err?
+				res.json {}
+			else
+				res.json course
+
+	show: (req, res) ->
 		Course.findById(req.param('id'))
 		.populate('lectures')
 		.populate('participants')
@@ -39,10 +59,9 @@ class Courses
 			if err?
 				res.json {}
 			else
-				#res.json course
-				res.send(401)
+				res.json course
 
-	delete: (req, res) ->	
+	delete: (req, res) ->
 		Course.findById(req.param('id'))
 		.exec (err, course) ->
 			if err?
@@ -51,11 +70,11 @@ class Courses
 				course.remove()
 				res.json "removed"
 
-	lecture: (req, res) ->	
+	lecture: (req, res) ->
 		d = new Date
 		n = (val) ->
 			return val if val>10
-			return "0"+val	
+			return "0"+val
 		ds = "#{d.getYear()+1900}-#{n(d.getMonth()+1)}-#{n(d.getDate())}"
 
 		Lecture.findOne( { course:req.param('id'), date:ds } )
@@ -64,17 +83,17 @@ class Courses
 		.exec (err, lectures) ->
 			if err?
 				res.json {}
-			else			
+			else
 				res.json lectures
 
-	lectures: (req, res) ->	
+	lectures: (req, res) ->
 		token = req.headers['authorization']
 		console.log( 'token '+token)
 
 		d = new Date
 		n = (val) ->
 			return val if val>10
-			return "0"+val	
+			return "0"+val
 		ds = "#{d.getYear()+1900}-#{n(d.getMonth()+1)}-#{n(d.getDate())}"
 		console.log ds
 
@@ -84,7 +103,7 @@ class Courses
 		.exec (err, lectures) ->
 			if err?
 				res.json {}
-			else			
+			else
 				res.json lectures
 
 	create: (req,res) ->
@@ -99,7 +118,7 @@ class Courses
 			if err?
 				res.json {}
 			else
-				res.json course	
+				res.json course
 
 exports.Courses = Courses
 
@@ -108,9 +127,9 @@ class Lectures
 			if err?
 				res.json {}
 			else
-				res.json data	
+				res.json data
 
-	delete: (req, res) ->	
+	delete: (req, res) ->
 		Lecture.findById(req.param('id'))
 		.exec (err, lecture) ->
 			if err?
@@ -136,10 +155,10 @@ class Lectures
 			place: req.param('place')
 			seminar: req.param('seminar')
 			course: req.param('course_id')
-		data.speaker = req.param('speaker') if data.seminar
-
-		console.log("----------------------------")
-		console.log(data)
+		if data.seminar
+			data.speaker = req.param('speaker')
+			data.opponent = req.param('opponent')
+			data.chair = req.param('chair')
 
 		Lecture.findById(req.param('id'))
 		.populate('course', 'name term')
@@ -153,6 +172,8 @@ class Lectures
 				lecture.date = req.param('date') if req.param('date')?
 				lecture.seminar = req.param('seminar') if req.param('seminar')?
 				lecture.speaker = req.param('speaker') if req.param('speaker')?
+				lecture.chair = req.param('chair') if req.param('chair')?
+				lecture.opponenet = req.param('opponent') if req.param('opponent')?
 				lecture.save (err) ->
 				if err?
 					res.json {}
@@ -166,7 +187,10 @@ class Lectures
 			place: req.param('place')
 			seminar: req.param('seminar')
 			course: req.param('course_id')
-		data.speaker = req.param('speaker') if data.seminar
+		if data.seminar
+			data.speaker = req.param('speaker')
+			data.opponent = req.param('opponent')
+			data.chair = req.param('chair')
 
 		lecture = new Lecture(data)
 
@@ -174,18 +198,18 @@ class Lectures
 			[
 				(callback) ->
 					lecture.save (err) ->
-						callback(err, err)	
+						callback(err, err)
 				,
 				(callback) ->
 					Course.findById req.param('course_id'), (err, course) ->
 						course.lectures.push lecture._id
 						course.save (err) ->
-							callback(err, err)	
+							callback(err, err)
 			],
 			(err, result) ->
 				if err?
 					res.json {}
-				else	
+				else
 					res.json lecture
 		)
 
@@ -201,21 +225,21 @@ class Lectures
 				res.json lecture
 ###
 
-exports.Lectures = Lectures	
+exports.Lectures = Lectures
 
 class Registrations
 	create:  (req, res) ->
 		found = (student, students) ->
 			for s in students
 				return true if s.toString()==student
-			false	
+			false
 		Lecture.findById req.param('lecture_id'), (err, lecture) ->
 			lecture.participants.push req.param('student_id') unless found(req.param('student_id'), lecture.participants)
-			lecture.save (err) -> 	
+			lecture.save (err) ->
 				Student.findById req.param('student_id'), (err, student) ->
 					data =
 						student: student
-						lecture: lecture._id		
+						lecture: lecture._id
 					global.io.sockets.emit 'registration', student
 					res.json {data}
 
@@ -233,9 +257,9 @@ class Students
 		Course.findById req.param('course_id'), (err, course) ->
 			course.participants.push student._id
 			course.save (err) ->
-				if err? 
+				if err?
 					res.json {}
-				else	
+				else
 					student.save (err) ->
 						if err?
 							res.json {}
@@ -265,18 +289,18 @@ class Students
 			.populate('participants')
 			.exec (err, course) ->
 				for student in students
-					if among(student, course.participants) 
+					if among(student, course.participants)
 						console.log "old: #{student.number}"
 					else
 						console.log "new: #{student.number}"
 						registerStudent(student, course)
-					
+
 		isStudent = (s) ->
 			nro = s[0].value
 			(typeof nro == 'number') and (nro.toString().charAt(0)=='1' )
 
 		extractStudent = (data) ->
-			{	
+			{
 				number: data[0].value.toString(),
 				last_name: data[2].value,
 				first_name: data[3].value.replace("*","")
@@ -286,7 +310,7 @@ class Students
 			students = []
 			for s in data.worksheets[0].data
 				students.push extractStudent(s) if isStudent(s)
-			console.log students 
+			console.log students
 			students
 
 		student = (data) ->
@@ -296,9 +320,9 @@ class Students
 			students = ""
 			for s in data.worksheets[0].data
 				if isStudent(s)
-					students+= student(s) + "\n" 
-			console.log students 
-			students 
+					students+= student(s) + "\n"
+			console.log students
+			students
 
 		form = new multiparty.Form()
 		buffer = null
@@ -312,7 +336,7 @@ class Students
 					buffer = Buffer.concat([buffer, chunck])
 				)
 			else
-				if part.name == "course_id" 
+				if part.name == "course_id"
 					part.on('data', (data) ->
 						course_id = data.toString();
 					)

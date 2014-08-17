@@ -6,9 +6,8 @@ global.io = require('socket.io').listen(server)
 app.configure ->
 	app.use(express.static(__dirname + '/app'))
 	app.use(express.json()).use(express.urlencoded())
-	app.set('views', "#{__dirname}/app/views")
-	app.set('view engine', 'ejs')
 
+# are there needed?
 global.mongoose = require('mongoose')
 global.Schema = mongoose.Schema
 global.ObjectId = Schema.ObjectId
@@ -24,12 +23,13 @@ io.configure () ->
   io.set("transports", ["xhr-polling"]) 
   io.set("polling duration", 20)
 
-
-
 controller = require('./lib/controllers')
+
+app.use(new controller.Auth().perform)
 
 app.get '/courses', new controller.Courses().index
 app.get '/courses/:id', new controller.Courses().show
+app.get '/courses/:id/participants', new controller.Courses().participants
 app.get '/courses/:id/delete', new controller.Courses().delete
 app.post '/courses', new controller.Courses().create
 app.get '/courses/:id/active_lecture', new controller.Courses().lecture

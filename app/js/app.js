@@ -29,11 +29,7 @@
         redirectTo: '/registration'
       });
     }
-  ]).config([
-    '$httpProvider', function($httpProvider) {
-      return $httpProvider.responseInterceptors.push('myInterceptor');
-    }
-  ]);
+  ]).config(['$httpProvider', function($httpProvider) {}]);
 
 }).call(this);
 
@@ -47,14 +43,6 @@
       Course.all().then(function(course) {
         return $scope.courses = course.data;
       });
-      $scope.token = function() {
-        return Auth.token();
-      };
-      $scope.logout = function() {
-        return Auth.logout().then(function(data) {
-          return console.log(data);
-        });
-      };
       $scope.login_dialog = function() {
         var dlg;
         dlg = $dialogs.create('partials/logindialog.html', 'LoginModalCtrl', {}, {});
@@ -64,8 +52,11 @@
           return console.log(response);
         });
       };
-      return $scope.clicked = function(id) {
+      $scope.clicked = function(id) {
         return $location.path("courses/" + id + "/register");
+      };
+      return $scope.loginHidden = function() {
+        return Auth.token().token != null;
       };
     }
   ]).controller('LoginModalCtrl', [
@@ -76,6 +67,17 @@
       };
       return $scope.kansel = function() {
         return $modalInstance.dismiss('Canceled');
+      };
+    }
+  ]).controller('NavbarCtrl', [
+    '$scope', 'Auth', function($scope, Auth) {
+      $scope.navbarVisible = function() {
+        return Auth.token().token != null;
+      };
+      return $scope.logout = function() {
+        return Auth.logout().then(function(data) {
+          return console.log(data);
+        });
       };
     }
   ]).controller('LectureCtrl', [
@@ -190,12 +192,23 @@
         });
         return $scope.student = {};
       };
-      return $scope.registered = function(student, lecture) {
+      $scope.registered = function(student, lecture) {
         var _ref;
         if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
           return "  X";
         }
         return "";
+      };
+      return $scope.number_of_registrations = function(student) {
+        var n;
+        n = 0;
+        $scope.course.lectures.forEach(function(lecture) {
+          var _ref;
+          if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
+            return n += 1;
+          }
+        });
+        return n;
       };
     }
   ]);
@@ -247,24 +260,10 @@
         $scope.lecture = lecture.data;
         return lecture.data;
       }).then(function(lecture) {
-        return _this.p.Course.get(lecture.course._id);
+        return _this.p.Course.participants_of(lecture.course._id);
       }).then(function(course) {
-        $scope.course = course.data;
-        return $scope.students = course.data.participants;
-      });
-      return this;
-    };
-
-    RegistrationController.prototype.initialize_active = function() {
-      var $scope;
-      $scope = this.p.scope;
-      this.p.Course.get(this.p.id).success(function(course) {
-        $scope.course = course;
-        return $scope.students = course.participants;
-      });
-      this.p.Course.activeLectureOf(this.p.id).success(function(lecture) {
-        $scope.lecture = lecture;
-        return $scope.nolecture = lecture.course === void 0;
+        $scope.students = course.data.participants;
+        return $scope.course = course;
       });
       return this;
     };
@@ -298,7 +297,6 @@
       if (one_after != null) {
         diff = time(one_after) - this.p.DateService.now();
       }
-      console.log(diff);
       return [next_lecture, diff];
     };
 
@@ -306,9 +304,9 @@
       var $scope,
         _this = this;
       $scope = this.p.scope;
-      this.p.Course.get(this.p.id).success(function(course) {
-        $scope.course = course;
-        return $scope.students = course.participants;
+      this.p.Course.participants_of(this.p.id).success(function(course) {
+        $scope.students = course.participants;
+        return $scope.course = course;
       });
       this.p.Course.activeLecturesOf(this.p.id).then(function(lectures) {
         return lectures.data;
@@ -322,18 +320,13 @@
         return time_diff;
       }).then(function(time_diff) {
         var DELTA, MINUTE, delay;
-        console.log("time diff: " + time_diff);
         _this.old_location = _this.p.location.path();
         if (time_diff >= 0) {
-          console.log("timeout set");
           MINUTE = 60000;
           DELTA = 10000;
           delay = MINUTE * time_diff + DELTA;
-          console.log("delay min: " + delay / 60000);
           return _this.p.timeout(function() {
-            console.log("timeout fired");
             if (_this.old_location === _this.p.location.path()) {
-              console.log("should reload");
               return _this.p.route.reload();
             }
           }, delay);
@@ -437,7 +430,7 @@
 (function() {
   angular.module('registerApp').factory('Auth', function($http) {
     var current_token;
-    current_token = 'null';
+    current_token = {};
     return {
       token: function() {
         return current_token;
@@ -450,10 +443,9 @@
         });
       },
       logout: function() {
-        current_token = null;
+        current_token = {};
         return $http["delete"]('logout').then(function(resp) {
-          $http.defaults.headers.common.Authorization = null;
-          return console.log('doo');
+          return $http.defaults.headers.common.Authorization = null;
         });
       }
     };
@@ -487,6 +479,9 @@
       },
       get: function(id) {
         return $http.get("courses/" + id);
+      },
+      participants_of: function(id) {
+        return $http.get("courses/" + id + "/participants");
       },
       create: function(data) {
         return $http.post('courses', data);
@@ -559,13 +554,17 @@
         return search.length > 1 && student_name.indexOf(search) !== -1 && mathes(search, students) < 5;
       }
     };
-  }).factory('myInterceptor', function($q, $location) {
+  }).factory('myInterceptor', function($q, $location, $rootScope, $timeout) {
     return function(promise) {
       return promise.then(function(response) {
         return response;
       }, function(response) {
-        console.log(response);
-        return $q.reject(response);
+        $rootScope.authFlash = "Please log to enter the page!";
+        $rootScope.authFlashed = true;
+        $timeout(function() {
+          return $rootScope.authFlashed = false;
+        }, 10000);
+        return $location.path("registration");
       });
     };
   });

@@ -11,9 +11,7 @@
 
   app.configure(function() {
     app.use(express["static"](__dirname + '/app'));
-    app.use(express.json()).use(express.urlencoded());
-    app.set('views', "" + __dirname + "/app/views");
-    return app.set('view engine', 'ejs');
+    return app.use(express.json()).use(express.urlencoded());
   });
 
   global.mongoose = require('mongoose');
@@ -39,9 +37,13 @@
 
   controller = require('./lib/controllers');
 
+  app.use(new controller.Auth().perform);
+
   app.get('/courses', new controller.Courses().index);
 
   app.get('/courses/:id', new controller.Courses().show);
+
+  app.get('/courses/:id/participants', new controller.Courses().participants);
 
   app.get('/courses/:id/delete', new controller.Courses()["delete"]);
 

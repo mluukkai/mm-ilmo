@@ -17,7 +17,10 @@
 			<th ng-repeat="lecture in course.lectures">
 				{{lecture.date|date}}
 				{{lecture.time}}
-			</th>		
+			</th>
+			<th>
+				present
+			</th>
 		</thead>
 		<tbody>
 			<tr ng-repeat="student in course.participants|orderBy:'name'">
@@ -26,9 +29,12 @@
 				<td ng-repeat="lecture in course.lectures">
 					&nbsp;&nbsp;&nbsp;{{registered(student, lecture)}}
 				</td>
-			</tr>	
+				<td>
+					{{number_of_registrations(student)}}
+				</td>
+			</tr>
 		</tbody>
-	</table>	
+	</table>
 
 </div>
 
@@ -43,7 +49,9 @@
 			<th>date</th>
 			<th>time</th>
 			<th>room</th>
-			<th>speaker</th>	
+			<th>speaker</th>
+			<th>opponent</th>
+			<th>chair</th>
 		</thead>
 		<tbody>
 			<tr ng-repeat="lecture in course.lectures">
@@ -51,6 +59,8 @@
 				<td>{{lecture.time}}</td>
 				<td>{{lecture.place}}</td>
 				<td>{{lecture.speaker}}</td>
+				<td>{{lecture.opponent}}</td>
+				<td>{{lecture.chair}}</td>
 			</tr>
 		</tbody>
 	</table>
@@ -80,22 +90,32 @@
 				<input type="text" ng-model="lecture.speaker" class="form-control"
 				placeholder="Enter the speaker of the seminar session">
 			</div>
-			<div>
-				<button class="btn btn-primary" ng-click="createLecture()">create</button>	
+			<div class="form-group" ng-show="lecture.seminar">
+				<label>opponent</label>
+				<input type="text" ng-model="lecture.opponent" class="form-control"
+				placeholder="Enter the opponent of the seminar session">
 			</div>
-			
+			<div class="form-group" ng-show="lecture.seminar">
+				<label>chair</label>
+				<input type="text" ng-model="lecture.chair" class="form-control"
+				placeholder="Enter the chair of the seminar session">
+			</div>
+			<div>
+				<button class="btn btn-primary" ng-click="createLecture()">create</button>
+			</div>
+
 		</form>
 
 	</togglable>
 
 	</div>
 
-</div>	
+</div>
 
 <togglable title="Register a student" alternative="Register a student" condition='registrationFormVisible' class="boxed">
 	<form role="form" name="form">
 		<div class="form-group">
-			<label>first name </label>   
+			<label>first name </label>
 			<input type="text" ng-model="student.first_name" class="form-control" required
 			placeholder="first name">
 		</div>
@@ -109,7 +129,7 @@
 			<input type="text" ng-model="student.number" class="form-control"  name="number"
 			placeholder="student number">
 		</div>
-		<button ng-disabled="form.$invalid"  
+		<button ng-disabled="form.$invalid"
 			ng-click="registerStudent()"
 			class='btn'
 			ng-class="{'btn btn-primary': form.$valid}"

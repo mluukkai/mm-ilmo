@@ -1,7 +1,7 @@
 angular
   .module('registerApp')
   .factory('Auth', ($http) ->
-    current_token = 'null'
+    current_token = {}
     {
       token: () -> 
         current_token
@@ -13,12 +13,10 @@ angular
             response.data
         )
       logout: () ->
-        current_token = null
+        current_token = {}
         $http.delete('logout').then(
           (resp) ->
             $http.defaults.headers.common.Authorization = null  
-            #current_token = response.data
-            console.log('doo')
         )
     }
   )
@@ -45,6 +43,8 @@ angular
         $http.get("courses")
       get: (id) ->
         $http.get("courses/#{id}")
+      participants_of: (id) ->
+        $http.get("courses/#{id}/participants")
       create: (data) ->  
         $http.post('courses', data)  
       activeLectureOf: (id) ->
@@ -97,16 +97,19 @@ angular
         student_name = student.name.toUpperCase() 
         search.length>1 and student_name.indexOf(search) != -1 and mathes(search, students )<5  
     }
-  ).factory('myInterceptor', ($q, $location) ->
+  ).factory('myInterceptor', ($q, $location, $rootScope, $timeout) ->
     (promise) -> 
       promise.then(
         (response) ->
-          #console.log response
           response
         ,  
         (response) -> 
-          console.log response
-          $q.reject(response)
-          #$location.path("registration") 
+          $rootScope.authFlash = "Please log to enter the page!"
+          $rootScope.authFlashed = true
+          $timeout( () ->
+            $rootScope.authFlashed = false 
+          ,10000)
+
+          $location.path("registration") 
       )
   )
