@@ -56,12 +56,17 @@
 					placeholder="student number">
 				</div>
 				<div ng-show="form.number.$error.pattern">
-    				<em>student number with leading zero!</em>
+    				<em>student number without the leading zero!</em>
   	    		</div>
-				<button ng-disabled="form.$invalid"
+				<button ng-hide="student_found" ng-disabled="form.$invalid"
 					ng-click="registerNewStudent()"
 					class='btn'
 					ng-class="{'btn btn-primary': form.$valid}">register
+				</button>
+				<button ng-show="student_found" ng-disabled="form.$invalid"
+					ng-click="registerNewStudent()"
+					class='btn'
+					ng-class="{'btn btn-primary': form.$valid}">confirm
 				</button>
 
 			</form>

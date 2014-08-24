@@ -131,9 +131,12 @@
 		</div>
 		<div class="form-group">
 			<label>student number</label>
-			<input type="text" ng-model="student.number" class="form-control"  name="number"
+			<input type="text" ng-model="student.number" class="form-control"  name="number" required ng-pattern="student_number"
 			placeholder="student number">
 		</div>
+		<div ng-show="form.number.$error.pattern">
+    	<em>student number without the leading zero!</em>
+  	</div>
 		<button ng-disabled="form.$invalid"
 			ng-click="registerStudent()"
 			class='btn'

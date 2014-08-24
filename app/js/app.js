@@ -174,7 +174,7 @@
         });
         return n;
       };
-      $scope.student_number = /0\d{8}$/;
+      $scope.student_number = /^1\d{7}$/;
       $scope.student = {};
       init_lecture();
       $scope.participated = false;
@@ -205,6 +205,16 @@
         });
       };
       $scope.registerStudent = function() {
+        var already_registered, _ref;
+        already_registered = (_ref = $scope.student.number, __indexOf.call($scope.course.participants.map(function(p) {
+          return p.number;
+        }), _ref) >= 0);
+        if (already_registered) {
+          $scope.registrationFormVisible = false;
+          Flash.set("student with number " + $scope.student.number + " is already registered to course!", $scope);
+          $scope.student = {};
+          return;
+        }
         $scope.student.course_id = $routeParams.id;
         Course.registerStudent($scope.student).success(function(data) {
           $scope.course.participants.push(data);
@@ -350,8 +360,31 @@
         _this = this;
       $scope = this.p.scope;
       $scope.student = {};
-      $scope.student_number = /0\d{8}$/;
+      $scope.student_number = /^1\d{7}$/;
       $scope.registerNewStudent = function() {
+        var is_registered, _ref;
+        if ($scope.student_found) {
+          $scope.student_found = false;
+          $scope.registrationFormVisible = false;
+          $scope.register($scope.student);
+          $scope.student = null;
+          return;
+        }
+        is_registered = (_ref = $scope.student.number, __indexOf.call($scope.students.map(function(p) {
+          return p.number;
+        }), _ref) >= 0);
+        if (is_registered) {
+          $scope.student_found = true;
+          return $scope.students.forEach(function(p) {
+            if ($scope.student.number === p.number) {
+              return $scope.student = p;
+            }
+          });
+        } else {
+          return $scope.registerNewStudentToCourse;
+        }
+      };
+      $scope.registerNewStudentToCourse = function() {
         $scope.student.course_id = $scope.lecture.course._id;
         _this.p.Course.registerStudent($scope.student).then(function(student) {
           $scope.students.push(student.data);

@@ -116,7 +116,7 @@ angular
             n+=1 if student._id in lecture.participants
           return n
 
-        $scope.student_number = /0\d{8}$/
+        $scope.student_number = /^1\d{7}$/
         $scope.student = {}
         init_lecture()
 
@@ -141,6 +141,14 @@ angular
             $scope.createLectureFormVisible = false
 
         $scope.registerStudent = ->
+          already_registered = $scope.student.number in $scope.course.participants.map (p) -> p.number
+
+          if already_registered
+            $scope.registrationFormVisible = false
+            Flash.set("student with number #{$scope.student.number} is already registered to course!", $scope)
+            $scope.student = {}
+            return
+
           $scope.student.course_id = $routeParams.id
           Course.registerStudent($scope.student).success (data) ->
             $scope.course.participants.push data
@@ -249,9 +257,26 @@ class RegistrationController
     $scope = @p.scope
 
     $scope.student = {}
-    $scope.student_number = /0\d{8}$/
+    $scope.student_number = /^1\d{7}$/
 
     $scope.registerNewStudent = =>
+      if $scope.student_found
+        $scope.student_found = false
+        $scope.registrationFormVisible = false
+        $scope.register($scope.student)
+        $scope.student = null
+        return
+
+      is_registered = $scope.student.number in $scope.students.map (p) -> p.number
+
+      if is_registered
+        $scope.student_found = true
+        $scope.students.forEach (p) ->
+          $scope.student = p if $scope.student.number == p.number
+      else
+        $scope.registerNewStudentToCourse
+
+    $scope.registerNewStudentToCourse = =>
       $scope.student.course_id = $scope.lecture.course._id
       @p.Course.registerStudent($scope.student).then(
         (student) =>
