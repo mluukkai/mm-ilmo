@@ -12,13 +12,20 @@ User = models.User
 
 class BasicAuth
 	perform: (req, res, next) =>
-		whitelisted = ['/favicon.ico','/courses', '/login', '/registrations']
+		console.log "*****"
+		console.log "*****"
+
+		console.log req.url
+
+		whitelisted = ['/favicon.ico','/courses','/students','/login', '/registrations']
 
 		return next() if req.url in whitelisted
 		return next() if /courses.*active_lecture/.test(req.url)
 		return next() if /courses.*participants/.test(req.url)
 
 		credentials = auth(req)
+
+		console.log credentials
 
 		if !credentials
 			res.writeHead(401, {

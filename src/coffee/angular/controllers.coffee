@@ -274,7 +274,7 @@ class RegistrationController
         $scope.students.forEach (p) ->
           $scope.student = p if $scope.student.number == p.number
       else
-        $scope.registerNewStudentToCourse
+        $scope.registerNewStudentToCourse()
 
     $scope.registerNewStudentToCourse = =>
       $scope.student.course_id = $scope.lecture.course._id

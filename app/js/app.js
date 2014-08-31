@@ -381,7 +381,7 @@
             }
           });
         } else {
-          return $scope.registerNewStudentToCourse;
+          return $scope.registerNewStudentToCourse();
         }
       };
       $scope.registerNewStudentToCourse = function() {
