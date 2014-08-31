@@ -4,9 +4,46 @@ multiparty = require('multiparty')
 xlsx = require('node-xlsx')
 
 models = require('./models')
+auth = require('basic-auth')
 Course = models.Course
 Student = models.Student
 Lecture = models.Lecture
+User = models.User
+
+class BasicAuth
+	perform: (req, res, next) =>
+		whitelisted = ['/favicon.ico','/courses', '/login', '/registrations']
+
+		return next() if req.url in whitelisted
+		return next() if /courses.*active_lecture/.test(req.url)
+		return next() if /courses.*participants/.test(req.url)
+
+		credentials = auth(req)
+
+		if !credentials
+			res.writeHead(401, {
+				'WWW-Authenticate': 'Basic realm="example"'
+			})
+			res.end()
+
+		else
+			query =
+				user : credentials.name
+				password : credentials.pass
+
+			User.find query, (err, user) ->
+				if err?
+					console.log err
+				else
+					if user.length==0
+						res.writeHead(401, {
+							'WWW-Authenticate': 'Basic realm="example"'
+						})
+						res.end()
+					else
+						return next()
+
+exports.BasicAuth = BasicAuth
 
 class Auth
 	token_valid: (token) ->

@@ -1,5 +1,5 @@
 (function() {
-  var app, controller, dburl, express, port, server;
+  var app, auth, controller, dburl, express, port, server;
 
   express = require('express');
 
@@ -13,6 +13,8 @@
     app.use(express["static"](__dirname + '/app'));
     return app.use(express.json()).use(express.urlencoded());
   });
+
+  auth = require('basic-auth');
 
   global.mongoose = require('mongoose');
 
@@ -37,7 +39,7 @@
 
   controller = require('./lib/controllers');
 
-  app.use(new controller.Auth().perform);
+  app.use(new controller.BasicAuth().perform);
 
   app.get('/courses', new controller.Courses().index);
 

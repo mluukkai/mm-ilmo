@@ -50,10 +50,17 @@ StudentSchema = new Schema
 		type: Date
 		default: Date.now
 
+UserSchema = new Schema
+	id: ObjectId
+	name: String
+	password: String
+
+User = mongoose.model 'User', CourseSchema
 Course = mongoose.model 'Course', CourseSchema
 Lecture = mongoose.model 'Lecture', LectureSchema
 Student = mongoose.model 'Student', StudentSchema
 
+exports.User = User
 exports.Course = Course
 exports.Lecture = Lecture
 exports.Student = Student

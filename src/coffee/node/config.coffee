@@ -7,6 +7,8 @@ app.configure ->
 	app.use(express.static(__dirname + '/app'))
 	app.use(express.json()).use(express.urlencoded())
 
+auth = require('basic-auth')
+
 # are there needed?
 global.mongoose = require('mongoose')
 global.Schema = mongoose.Schema
@@ -16,16 +18,17 @@ process.env.MONGOHQ_URL || "mongodb://localhost:27017/mydb"
 mongoose.connect(dburl)
 
 port = "4000"
-console.log "Server Started at http://localhost:#{port}"	
+console.log "Server Started at http://localhost:#{port}"
 server.listen(process.env.PORT || port);
 
 io.configure () ->
-  io.set("transports", ["xhr-polling"]) 
+  io.set("transports", ["xhr-polling"])
   io.set("polling duration", 20)
 
 controller = require('./lib/controllers')
 
-app.use(new controller.Auth().perform)
+app.use(new controller.BasicAuth().perform)
+#app.use(new controller.Auth().perform)
 
 app.get '/courses', new controller.Courses().index
 app.get '/courses/:id', new controller.Courses().show
@@ -42,11 +45,10 @@ app.put '/lectures/:id', new controller.Lectures().edit
 
 app.post '/registrations', new controller.Registrations().create
 
-app.post '/students', new controller.Students().create	
+app.post '/students', new controller.Students().create
 
 app.post '/upload', new controller.Students().upload
 
 app.post '/login', new controller.Auth().login
-app.delete '/logout', new controller.Auth().logout 
+app.delete '/logout', new controller.Auth().logout
 
-	
