@@ -27,9 +27,7 @@ io.configure () ->
 
 controller = require('./lib/controllers')
 
-app.post '/upload', new controller.Students().upload
-
-app.use(new controller.BasicAuth().perform)
+#app.use(new controller.BasicAuth().perform)
 #app.use(new controller.Auth().perform)
 
 app.get '/courses', new controller.Courses().index
@@ -48,6 +46,8 @@ app.put '/lectures/:id', new controller.Lectures().edit
 app.post '/registrations', new controller.Registrations().create
 
 app.post '/students', new controller.Students().create
+
+app.post '/upload', new controller.Students().upload
 
 app.post '/login', new controller.Auth().login
 app.delete '/logout', new controller.Auth().logout
