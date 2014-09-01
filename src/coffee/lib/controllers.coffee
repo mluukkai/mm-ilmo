@@ -22,6 +22,7 @@ class BasicAuth
 
 		credentials = auth(req)
 
+		console.log "kredentials:"
 		console.log credentials
 
 		if !credentials
