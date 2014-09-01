@@ -384,6 +384,9 @@ class Students
 		)
 
 		form.on('close', () ->
+			console.log 'closed excel'
+			console.log buffer
+
 			students = handleExcel(xlsx.parse(buffer))
 			list = extractStudents xlsx.parse(buffer)
 			registerToCourse(list, course_id)
