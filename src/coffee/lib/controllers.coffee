@@ -365,6 +365,8 @@ class Students
 			console.log students
 			students
 
+		console.log 'form start'
+
 		form = new multiparty.Form()
 		buffer = null
 		course_id = null
