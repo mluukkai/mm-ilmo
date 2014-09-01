@@ -14,7 +14,7 @@ class BasicAuth
 	perform: (req, res, next) =>
 		console.log req.url
 
-		whitelisted = ['/favicon.ico','/courses','/students','/login', '/registrations','/update']
+		whitelisted = ['/favicon.ico','/courses','/students','/login', '/registrations','/upload']
 
 		return next() if req.url in whitelisted
 		return next() if /courses.*active_lecture/.test(req.url)
