@@ -28,7 +28,7 @@ io.configure () ->
 controller = require('./lib/controllers')
 
 #app.use(new controller.BasicAuth().perform)
-#app.use(new controller.Auth().perform)
+app.use(new controller.Auth().perform)
 
 app.get '/courses', new controller.Courses().index
 app.get '/courses/:id', new controller.Courses().show
