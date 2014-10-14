@@ -134,7 +134,7 @@ class Courses
 
 		d = new Date
 		n = (val) ->
-			return val if val>10
+			return val if val>9
 			return "0"+val
 		ds = "#{d.getYear()+1900}-#{n(d.getMonth()+1)}-#{n(d.getDate())}"
 		console.log ds
