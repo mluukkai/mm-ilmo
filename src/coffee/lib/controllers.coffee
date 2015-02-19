@@ -215,7 +215,7 @@ class Lectures
 				lecture.seminar = req.param('seminar') if req.param('seminar')?
 				lecture.speaker = req.param('speaker') if req.param('speaker')?
 				lecture.chair = req.param('chair') if req.param('chair')?
-				lecture.opponenet = req.param('opponent') if req.param('opponent')?
+				lecture.opponent = req.param('opponent') if req.param('opponent')?
 				lecture.save (err) ->
 				if err?
 					res.json {}

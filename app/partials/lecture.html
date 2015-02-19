@@ -31,8 +31,8 @@
 </div>
 
 <div ng-show="editformVisible">
-<h3>edit 
-	<span ng-hide="lecture.seminar">lecture</span> 
+<h3>edit
+	<span ng-hide="lecture.seminar">lecture</span>
     <span ng-show="lecture.seminar">session</span>
 data</h3>
 
@@ -61,10 +61,20 @@ data</h3>
 			<input type="text" ng-model="editedLecture.speaker" class="form-control"
 			placeholder="Enter the speaker of the seminar session">
 		</div>
-		<div>
-			<button class="btn btn-primary" ng-click="saveLecture()">save information</button>	
+		<div class="form-group" ng-show="editedLecture.seminar">
+			<label>opponent</label>
+			<input type="text" ng-model="editedLecture.opponent" class="form-control"
+			placeholder="Enter the opponent of the seminar session">
 		</div>
-		
+		<div class="form-group" ng-show="editedLecture.seminar">
+			<label>chair</label>
+			<input type="text" ng-model="editedLecture.chair" class="form-control"
+			placeholder="Enter the chair of the seminar session">
+		</div>
+		<div>
+			<button class="btn btn-primary" ng-click="saveLecture()">save information</button>
+		</div>
+
 	</form>
 
 </div>
@@ -72,8 +82,8 @@ data</h3>
 <div class="btn-group">
 	<a href="#courses/{{lecture.course._id}}" class="btn">to course page</a>
 	<a href="#lectures/{{lecture._id}}/register" class="btn">to registration page</a>
-	<a ng-click="editformVisible=true" ng-hide="editformVisible" class="btn">edit 
-	  <span ng-hide="lecture.seminar">lecture</span> 
+	<a ng-click="editformVisible=true" ng-hide="editformVisible" class="btn">edit
+	  <span ng-hide="lecture.seminar">lecture</span>
       <span ng-show="lecture.seminar">session</span>
 	information</a>
 	<a ng-click="editformVisible=false" ng-show="editformVisible" class="btn">close edit form</a>
