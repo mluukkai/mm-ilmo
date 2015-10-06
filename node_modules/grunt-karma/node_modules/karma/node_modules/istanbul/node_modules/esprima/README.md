@@ -1,55 +1,54 @@
-Esprima ([esprima.org](http://esprima.org)) is an educational
-[ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
-(also popularly known as [JavaScript](http://en.wikipedia.org/wiki/JavaScript>JavaScript))
-parsing infrastructure for multipurpose analysis. It is also written in ECMAScript.
+**Esprima** ([esprima.org](http://esprima.org)) is a high performance,
+standard-compliant [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
+parser written in ECMAScript (also popularly known as
+[JavaScript](http://en.wikipedia.org/wiki/JavaScript>JavaScript)).
+Esprima is created and maintained by [Ariya Hidayat](http://twitter.com/ariyahidayat),
+with the help of [many contributors](https://github.com/ariya/esprima/contributors).
 
-Esprima serves as a good basis for various tools such as source
-modification ([Esmorph](https://github.com/ariya/esmorph)), coverage analyzer
-([node-cover](https://github.com/itay/node-cover) and
-[coveraje](https://github.com/coveraje/coveraje)),
-source-to-source compiler ([Marv](https://github.com/Yoric/Marv-the-Tinker)),
-syntax formatter ([Code Painter](https://github.com/fawek/codepainter)),
-and code generator ([escodegen](https://github.com/Constellation/escodegen)).
+Esprima runs on web browsers (IE 6+, Firefox 1+, Safari 3+, Chrome 1+, Konqueror 4.6+, Opera 8+) as well as
+[Node.js](http://nodejs.org).
 
-Esprima can be used in a web browser:
+### Features
 
-    <script src="esprima.js"></script>
+- Full support for [ECMAScript 5.1](http://www.ecma-international.org/publications/standards/Ecma-262.htm)(ECMA-262)
+- Sensible [syntax tree format](http://esprima.org/doc/index.html#ast) compatible with Mozilla
+[Parser AST](https://developer.mozilla.org/en/SpiderMonkey/Parser_API)
+- Heavily tested (> 550 [unit tests](http://esprima.org/test/) with solid 100% statement coverage)
+- Optional tracking of syntax node location (index-based and line-column)
+- Experimental support for ES6/Harmony (module, class, destructuring, ...)
 
-or in a Node.js application via the package manager:
+Esprima is blazing fast (see the [benchmark suite](http://esprima.org/test/benchmarks.html)).
+It is up to 3x faster than UglifyJS v1 and it is still [competitive](http://esprima.org/test/compare.html)
+with the new generation of fast parsers.
 
-    npm install esprima
+### Applications
 
-Esprima parser output is compatible with Mozilla (SpiderMonkey)
-[Parser API](https://developer.mozilla.org/en/SpiderMonkey/Parser_API).
+Esprima serves as the basis for many popular JavaScript development tools:
 
-A very simple example:
+- Code coverage analysis: [node-cover](https://github.com/itay/node-cover), [Istanbul](https://github.com/yahoo/Istanbul)
+- Documentation tool: [JFDoc](https://github.com/thejohnfreeman/jfdoc), [JSDuck](https://github.com/senchalabs/jsduck)
+- Language extension: [LLJS](http://mbebenita.github.com/LLJS/) (low-level JS),
+[Sweet.js](http://sweetjs.org/) (macro)
+- ES6/Harmony transpiler: [Six](https://github.com/matthewrobb/six), [Harmonizr](https://github.com/jdiamond/harmonizr)
+- Eclipse Orion smart editing ([outline view](https://github.com/aclement/esprima-outline), [content assist](http://contraptionsforprogramming.blogspot.com/2012/02/better-javascript-content-assist-in.html))
+- Source code modification: [Esmorph](https://github.com/ariya/esmorph), [Code Painter](https://github.com/fawek/codepainter),
+- Source transformation: [node-falafel](https://github.com/substack/node-falafel), [Esmangle](https://github.com/Constellation/esmangle), [escodegen](https://github.com/Constellation/escodegen)
 
-    esprima.parse('var answer=42').body[0].declarations[0].init
+### Questions?
+- [Documentation](http://esprima.org/doc)
+- [Issue tracker](http://issues.esprima.org): [known problems](http://code.google.com/p/esprima/issues/list?q=Defect)
+and [future plans](http://code.google.com/p/esprima/issues/list?q=Enhancement)
+- [Mailing list](http://groups.google.com/group/esprima)
+- [Contribution guide](http://esprima.org/doc/index.html#contribution)
 
-produces the following object:
-
-    { type: 'Literal', value: 42 }
-
-Esprima is still in the development, for now please check
-[the wiki documentation](http://wiki.esprima.org).
-
-Since it is not comprehensive nor complete, refer to the
-[issue tracker](http://issues.esprima.org) for
-[known problems](http://code.google.com/p/esprima/issues/list?q=Defect)
-and [future plans](http://code.google.com/p/esprima/issues/list?q=Enhancement).
-Esprima is supported on [many browsers](http://code.google.com/p/esprima/wiki/BrowserCompatibility):
-IE 6+, Firefox 1+, Safari 3+, Chrome 1+, and Opera 8+.
-
-Feedback and contribution are welcomed! Please join the
-[mailing list](http://groups.google.com/group/esprima) and read the
-[contribution guide](http://code.google.com/p/esprima/wiki/ContributionGuide)
-for further info.
-
+Follow [@Esprima](http://twitter.com/Esprima) on Twitter to get the
+development updates.
+Feedback and contribution are welcomed!
 
 ### License
 
 Copyright (C) 2012, 2011 [Ariya Hidayat](http://ariya.ofilabs.com/about)
- (twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)) and other contributors.
+ and other contributors.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
