@@ -2,7 +2,8 @@
   "name": "seed",
   "version": "0.1.0",
   "dependencies": {
-    "express": "~3.3.4"
+    "express": "~3.3.4",
+    "mongodb": "~2.0"
   },
   "main": "./server.js",
   "devDependencies": {
