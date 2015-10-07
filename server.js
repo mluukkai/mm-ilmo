@@ -22,7 +22,7 @@
 
   global.ObjectId = Schema.ObjectId;
 
-  dburl = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://localhost:27017/mydb";
+  dburl = process.env.MONGOLAB_URI || "mongodb://localhost:27017/mydb";
 
   mongoose.connect(dburl);
 
@@ -31,11 +31,6 @@
   console.log("Server Started at http://localhost:" + port);
 
   server.listen(process.env.PORT || port);
-
-  io.configure(function() {
-    io.set("transports", ["xhr-polling"]);
-    return io.set("polling duration", 20);
-  });
 
   controller = require('./lib/controllers');
 

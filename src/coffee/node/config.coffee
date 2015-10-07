@@ -13,17 +13,17 @@ auth = require('basic-auth')
 global.mongoose = require('mongoose')
 global.Schema = mongoose.Schema
 global.ObjectId = Schema.ObjectId
-dburl = process.env.MONGOLAB_URI ||
-process.env.MONGOHQ_URL || "mongodb://localhost:27017/mydb"
+dburl = process.env.MONGOLAB_URI || "mongodb://localhost:27017/mydb"
+
 mongoose.connect(dburl)
 
 port = "4000"
 console.log "Server Started at http://localhost:#{port}"
 server.listen(process.env.PORT || port);
 
-io.configure () ->
-  io.set("transports", ["xhr-polling"])
-  io.set("polling duration", 20)
+#io.configure () ->
+#  io.set("transports", ["xhr-polling"])
+#  io.set("polling duration", 20)
 
 controller = require('./lib/controllers')
 
