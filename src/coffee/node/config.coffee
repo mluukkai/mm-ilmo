@@ -21,9 +21,9 @@ port = "4000"
 console.log "Server Started at http://localhost:#{port}"
 server.listen(process.env.PORT || port);
 
-#io.configure () ->
-#  io.set("transports", ["xhr-polling"])
-#  io.set("polling duration", 20)
+io.configure () ->
+  io.set("transports", ["xhr-polling"])
+  io.set("polling duration", 20)
 
 controller = require('./lib/controllers')
 

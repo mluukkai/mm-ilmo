@@ -32,6 +32,11 @@
 
   server.listen(process.env.PORT || port);
 
+  io.configure(function() {
+    io.set("transports", ["xhr-polling"]);
+    return io.set("polling duration", 20);
+  });
+
   controller = require('./lib/controllers');
 
   app.use(new controller.BasicAuth().perform);
