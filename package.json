@@ -9,7 +9,8 @@
     "basic-auth": "1.0.3",
     "async": "1.4.2",
     "multiparty": "4.1.2",
-    "node-xlsx": "0.6.0"
+    "node-xlsx": "0.6.0",
+    "multer": "1.2.0"
   },
   "main": "./server.js",
   "devDependencies": {

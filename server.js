@@ -1,5 +1,5 @@
 (function() {
-  var app, auth, controller, dburl, express, port, server;
+  var app, auth, controller, dburl, express, fs, multer, port, server, upload;
 
   express = require('express');
 
@@ -8,6 +8,14 @@
   server = require('http').createServer(app);
 
   global.io = require('socket.io').listen(server);
+
+  multer = require('multer');
+
+  upload = multer({
+    dest: 'uploads/'
+  });
+
+  fs = require('fs');
 
   app.configure(function() {
     app.use(express["static"](__dirname + '/app'));
@@ -69,7 +77,7 @@
 
   app.post('/students', new controller.Students().create);
 
-  app.post('/upload', new controller.Students().upload);
+  app.post('/upload', upload.single('upload'), new controller.Students().upload);
 
   app.post('/login', new controller.Auth().login);
 

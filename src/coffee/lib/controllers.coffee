@@ -2,6 +2,7 @@ async = require('async')
 
 multiparty = require('multiparty')
 xlsx = require('node-xlsx')
+fs = require('fs');
 
 models = require('./models')
 auth = require('basic-auth')
@@ -9,6 +10,11 @@ Course = models.Course
 Student = models.Student
 Lecture = models.Lecture
 User = models.User
+
+Array::unique = ->
+  output = {}
+  output[@[key]] = @[key] for key in [0...@length]
+  value for key, value of output
 
 class BasicAuth
 	perform: (req, res, next) =>
@@ -88,6 +94,7 @@ class Courses
 		Course.findById(req.param('id'))
 		.populate('participants')
 		.exec (err, course) ->
+			course.participants = course.participants.unique() if course.participants
 			if err?
 				res.json {}
 			else
@@ -98,6 +105,7 @@ class Courses
 		.populate('lectures')
 		.populate('participants')
 		.exec (err, course) ->
+			course.participants = course.participants.unique()			
 			if err?
 				res.json {}
 			else
@@ -155,6 +163,7 @@ class Courses
 			active: req.param('active')
 			teachers: [ req.param('teacher') ]
 			active: false
+		console.log "saving course"
 		course = new Course(data)
 		course.save (err) ->
 			if err?
@@ -318,6 +327,74 @@ class Students
 			new_student = new Student(data)
 
 			new_student.save (err, saved_student) ->
+				course.participants.push new_student			
+				course.save (err) ->
+					console.log "saving #{saved_student.name}"
+
+		among = (student, participants) ->
+			student.number in participants.map (p) -> p.number
+
+		registerToCourse = (students, course_id) ->
+			Course.findById(course_id)
+			.populate('participants')
+			.exec (err, course) ->
+				for student in students
+					console.log student
+					if among(student, course.participants)
+						console.log "old: #{student.number}"
+					else
+						console.log "new: #{student.number}"
+						registerStudent(student, course)
+		
+		isStudent = (s) ->
+			nro = s[0]
+			(typeof nro == 'string') and (nro.charAt(0)=='0' ) and (nro.charAt(1)=='1' )
+
+		extractStudent = (data) ->
+			{
+				number: data[0].substr(1),
+				last_name: data[2],
+				first_name: data[3].replace("*","")
+			}
+
+		extractStudents = (data) ->
+			students = []
+			for s in data[0].data
+				students.push extractStudent(s) if isStudent(s)
+			students
+
+		student = (data) ->
+	  		"#{data[0]} #{data[2]} #{data[3].replace("*","")}"
+
+		handleExcel = (data) ->
+			students = ""
+			for s in data[0].data
+				console.log "-->  #{isStudent(s)}"
+				if isStudent(s)
+					students += student(s) + "\n"
+			students
+
+
+		parsed_excel = xlsx.parse(req.file.path)
+		course_id = req.body.course_id
+
+		list = extractStudents parsed_excel
+		
+		registerToCourse(list, course_id)
+
+		res.redirect("#courses/#{course_id}")
+
+###
+	upload: (req, res) ->
+		registerStudent = (student, course) ->
+			data =
+				first_name: student.first_name
+				last_name: student.last_name
+				name: "#{student.last_name} #{student.first_name}"
+				number: student.number
+			new_student = new Student(data)
+
+			new_student.save (err, saved_student) ->
 				course.participants.push saved_student
 				console.log course.participants
 				course.save (err) ->
@@ -338,7 +415,7 @@ class Students
 						registerStudent(student, course)
 
 		isStudent = (s) ->
-			nro = s[0].value
+			nro = s.value
 			(typeof nro == 'number') and (nro.toString().charAt(0)=='1' )
 
 		extractStudent = (data) ->
@@ -373,6 +450,7 @@ class Students
 		course_id = null
 
 		form.on('part', (part) ->
+			console.log "part recieved"
 			if typeof part.filename != 'undefined'
 				buffer = new Buffer(0)
 				part.on('data', (chunck) ->
@@ -386,6 +464,11 @@ class Students
 					)
 		)
 
+		form.on('error', (error) ->
+			console.log "ERROR"
+			console.log erro
+		)
+
 		form.on('close', () ->
 			console.log 'closed excel'
 			console.log buffer
@@ -394,12 +477,9 @@ class Students
 			list = extractStudents xlsx.parse(buffer)
 			registerToCourse(list, course_id)
 			res.redirect("#courses/#{course_id}");
-			#res.writeHead(200, {'content-type': 'text/plain; charset=utf-8'})
-			#res.write("course #{course_id}"+ "\n")
-			#res.write(students.toString("utf8"))
-			#res.end()
 		)
 
 		form.parse( req, (err, fields, files) -> )
+###
 
 exports.Students = Students

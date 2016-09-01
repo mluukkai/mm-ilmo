@@ -3,6 +3,14 @@ global.app = app = express()
 server = require('http').createServer(app)
 global.io = require('socket.io').listen(server)
 
+# 
+
+multer  = require('multer')
+upload = multer({ dest: 'uploads/' })
+fs = require('fs');
+
+#
+
 app.configure ->
 	app.use(express.static(__dirname + '/app'))
 	app.use(express.json()).use(express.urlencoded())
@@ -47,7 +55,9 @@ app.post '/registrations', new controller.Registrations().create
 
 app.post '/students', new controller.Students().create
 
-app.post '/upload', new controller.Students().upload
+
+app.post( '/upload', upload.single('upload' ), new controller.Students().upload )
+#app.post '/upload', new controller.Students().upload
 
 app.post '/login', new controller.Auth().login
 app.delete '/logout', new controller.Auth().logout
