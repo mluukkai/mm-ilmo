@@ -111,6 +111,17 @@ class Courses
 			else
 				res.json course
 
+	activity: (req, res) ->
+		console.log "HERE NOW"
+		Course.findById(req.param('id'))
+		.exec (err, course) ->
+			course.active = !course.active			
+			course.save (err) ->
+				if err?
+					res.json {}
+				else
+					res.json course
+
 	delete: (req, res) ->
 		Course.findById(req.param('id'))
 		.exec (err, course) ->
@@ -162,7 +173,7 @@ class Courses
 			term: req.param('term')
 			active: req.param('active')
 			teachers: [ req.param('teacher') ]
-			active: false
+			active: true
 		console.log "saving course"
 		course = new Course(data)
 		course.save (err) ->

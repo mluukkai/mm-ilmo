@@ -53,6 +53,8 @@ angular
         $http.get("courses/#{id}/active_lectures")
       registerStudent: (data) ->
         $http.post('students', data)
+      toggleActivity: (id) ->
+        $http.post("courses/#{id}/activity")        
     }
   )
   .factory('Flash', ($timeout) ->

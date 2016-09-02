@@ -223,12 +223,19 @@
         });
         return $scope.student = {};
       };
-      return $scope.registered = function(student, lecture) {
+      $scope.registered = function(student, lecture) {
         var _ref;
         if (_ref = student._id, __indexOf.call(lecture.participants, _ref) >= 0) {
           return "X";
         }
         return "";
+      };
+      return $scope.setActivity = function(val) {
+        console.log("activity to " + val);
+        $scope.course.active = val;
+        return Course.toggleActivity($routeParams.id).success(function(data) {
+          return console.log("yes");
+        });
       };
     }
   ]);
@@ -537,6 +544,9 @@
       },
       registerStudent: function(data) {
         return $http.post('students', data);
+      },
+      toggleActivity: function(id) {
+        return $http.post("courses/" + id + "/activity");
       }
     };
   }).factory('Flash', function($timeout) {

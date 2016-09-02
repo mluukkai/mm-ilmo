@@ -7,12 +7,17 @@
 		<th>name</th>
 		<th>term</th>
 		<th>lectured by</th>	
+		<th>registration</th>
 	</thead>
 	<tbody>
-		<tr ng-repeat="course in courses">
+		<tr ng-repeat="course in courses | orderBy:'active':true">
 			<td><a href="#courses/{{course._id}}">{{course.name}}</a></td>
 			<td>{{course.term}}</td>
 			<td>{{course.teachers.join(' ')}}</td>
+			<td>
+				<span ng-show="course.active">open</span>
+				<span ng-hide="course.active">closed</span>
+			</td>
 		</tr>
 	</tbody>
 </table>

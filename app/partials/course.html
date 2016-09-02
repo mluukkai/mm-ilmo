@@ -140,8 +140,8 @@
 		<button ng-disabled="form.$invalid"
 			ng-click="registerStudent()"
 			class='btn'
-			ng-class="{'btn btn-primary': form.$valid}"
-		>register
+			ng-class="{'btn btn-primary': form.$valid}">
+			register
 		</button>
 
 	</form>
@@ -159,6 +159,17 @@
 
 </div>
 
+<div class="boxed">
+
+	<div ng-init="activity=false" ng-click="activity = !activity">
+		<h3 ng-show="course.active">Registration open</h3>
+		<h3 ng-hide="course.active">Registration closed</h3>
+	</div>
+
+	<div ng-show="activity">
+		<button class="btn btn-warning" ng-show="course.active" ng-click="setActivity(false)">close registration</button>
+		<button class="btn btn-warning" ng-hide="course.active" ng-click="setActivity(true)">open registration</button>
+	</div>
 
 
-
+</div>

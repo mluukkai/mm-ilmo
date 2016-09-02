@@ -57,6 +57,8 @@
 
   app.get('/courses/:id/participants', new controller.Courses().participants);
 
+  app.post('/courses/:id/activity', new controller.Courses().activity);
+
   app.get('/courses/:id/delete', new controller.Courses()["delete"]);
 
   app.post('/courses', new controller.Courses().create);

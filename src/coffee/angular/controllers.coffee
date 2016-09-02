@@ -159,6 +159,12 @@ angular
         $scope.registered = (student, lecture) ->
           return "X" if student._id in lecture.participants
           return ""
+
+        $scope.setActivity = (val) ->
+          console.log "activity to #{val}"
+          $scope.course.active = val
+          Course.toggleActivity($routeParams.id).success (data) ->
+            console.log "yes"
     ])
 
 ###
