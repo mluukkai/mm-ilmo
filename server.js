@@ -30,7 +30,7 @@
 
   global.ObjectId = Schema.ObjectId;
 
-  dburl = process.env.MONGODB_URI || "mongodb://localhost:27017/mydb";
+  dburl = process.env.MONGOLAB_URI || process.env.MONGODB_URI || "mongodb://localhost:27017/mydb";
 
   mongoose.connect(dburl);
 

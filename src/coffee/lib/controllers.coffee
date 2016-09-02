@@ -318,18 +318,26 @@ class Students
 							res.json student
 
 	upload: (req, res) ->
-		registerStudent = (student, course) ->
-			data =
-				first_name: student.first_name
-				last_name: student.last_name
-				name: "#{student.last_name} #{student.first_name}"
-				number: student.number
-			new_student = new Student(data)
+		registerStudents = (students, course) ->
+			async.each(students, 
+				(student, callback) ->
+					data =
+						first_name: student.first_name
+						last_name: student.last_name
+						name: "#{student.last_name} #{student.first_name}"
+						number: student.number
+					new_student = new Student(data)		
+								
+					new_student.save (err, saved_student) ->
+						console.log "saving #{saved_student.name}"
+						course.participants.push new_student			
+						callback(null)
+							
+				, (result) ->
+					course.save (err) ->
+						console.log "saving course"	
+			)
 
-			new_student.save (err, saved_student) ->
-				course.participants.push new_student			
-				course.save (err) ->
-					console.log "saving #{saved_student.name}"
 
 		among = (student, participants) ->
 			student.number in participants.map (p) -> p.number
@@ -338,14 +346,16 @@ class Students
 			Course.findById(course_id)
 			.populate('participants')
 			.exec (err, course) ->
+				new_students = []
 				for student in students
-					console.log student
 					if among(student, course.participants)
 						console.log "old: #{student.number}"
 					else
+						new_students.push(student)
 						console.log "new: #{student.number}"
-						registerStudent(student, course)
-		
+
+				registerStudents(new_students, course)
+
 		isStudent = (s) ->
 			nro = s[0]
 			(typeof nro == 'string') and (nro.charAt(0)=='0' ) and (nro.charAt(1)=='1' )
