@@ -39,11 +39,11 @@ angular
           console.log data
       )
   ])
-  .controller('LectureCtrl', ['$scope', '$routeParams', 'Lecture', 'Course','Flash', ($scope, $routeParams, Lecture, Course, Flash) ->
-      socket = io.connect()
-      socket.on 'registration', (data) ->
-        $scope.lecture.participants.push data
-        $scope.$apply()
+  .controller('LectureCtrl', ['$scope', '$routeParams', 'Lecture', 'Course', 'Flash', 'Matcher', ($scope, $routeParams, Lecture, Course, Flash, Matcher) ->
+      #socket = io.connect()
+      #socket.on 'registration', (data) ->
+      #  $scope.lecture.participants.push data
+      #  $scope.$apply()
 
       Lecture.get($routeParams.id)
       .then( (lecture) ->
@@ -57,6 +57,50 @@ angular
       .then( (course) ->
         $scope.students = course.data.participants
       )
+
+      seminar_officials = =>
+        return [] unless $scope.lecture.seminar
+        officials = []
+        officials.push $scope.lecture.speaker if $scope.lecture.speaker
+        officials.push $scope.lecture.opponent if $scope.lecture.opponent
+        officials.push $scope.lecture.chair if $scope.lecture.chair
+        officials
+
+      $scope.speaker_condition = (student) =>
+        Matcher.condition(student, $scope.editedLecture.speaker_search, $scope.students , seminar_officials())    
+
+      $scope.opponent_condition = (student) =>
+        Matcher.condition(student, $scope.editedLecture.opponent_search, $scope.students , seminar_officials())  
+
+      $scope.chair_condition = (student) =>
+        Matcher.condition(student, $scope.editedLecture.chair_search, $scope.students , seminar_officials())  
+
+      $scope.select_as_speaker = (student) =>
+        $scope.editedLecture.speaker = student.name
+        $scope.editedLecture.speaker_search = ""
+
+      $scope.change_speaker = () =>
+        $scope.editedLecture.speaker = null
+        $scope.lecture.speaker = null
+        $scope.editedLecture.speaker_search = ""
+
+      $scope.change_opponent = () =>
+        $scope.editedLecture.opponent  = null
+        $scope.lecture.opponent  = null
+        $scope.editedLecture.opponent_search = ""
+
+      $scope.change_chair = () =>
+        $scope.editedLecture.chair = null    
+        $scope.lecture.chair  = null
+        $scope.editedLecture.chair_search = ""             
+
+      $scope.select_as_opponent = (student) =>
+        $scope.editedLecture.opponent = student.name
+        $scope.editedLecture.opponent_search = ""
+
+      $scope.select_as_chair = (student) =>
+        $scope.editedLecture.chair = student.name
+        $scope.editedLecture.chair_search =  ""
 
       $scope.saveLecture = () ->
         $scope.lecture = angular.copy($scope.editedLecture)
@@ -99,11 +143,23 @@ angular
           Flash: Flash
         new CoursesController(p).run()
     ])
-    .controller('CourseCtrl', ['$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', ($scope, $routeParams, DateService, Course, Lecture, Flash) ->
+    .controller('CourseCtrl', ['$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', 'Matcher', ($scope, $routeParams, DateService, Course, Lecture, Flash, Matcher) ->
         init_lecture = =>
           $scope.lecture =
             time: "12:15"
             date: DateService.getString()
+            seminar: true
+            speaker_search: ""
+            opponent_search: ""
+            chair_search: ""
+
+        seminar_officials = =>
+          return [] unless $scope.lecture.seminar
+          officials = []
+          officials.push $scope.lecture.speaker if $scope.lecture.speaker
+          officials.push $scope.lecture.opponent if $scope.lecture.opponent
+          officials.push $scope.lecture.chair if $scope.lecture.chair
+          officials
 
         time = ( s ) ->
           t = s.time.split(':')
@@ -131,6 +187,36 @@ angular
           $scope.course.participants.forEach (participant) ->
             participant.present = number_of_registrations(participant)
           $scope.course.lectures = $scope.course.lectures.sort (a,b) -> time(a)-time(b)
+
+        $scope.speaker_condition = (student) =>
+          Matcher.condition(student, $scope.lecture.speaker_search, $scope.course.participants, seminar_officials())    
+
+        $scope.opponent_condition = (student) =>
+          Matcher.condition(student, $scope.lecture.opponent_search, $scope.course.participants, seminar_officials())  
+
+        $scope.chair_condition = (student) =>
+          Matcher.condition(student, $scope.lecture.chair_search, $scope.course.participants, seminar_officials())  
+
+        $scope.select_as_speaker = (student) =>
+          $scope.lecture.speaker = student.name
+          $scope.lecture.speaker_search = ""
+
+        $scope.change_speaker = () =>
+          $scope.lecture.speaker = null
+
+        $scope.change_opponent = () =>
+          $scope.lecture.opponent  = null
+
+        $scope.change_chair = () =>
+          $scope.lecture.chair = null         
+
+        $scope.select_as_opponent = (student) =>
+          $scope.lecture.opponent = student.name
+          $scope.lecture.opponent_search = ""
+
+        $scope.select_as_chair = (student) =>
+          $scope.lecture.chair = student.name
+          $scope.lecture.chair_search =  ""
 
         $scope.createLecture = ->
           $scope.lecture.course_id = $routeParams.id
@@ -309,8 +395,20 @@ class RegistrationController
         @p.Flash.set("#{student.name} registered", $scope)
         $scope.search = ""
 
-    $scope.registered = (student) =>
+    $scope.registered = (student) =>    
       student._id in $scope.lecture.participants.map (p) -> p._id
 
+    $scope.official = (student) =>
+      seminar_officials = =>
+        return [] unless $scope.lecture.seminar
+        officials = []
+        officials.push $scope.lecture.speaker if $scope.lecture.speaker
+        officials.push $scope.lecture.opponent if $scope.lecture.opponent
+        officials.push $scope.lecture.chair if $scope.lecture.chair
+        officials
+
+      seminar_officials().indexOf(student.name)>-1
+
+
     $scope.condition = (student) =>
-      @p.Matcher.condition(student, $scope.search, $scope.students)
+      @p.Matcher.condition(student, $scope.search, $scope.students, [])  

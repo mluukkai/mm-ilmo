@@ -302,7 +302,7 @@ class Registrations
 					data =
 						student: student
 						lecture: lecture._id
-					global.io.sockets.emit 'registration', student
+					#global.io.sockets.emit 'registration', student
 					res.json {data}
 
 exports.Registrations = Registrations

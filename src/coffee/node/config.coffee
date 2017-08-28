@@ -1,7 +1,7 @@
 express = require 'express'
 global.app = app = express()
 server = require('http').createServer(app)
-global.io = require('socket.io').listen(server)
+#global.io = require('socket.io').listen(server)
 
 # 
 
@@ -29,9 +29,9 @@ port = "4000"
 console.log "Server Started at http://localhost:#{port}"
 server.listen(process.env.PORT || port);
 
-io.configure () ->
-  io.set("transports", ["xhr-polling"])
-  io.set("polling duration", 20)
+#io.configure () ->
+#  io.set("transports", ["xhr-polling"])
+#  io.set("polling duration", 20)
 
 controller = require('./lib/controllers')
 

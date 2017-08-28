@@ -110,11 +110,11 @@ angular
       n
 
     {
-      condition: (student, search, students) ->
+      condition: (student, search, students, excluded_students) ->
         search = "" if not search?
         search = search.toUpperCase().replace /-/, " "
         student_name = student.name.toUpperCase().replace /-/, " "
-        search.length>1 and match(search, student_name, students) and match_count(search, students)<4
+        search.length>1 and excluded_students.indexOf(student.name)==-1 and match(search, student_name, students) and match_count(search, students)<4 
     }
   ).factory('myInterceptor', ($q, $location, $rootScope, $timeout) ->
     (promise) ->

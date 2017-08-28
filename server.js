@@ -7,8 +7,6 @@
 
   server = require('http').createServer(app);
 
-  global.io = require('socket.io').listen(server);
-
   multer = require('multer');
 
   upload = multer({
@@ -39,11 +37,6 @@
   console.log("Server Started at http://localhost:" + port);
 
   server.listen(process.env.PORT || port);
-
-  io.configure(function() {
-    io.set("transports", ["xhr-polling"]);
-    return io.set("polling duration", 20);
-  });
 
   controller = require('./lib/controllers');
 

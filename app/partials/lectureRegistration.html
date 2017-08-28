@@ -7,6 +7,9 @@
 </div>
 
 <div ng-show="lecture.course.name">
+	<span ng-hide="true">
+		{{lecture}}
+	</span>
 	<div class="lecture" ng-hide="lecture.seminar">
 		Lecture of {{lecture.date|date}} at {{lecture.time}} in {{lecture.place}}
 	</div>
@@ -21,16 +24,19 @@
 
 	<br>
 
-    <div flash></div>
+  <div flash></div>
 
 	<div ng-hide="flashed">
 
 		<p ng-repeat="student in students|filter:condition">
 			{{student.name}}
-			<a ng-hide="registered(student)" ng-click="register(student)" class="btn btn-primary">register</a>
+			<a ng-hide="registered(student)||official(student)" ng-click="register(student)" class="btn btn-primary">register</a>
 			<span ng-show="registered(student)">
 			  <em>registered already!</em>
 			</span>
+			<span ng-show="official(student)">
+					<em>since you are speaker, opponent or chair, there is no need to register</em>
+				</span>			
 		</p>
 
 		<h3>start typing your name until it is found</h3>

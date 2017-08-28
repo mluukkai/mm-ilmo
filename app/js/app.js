@@ -81,13 +81,9 @@
       };
     }
   ]).controller('LectureCtrl', [
-    '$scope', '$routeParams', 'Lecture', 'Course', 'Flash', function($scope, $routeParams, Lecture, Course, Flash) {
-      var socket;
-      socket = io.connect();
-      socket.on('registration', function(data) {
-        $scope.lecture.participants.push(data);
-        return $scope.$apply();
-      });
+    '$scope', '$routeParams', 'Lecture', 'Course', 'Flash', 'Matcher', function($scope, $routeParams, Lecture, Course, Flash, Matcher) {
+      var seminar_officials,
+        _this = this;
       Lecture.get($routeParams.id).then(function(lecture) {
         $scope.lecture = lecture.data;
         $scope.editedLecture = angular.copy($scope.lecture);
@@ -97,6 +93,59 @@
       }).then(function(course) {
         return $scope.students = course.data.participants;
       });
+      seminar_officials = function() {
+        var officials;
+        if (!$scope.lecture.seminar) {
+          return [];
+        }
+        officials = [];
+        if ($scope.lecture.speaker) {
+          officials.push($scope.lecture.speaker);
+        }
+        if ($scope.lecture.opponent) {
+          officials.push($scope.lecture.opponent);
+        }
+        if ($scope.lecture.chair) {
+          officials.push($scope.lecture.chair);
+        }
+        return officials;
+      };
+      $scope.speaker_condition = function(student) {
+        return Matcher.condition(student, $scope.editedLecture.speaker_search, $scope.students, seminar_officials());
+      };
+      $scope.opponent_condition = function(student) {
+        return Matcher.condition(student, $scope.editedLecture.opponent_search, $scope.students, seminar_officials());
+      };
+      $scope.chair_condition = function(student) {
+        return Matcher.condition(student, $scope.editedLecture.chair_search, $scope.students, seminar_officials());
+      };
+      $scope.select_as_speaker = function(student) {
+        $scope.editedLecture.speaker = student.name;
+        return $scope.editedLecture.speaker_search = "";
+      };
+      $scope.change_speaker = function() {
+        $scope.editedLecture.speaker = null;
+        $scope.lecture.speaker = null;
+        return $scope.editedLecture.speaker_search = "";
+      };
+      $scope.change_opponent = function() {
+        $scope.editedLecture.opponent = null;
+        $scope.lecture.opponent = null;
+        return $scope.editedLecture.opponent_search = "";
+      };
+      $scope.change_chair = function() {
+        $scope.editedLecture.chair = null;
+        $scope.lecture.chair = null;
+        return $scope.editedLecture.chair_search = "";
+      };
+      $scope.select_as_opponent = function(student) {
+        $scope.editedLecture.opponent = student.name;
+        return $scope.editedLecture.opponent_search = "";
+      };
+      $scope.select_as_chair = function(student) {
+        $scope.editedLecture.chair = student.name;
+        return $scope.editedLecture.chair_search = "";
+      };
       return $scope.saveLecture = function() {
         $scope.lecture = angular.copy($scope.editedLecture);
         return Lecture.save($routeParams.id, $scope.lecture).success(function(data) {
@@ -148,14 +197,35 @@
       return new CoursesController(p).run();
     }
   ]).controller('CourseCtrl', [
-    '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', function($scope, $routeParams, DateService, Course, Lecture, Flash) {
-      var init_lecture, number_of_registrations, time,
+    '$scope', '$routeParams', 'DateService', 'Course', 'Lecture', 'Flash', 'Matcher', function($scope, $routeParams, DateService, Course, Lecture, Flash, Matcher) {
+      var init_lecture, number_of_registrations, seminar_officials, time,
         _this = this;
       init_lecture = function() {
         return $scope.lecture = {
           time: "12:15",
-          date: DateService.getString()
+          date: DateService.getString(),
+          seminar: true,
+          speaker_search: "",
+          opponent_search: "",
+          chair_search: ""
         };
+      };
+      seminar_officials = function() {
+        var officials;
+        if (!$scope.lecture.seminar) {
+          return [];
+        }
+        officials = [];
+        if ($scope.lecture.speaker) {
+          officials.push($scope.lecture.speaker);
+        }
+        if ($scope.lecture.opponent) {
+          officials.push($scope.lecture.opponent);
+        }
+        if ($scope.lecture.chair) {
+          officials.push($scope.lecture.chair);
+        }
+        return officials;
       };
       time = function(s) {
         var d, t;
@@ -193,6 +263,36 @@
           return time(a) - time(b);
         });
       });
+      $scope.speaker_condition = function(student) {
+        return Matcher.condition(student, $scope.lecture.speaker_search, $scope.course.participants, seminar_officials());
+      };
+      $scope.opponent_condition = function(student) {
+        return Matcher.condition(student, $scope.lecture.opponent_search, $scope.course.participants, seminar_officials());
+      };
+      $scope.chair_condition = function(student) {
+        return Matcher.condition(student, $scope.lecture.chair_search, $scope.course.participants, seminar_officials());
+      };
+      $scope.select_as_speaker = function(student) {
+        $scope.lecture.speaker = student.name;
+        return $scope.lecture.speaker_search = "";
+      };
+      $scope.change_speaker = function() {
+        return $scope.lecture.speaker = null;
+      };
+      $scope.change_opponent = function() {
+        return $scope.lecture.opponent = null;
+      };
+      $scope.change_chair = function() {
+        return $scope.lecture.chair = null;
+      };
+      $scope.select_as_opponent = function(student) {
+        $scope.lecture.opponent = student.name;
+        return $scope.lecture.opponent_search = "";
+      };
+      $scope.select_as_chair = function(student) {
+        $scope.lecture.chair = student.name;
+        return $scope.lecture.chair_search = "";
+      };
       $scope.createLecture = function() {
         $scope.lecture.course_id = $routeParams.id;
         return Lecture.create($scope.lecture).success(function(data) {
@@ -421,8 +521,29 @@
           return p._id;
         }), _ref) >= 0;
       };
+      $scope.official = function(student) {
+        var seminar_officials;
+        seminar_officials = function() {
+          var officials;
+          if (!$scope.lecture.seminar) {
+            return [];
+          }
+          officials = [];
+          if ($scope.lecture.speaker) {
+            officials.push($scope.lecture.speaker);
+          }
+          if ($scope.lecture.opponent) {
+            officials.push($scope.lecture.opponent);
+          }
+          if ($scope.lecture.chair) {
+            officials.push($scope.lecture.chair);
+          }
+          return officials;
+        };
+        return seminar_officials().indexOf(student.name) > -1;
+      };
       return $scope.condition = function(student) {
-        return _this.p.Matcher.condition(student, $scope.search, $scope.students);
+        return _this.p.Matcher.condition(student, $scope.search, $scope.students, []);
       };
     };
 
@@ -620,14 +741,14 @@
       return n;
     };
     return {
-      condition: function(student, search, students) {
+      condition: function(student, search, students, excluded_students) {
         var student_name;
         if (search == null) {
           search = "";
         }
         search = search.toUpperCase().replace(/-/, " ");
         student_name = student.name.toUpperCase().replace(/-/, " ");
-        return search.length > 1 && match(search, student_name, students) && match_count(search, students) < 4;
+        return search.length > 1 && excluded_students.indexOf(student.name) === -1 && match(search, student_name, students) && match_count(search, students) < 4;
       }
     };
   }).factory('myInterceptor', function($q, $location, $rootScope, $timeout) {
