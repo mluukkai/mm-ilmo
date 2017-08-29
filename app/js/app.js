@@ -148,6 +148,7 @@
       };
       return $scope.saveLecture = function() {
         $scope.lecture = angular.copy($scope.editedLecture);
+        console.log($scope.lecture);
         return Lecture.save($routeParams.id, $scope.lecture).success(function(data) {
           $scope.editformVisible = false;
           return Flash.set("changes saved", $scope);
@@ -204,7 +205,6 @@
         return $scope.lecture = {
           time: "12:15",
           date: DateService.getString(),
-          seminar: true,
           speaker_search: "",
           opponent_search: "",
           chair_search: ""

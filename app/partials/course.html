@@ -86,24 +86,22 @@
 				<input type="text" ng-model="lecture.place" class="form-control"
 				placeholder="Enter lecture room">
 			</div>
+
 			<div class="checkbox">
     			<label>
       				<input type="checkbox" ng-model="lecture.seminar" > seminar
     			</label>
-				</div>
+			</div>
 			
-			<div class="speaker_selector">
-
 			<div ng-hide="lecture.speaker">
 				
 				<div class="form-group" ng-show="lecture.seminar">
 					<label ng-init="lecture.speaker_type=null">
-						speaker is a student<br>
-						<p>yes: <input type="radio" ng-model="lecture.speaker_type" value="student"/> 
+							<p>speaker is a student
+						   yes: <input type="radio" ng-model="lecture.speaker_type" value="student"/> 
 							 no: <input type="radio" ng-model="lecture.speaker_type" value="staff"/> </p>
 					</label>
 				
-
 					<div ng-show="lecture.speaker_type=='student'">
 						<input type="text"  
 									 ng-model="lecture.speaker_search" 
@@ -138,22 +136,40 @@
 					</p>
 			</div>	
 
-			<div>
-
-			<div ng-show="lecture.speaker" class="opponent_selector">
+			<div ng-show="lecture.seminar">
 
 				<div ng-hide="lecture.opponent">
-					<div class="form-group" ng-show="lecture.seminar">
-						<label>opponent</label>
-						<input type="text" ng-model="lecture.opponent_search" class="form-control"
-						placeholder="Enter the opponent of the seminar session">
+
+					<label ng-init="lecture.speaker_type=null">
+						opponent is a student:
+						  yes <input type="radio" ng-model="lecture.opponent_type" value="student"/> 
+							no <input type="radio" ng-model="lecture.opponent_type" value="staff"/> 
+					</label>
+
+					<div ng-show="lecture.opponent_type=='student'">
+							<input type="text"  
+										ng-model="lecture.opponent_search" 
+										class="form-control"
+										placeholder="Enter the opponent of the seminar session">
+							<p ng-repeat="student in course.participants|filter:opponent_condition">
+								{{student.name}}
+								<a class="btn btn-primary" ng-click="select_as_opponent(student)">select as speaker</a>
+							</p>						
 					</div>
 
-					<p ng-repeat="student in course.participants|filter:opponent_condition">
-							{{student.name}}
-							<a class="btn btn-primary" ng-click="select_as_opponent(student)">select as opponent</a>
-						</p>			
-				</div>
+					<div ng-show="lecture.opponent_type=='staff'">
+							<input type="text" 
+										ng-model="lecture.opponent_staff" 
+										class="form-control" 
+										placeholder="Enter the speaker of the seminar session"
+										> 
+							<button ng-show="lecture.opponent_staff.length>3" 
+											class="btn btn-primary" 
+											ng-click="lecture.opponent = lecture.opponent_staff; lecture.opponent_staff=null">
+											add as opponent
+							</button>
+					</div>
+				</div>	
 				
 				<div ng-show="lecture.opponent">
 					<p>
@@ -164,20 +180,40 @@
 
 			</div>
 
-			<div ng-show="lecture.opponent" class="chair_selector">
+			
+			<div ng-show="lecture.seminar">
 
 				<div ng-hide="lecture.chair">
-					<div class="form-group" ng-show="lecture.seminar">
-						<label>chair</label>
-						<input type="text" ng-model="lecture.chair_search" class="form-control"
-						placeholder="Enter the chair of the seminar session">
-					</div>
-				
-					<p ng-repeat="student in course.participants|filter:chair_condition">
-						{{student.name}}
-						<a class="btn btn-primary" ng-click="select_as_chair(student)">select as chair</a>
-					</p>			
-				</div>
+						<label ng-init="lecture.speaker_type=null">
+								chair is a student:
+									yes <input type="radio" ng-model="lecture.chair_type" value="student"/> 
+									no <input type="radio" ng-model="lecture.chair_type" value="staff"/> 
+						</label>	
+
+						<div ng-show="lecture.chair_type=='student'">
+								<input type="text"  
+											ng-model="lecture.chair_search" 
+											class="form-control"
+											placeholder="Enter the chair of the seminar session">
+								<p ng-repeat="student in course.participants|filter:chair_condition">
+									{{student.name}}
+									<a class="btn btn-primary" ng-click="select_as_chair(student)">select as speaker</a>
+								</p>
+							</div>
+								
+							<div ng-show="lecture.chair_type=='staff'">
+									<input type="text" 
+												ng-model="lecture.chair_staff" 
+												class="form-control" 
+												placeholder="Enter the chair of the seminar session"
+												> 
+									<button ng-show="lecture.chair_staff.length>3" 
+													class="btn btn-primary" 
+													ng-click="lecture.chair = lecture.chair_staff; lecture.chair_staff=null">
+													add as opponent
+									</button>
+							</div>											
+				</div>				
 
 				<div ng-show="lecture.chair">
 					<p>
@@ -186,7 +222,7 @@
 					</p>
 				</div>	
 
-				<div ng-show="lecture.chair">
+				<div>
 					<button class="btn btn-primary" ng-click="createLecture()">create</button>
 				</div>
 			</div>	

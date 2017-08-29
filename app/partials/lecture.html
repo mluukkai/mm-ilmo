@@ -9,13 +9,14 @@
 	<strong>starting at {{lecture.time}}</strong> in {{lecture.place}}
 	<div class="presenter">
 		presentation given by <em>{{lecture.speaker}}</em>
+		opponent <em>{{lecture.opponent}}</em>
+		chair <em>{{lecture.chair}}</em>
 	</div>
 </div>
 
 <div flash></div>
 
-
-<div ng-init="editformVisible=true" ng-hide="editformVisible">
+<div ng-init="editformVisible=false" ng-hide="editformVisible">
 
 	<h3>Present</h3>
 
@@ -32,9 +33,10 @@
 
 <div ng-show="editformVisible">
 <h3>edit
-	<span ng-hide="lecture.seminar">lecture</span>
-    <span ng-show="lecture.seminar">session</span>
-data</h3>
+		<span ng-hide="lecture.seminar">lecture</span>
+  	<span ng-show="lecture.seminar">session</span>
+		data
+</h3>
 
 <form>
 	<form role="form">
@@ -59,16 +61,35 @@ data</h3>
 
 		<div ng-hide="editedLecture.speaker">
 				
-			<div class="form-group" ng-show="lecture.seminar">
-				<label>speaker</label>
-				<input type="text" ng-model="editedLecture.speaker_search" class="form-control"
-				placeholder="Enter the speaker of the seminar session">
-			</div>
+				<label ng-init="editedLecture.speaker_type=null">
+						speaker is a student<br>
+						<p>yes: <input type="radio" ng-model="editedLecture.speaker_type" value="student"/> 
+								no: <input type="radio" ng-model="editedLecture.speaker_type" value="staff"/> </p>
+				</label>
 
-			<p ng-repeat="student in students|filter:speaker_condition">
-				{{student.name}}
-				<a class="btn btn-primary" ng-click="select_as_speaker(student)">select as speaker</a>
-			</p>
+				<div ng-show="editedLecture.speaker_type=='student'">
+					<input type="text"  
+								 ng-model="editedLecture.speaker_search" 
+								 class="form-control"
+								 placeholder="Enter the speaker of the seminar session">
+					<p ng-repeat="student in students|filter:speaker_condition">
+						{{student.name}}
+						<a class="btn btn-primary" ng-click="select_as_speaker(student)">select as speaker</a>
+					</p>						
+				</div>
+
+				<div ng-show="editedLecture.speaker_type=='staff'">
+						<input type="text" 
+									 ng-model="editedLecture.speaker_staff" 
+									 class="form-control" 
+									 placeholder="Enter the speaker of the seminar session"
+									 > 
+						<button ng-show="editedLecture.speaker_staff.length>3" 
+										class="btn btn-primary" 
+										ng-click="editedLecture.speaker = editedLecture.speaker_staff; editedLecture.speaker_staff=null">
+										add as speaker
+						</button>
+				</div>
 
 		</div>
 
@@ -79,18 +100,39 @@ data</h3>
 			</p>
 		</div>			
 
+
+
 		<div ng-hide="editedLecture.opponent">
 				
-			<div class="form-group" ng-show="lecture.seminar">
-				<label>speaker</label>
-				<input type="text" ng-model="editedLecture.opponent_search" class="form-control"
-				placeholder="Enter the speaker of the seminar session">
-			</div>
+				<label ng-init="editedLecture.opponent_type=null">
+						opponent is a student<br>
+						<p>yes: <input type="radio" ng-model="editedLecture.opponent_type" value="student"/> 
+								no: <input type="radio" ng-model="editedLecture.opponent_type" value="staff"/> </p>
+				</label>
 
-			<p ng-repeat="student in students|filter:opponent_condition">
-				{{student.name}}
-				<a class="btn btn-primary" ng-click="select_as_opponent(student)">select as opponent</a>
-			</p>
+				<div ng-show="editedLecture.opponent_type=='student'">
+					<input type="text"  
+								 ng-model="editedLecture.opponent_search" 
+								 class="form-control"
+								 placeholder="Enter the opponent of the seminar session">
+					<p ng-repeat="student in students|filter:opponent_condition">
+						{{student.name}}
+						<a class="btn btn-primary" ng-click="select_as_opponent(student)">select as opponent</a>
+					</p>						
+				</div>
+
+				<div ng-show="editedLecture.opponent_type=='staff'">
+						<input type="text" 
+									 ng-model="editedLecture.opponent_staff" 
+									 class="form-control" 
+									 placeholder="Enter the opponent of the seminar session"
+									 > 
+						<button ng-show="editedLecture.opponent_staff.length>3" 
+										class="btn btn-primary" 
+										ng-click="editedLecture.opponent = editedLecture.opponent_staff; editedLecture.opponent_staff=null">
+										add as opponent
+						</button>
+				</div>
 
 		</div>
 
@@ -102,18 +144,40 @@ data</h3>
 		</div>	
 
 
+
+
+
 		<div ng-hide="editedLecture.chair">
 				
-			<div class="form-group" ng-show="lecture.seminar">
-				<label>chair</label>
-				<input type="text" ng-model="editedLecture.chair_search" class="form-control"
-				placeholder="Enter the chair of the seminar session">
-			</div>
+				<label ng-init="editedLecture.chair_type=null">
+						chair is a student<br>
+						<p>yes: <input type="radio" ng-model="editedLecture.chair_type" value="student"/> 
+								no: <input type="radio" ng-model="editedLecture.chair_type" value="staff"/> </p>
+				</label>
 
-			<p ng-repeat="student in students|filter:chair_condition">
-				{{student.name}}
-				<a class="btn btn-primary" ng-click="select_as_chair(student)">select as chair</a>
-			</p>
+				<div ng-show="editedLecture.chair_type=='student'">
+					<input type="text"  
+								 ng-model="editedLecture.chair_search" 
+								 class="form-control"
+								 placeholder="Enter the chair of the seminar session">
+					<p ng-repeat="student in students|filter:chair_condition">
+						{{student.name}}
+						<a class="btn btn-primary" ng-click="select_as_chair(student)">select as chair</a>
+					</p>						
+				</div>
+
+				<div ng-show="editedLecture.chair_type=='staff'">
+						<input type="text" 
+									 ng-model="editedLecture.chair_staff" 
+									 class="form-control" 
+									 placeholder="Enter the chair of the seminar session"
+									 > 
+						<button ng-show="editedLecture.chair_staff.length>3" 
+										class="btn btn-primary" 
+										ng-click="editedLecture.chair = editedLecture.chair_staff; editedLecture.chair_staff=null">
+										add as chair
+						</button>
+				</div>
 
 		</div>
 

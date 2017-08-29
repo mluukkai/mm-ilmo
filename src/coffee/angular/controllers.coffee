@@ -104,6 +104,7 @@ angular
 
       $scope.saveLecture = () ->
         $scope.lecture = angular.copy($scope.editedLecture)
+        console.log($scope.lecture)
         Lecture.save($routeParams.id, $scope.lecture).success (data) ->
           $scope.editformVisible = false
           Flash.set("changes saved", $scope)
@@ -148,7 +149,6 @@ angular
           $scope.lecture =
             time: "12:15"
             date: DateService.getString()
-            seminar: true
             speaker_search: ""
             opponent_search: ""
             chair_search: ""
