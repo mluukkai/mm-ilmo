@@ -264,12 +264,13 @@ class Lectures
 				,
 				(callback) ->
 					Course.findById req.param('course_id'), (err, course) ->
-						course.lectures.push lecture._id
+						course.lectures = course.lectures.concat(lecture._id)
 						course.save (err) ->
 							callback(err, err)
 			],
 			(err, result) ->
 				if err?
+					console.log(err)	
 					res.json {}
 				else
 					res.json lecture
@@ -317,7 +318,7 @@ class Students
 		student = new Student(data)
 		# why on earth the following works? should the stdent be saved 1st?
 		Course.findById req.param('course_id'), (err, course) ->
-			course.participants.push student._id
+			course.participants = course.participants.concat(student._id)
 			course.save (err) ->
 				if err?
 					res.json {}
@@ -341,7 +342,7 @@ class Students
 								
 					new_student.save (err, saved_student) ->
 						console.log "saving #{saved_student.name}"
-						course.participants.push new_student			
+						course.participants = course.participants.concat(new_student)			
 						callback(null)
 							
 				, (result) ->

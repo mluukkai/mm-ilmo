@@ -19,6 +19,8 @@ CourseSchema = new Schema
 	created_at:
 		type: Date
 		default: Date.now
+	, 
+	{ usePushEach: true }		
 
 LectureSchema = new Schema
 	id: ObjectId
@@ -39,6 +41,7 @@ LectureSchema = new Schema
 	created_at:
 		type: Date
 		default: Date.now
+	, { usePushEach: true }	
 
 StudentSchema = new Schema
 	id: ObjectId
@@ -48,12 +51,16 @@ StudentSchema = new Schema
 	number: String
 	created_at:
 		type: Date
-		default: Date.now
+		default: Date.now	
+	, 
+	{ usePushEach: true }	
 
 UserSchema = new Schema
 	id: ObjectId
 	name: String
 	password: String
+	, 
+	{ usePushEach: true }	
 
 User = mongoose.model 'User', CourseSchema
 Course = mongoose.model 'Course', CourseSchema
