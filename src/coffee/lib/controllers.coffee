@@ -296,8 +296,9 @@ class Registrations
 			for s in students
 				return true if s.toString()==student
 			false
+
 		Lecture.findById req.param('lecture_id'), (err, lecture) ->
-			lecture.participants.push req.param('student_id') unless found(req.param('student_id'), lecture.participants)
+			lecture.participants = lecture.participants.concat req.param('student_id') unless found(req.param('student_id'), lecture.participants)
 			lecture.save (err) ->
 				Student.findById req.param('student_id'), (err, student) ->
 					data =
@@ -395,7 +396,6 @@ class Students
 				if isStudent(s)
 					students += student(s) + "\n"
 			students
-
 
 		parsed_excel = xlsx.parse(req.file.path)
 		course_id = req.body.course_id
