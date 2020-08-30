@@ -1,5 +1,5 @@
 (function() {
-  var app, auth, controller, dburl, express, fs, multer, port, server, upload;
+  var app, auth, controller, dburl, express, fs, mongoose, multer, port, server, upload;
 
   express = require('express');
 
@@ -22,15 +22,16 @@
 
   auth = require('basic-auth');
 
-  global.mongoose = require('mongoose');
-
-  global.Schema = mongoose.Schema;
-
-  global.ObjectId = Schema.ObjectId;
+  mongoose = require('mongoose');
 
   dburl = process.env.MONGOLAB_URI || process.env.MONGODB_URI || "mongodb://localhost:27017/mydb";
 
-  mongoose.connect(dburl);
+  console.log(dburl);
+
+  mongoose.connect(dburl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
 
   port = "4000";
 

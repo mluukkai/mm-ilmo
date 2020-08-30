@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "dependencies": {
     "express": "~3.3.4",
-    "mongoose": "4.1.10",
-    "mongodb": "~2.0",
+    "mongoose": "^5.10.2",
     "socket.io": "0.9.16",
     "basic-auth": "1.0.3",
     "async": "2.0.1 ",
@@ -13,6 +12,9 @@
     "multer": "1.2.0"
   },
   "main": "./server.js",
+  "scripts": {
+    "compile": "grunt coffee"
+  },
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-coffee": "~0.7.0",
