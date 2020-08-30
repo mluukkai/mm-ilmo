@@ -1,4 +1,4 @@
-{
+{ 
   "name": "seed",
   "version": "0.1.0",
   "dependencies": {
@@ -26,6 +26,6 @@
     "grunt-exec": "~0.4.2"
   },
   "engines": {
-    "node": "0.10.21"
+    "node": "12.x"
   }
 }
