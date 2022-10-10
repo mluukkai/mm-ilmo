@@ -1,6 +1,6 @@
 # app
 
-[http://mm.jamo.io](http://mm.jamo.io)
+<https://viikki-ilmo.herokuapp.com/>
 
 # development
 
@@ -17,3 +17,7 @@ Run app
 ```
 node server.js
 ```
+
+# manual
+
+https://github.com/mluukkai/mm-ilmo/wiki/Ohje
